@@ -1,0 +1,33 @@
+<div class="grid grid-cols-2 items-center">
+  <h1>Полиса</h1>
+  <a routerLink="/policies/new" class="justify-self-end" pButton>
+    <i class="pi pi-plus"></i>
+    Добавить полис
+  </a>
+</div>
+<p-card >
+  <p-table [value]="policies" size="large">
+    <ng-template #header>
+      <tr>
+        <th>Серия</th>
+        <th>Номер</th>
+        <th>Платильщик</th>
+        <th>Дата начала</th>
+        <th>Дата окончания</th>
+        <th>Тип</th>
+        <th>Статус</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-policy>
+      <tr>
+        <td>{{policy.series}}</td>
+        <td>{{policy.number}}</td>
+        <td class="whitespace-nowrap">{{ policy.holder.firstName }} {{ policy.holder.lastName }}</td>
+        <td>{{policy.startDate | date:'mediumDate'}}</td>
+        <td>{{policy.endDate | date:'mediumDate'}}</td>
+        <td>{{policy.type | policyTypeLocal}}</td>
+        <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status == 'active' ? 'success' : 'danger'"/></td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

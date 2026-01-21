@@ -1,0 +1,57 @@
+<div data-id="cards" class="grid grid-cols-3 gap-8">
+  <p-card header="People">
+    That's my people
+  </p-card>
+  <p-card header="Policies">
+    That's my policies
+  </p-card>
+  <p-card header="Earnings">
+    That's my earnings
+  </p-card>
+</div>
+<div data-id="tables" class="grid grid-cols-2 gap-8 mt-8">
+  <p-panel header="Birthdays" >
+    <p-table [value]="people" size="large">
+      <ng-template #header>
+        <tr>
+          <th>Имя</th>
+          <th>Email</th>
+          <th>Страна</th>
+          <th>Дата рождения</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-person>
+        <tr>
+          <td class="whitespace-nowrap">{{ person.firstName }} {{ person.lastName }}</td>
+          <td>{{person.email}}</td>
+          <td>{{person.country}}</td>
+          <td>{{person.birthDate | date:'mediumDate'}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+  <p-panel header="Policies" >
+    <p-table [value]="policies" size="large">
+      <ng-template #header>
+        <tr>
+          <th>Серия</th>
+          <th>Номер</th>
+          <th>Платильщик</th>
+          <th>Дата начала</th>
+          <th>Дата окончания</th>
+          <th>Тип</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-policy>
+        <tr>
+          <td>{{policy.series}}</td>
+          <td>{{policy.number}}</td>
+          <td class="whitespace-nowrap">{{ policy.holder.firstName }} {{ policy.holder.lastName }}</td>
+          <td>{{policy.startDate | date:'mediumDate'}}</td>
+          <td>{{policy.endDate | date:'mediumDate'}}</td>
+          <td>{{policy.type | policyTypeLocal}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+</div>

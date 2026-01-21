@@ -1,0 +1,44 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import "primeicons/primeicons.css";
+
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  src: url('../public/fonts/Inter-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  src: url('../public/fonts/Inter.ttf') format('truetype');
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--p-surface-100);
+  font-family: 'Inter', sans-serif;
+
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: var(--p-surface-800);
+  }
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}

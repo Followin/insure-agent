@@ -1,0 +1,142 @@
+<h1>Редактировать полис</h1>
+<div class="grid grid-cols-2 gap-8">
+  <p-card class="p-2 pt-4">
+    <div class="grid gap-8">
+      <h3>Общие данные</h3>
+      <div class="grid grid-flow-col gap-8">
+        <p-floatlabel>
+          <input id="series"type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
+          <label for="series">Серия</label>
+        </p-floatlabel>
+        <p-floatlabel>
+          <input id="number"type="text" pInputText [formControl]="generalGroup.controls.number" class="w-full"/>
+          <label for="number">Номер</label>
+        </p-floatlabel>
+      </div>
+      <p-floatlabel>
+        <p-datepicker [formControl]="generalGroup.controls.startDate" id="startDate" showIcon fluid></p-datepicker>
+        <label for="startDate">Дата начала</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
+        <label for="type">Тип</label>
+      </p-floatlabel>
+    </div>
+  </p-card>
+  <p-card class="p-2 pt-4">
+    <div class="grid gap-8">
+      <h3>Лицо на полисе</h3>
+      <p-floatlabel>
+        <p-autocomplete [suggestions]="peopleSearchItems" (completeMethod)="search($event)" optionLabel="name" optionValue="code" fluid [formControl]="holderIdControl" id="existingPerson"/>
+        <label for="existingPerson">Существующий</label>
+      </p-floatlabel>
+      <div class="grid grid-flow-col gap-8">
+        <p-floatlabel>
+          <input id="firstName"type="text" pInputText [formControl]="holderGroup.controls.firstName" class="w-full"/>
+          <label for="firstName">Имя</label>
+        </p-floatlabel>
+        <p-floatlabel>
+          <input id="lastName"type="text" pInputText [formControl]="holderGroup.controls.lastName" class="w-full"/>
+          <label for="lastName">Фамилия</label>
+        </p-floatlabel>
+      </div>
+      <p-floatlabel>
+        <input id="email" type="text" pInputText [formControl]="holderGroup.controls.email" class="w-full"/>
+        <label for="email">Email адрес</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="phone" type="text" pInputText [formControl]="holderGroup.controls.phone" class="w-full"/>
+        <label for="phone">Телефон</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="address" type="text" pInputText [formControl]="holderGroup.controls.address" class="w-full"/>
+        <label for="address">Адрес</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <p-datepicker [formControl]="holderGroup.controls.birthDate" id="birthDate" showIcon fluid></p-datepicker>
+        <label for="birthDate">Дата рождения</label>
+      </p-floatlabel>
+    </div>
+  </p-card>
+  @switch (generalGroup.controls.type.value) {
+    @case('life') {
+      <p-card class="p-2 pt-4 col-span-2">
+        <div class="grid gap-8">
+          <h3>Детали Лайф</h3>
+          <p-floatlabel>
+            <p-select [formControl]="lifePolicyGroup.controls.period" id="period" fluid [options]="lifePolicyPeriods"></p-select>
+            <label for="period">Период</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="termYears" [formControl]="lifePolicyGroup.controls.termYears" class="w-full"/>
+            <label for="termYears">Срок</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="premium" [formControl]="lifePolicyGroup.controls.premium" class="w-full"/>
+            <label for="premium">Взнос</label>
+          </p-floatlabel>
+        </div>
+      </p-card>
+    }
+    @case('green-card') {
+      <p-card class="p-2 pt-4">
+        <div class="grid gap-8">
+          <h3>Детали зеленой карты</h3>
+          <p-floatlabel>
+            <input id="territory" type="text" pInputText [formControl]="greenCardPolicyGroup.controls.territory" class="w-full"/>
+            <label for="territory">Территория</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber inputId="termDays" [formControl]="greenCardPolicyGroup.controls.termDays" class="w-full"/>
+            <label for="termDays">Срок в днях</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="premium" [formControl]="greenCardPolicyGroup.controls.premium" class="w-full"/>
+            <label for="premium">Взнос</label>
+          </p-floatlabel>
+        </div>
+      </p-card>
+      <p-card class="p-2 pt-4">
+        <div class="grid gap-8">
+          <h3>Детали автомобиля</h3>
+          <p-floatlabel>
+            <input id="make" type="text" pInputText [formControl]="greenCardCarGroup.controls.make" class="w-full"/>
+            <label for="make">Марка</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="model" type="text" pInputText [formControl]="greenCardCarGroup.controls.model" class="w-full"/>
+            <label for="model">Модель</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="year" type="number" pInputText [formControl]="greenCardCarGroup.controls.year" class="w-full"/>
+            <label for="year">Год</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="vin" type="text" pInputText [formControl]="greenCardCarGroup.controls.vin" class="w-full"/>
+            <label for="vin">VIN</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="plate" type="text" pInputText [formControl]="greenCardCarGroup.controls.plate" class="w-full"/>
+            <label for="plate">Номерной знак</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="chassis" type="text" pInputText [formControl]="greenCardCarGroup.controls.chassis" class="w-full"/>
+            <label for="chassis">Кузов</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="type" type="text" pInputText [formControl]="greenCardCarGroup.controls.type" class="w-full"/>
+            <label for="type">Категория</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="registration" type="text" pInputText [formControl]="greenCardCarGroup.controls.registration" class="w-full"/>
+            <label for="registration">Регистрация</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="mileageKm" type="number" pInputText [formControl]="greenCardCarGroup.controls.mileageKm" class="w-full"/>
+            <label for="mileageKm">Километров пробега</label>
+          </p-floatlabel>
+        </div>
+      </p-card>
+    }
+  }
+</div>
