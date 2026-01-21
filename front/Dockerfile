@@ -9,6 +9,7 @@ COPY package.json package-lock.json ./
 # Install dependencies
 RUN npm ci --verbose
 
+
 # Copy source code
 COPY . .
 
