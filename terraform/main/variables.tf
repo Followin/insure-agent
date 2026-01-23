@@ -70,3 +70,40 @@ variable "tags" {
     ManagedBy = "terraform"
   }
 }
+
+variable "ci_user_name" {
+  description = "Name of the IAM user for CI/CD ECR access"
+  type        = string
+  default     = "insure-agent-ci"
+}
+
+# App Runner variables
+variable "image_tag" {
+  description = "Image tag to deploy"
+  type        = string
+  default     = "latest"
+}
+
+variable "container_port" {
+  description = "Port the container listens on"
+  type        = number
+  default     = 80
+}
+
+variable "apprunner_cpu" {
+  description = "CPU units for App Runner (256, 512, 1024, 2048, 4096)"
+  type        = string
+  default     = "256"
+}
+
+variable "apprunner_memory" {
+  description = "Memory for App Runner (512, 1024, 2048, 3072, 4096, 6144, 8192, 10240, 12288)"
+  type        = string
+  default     = "512"
+}
+
+variable "auto_deploy" {
+  description = "Enable automatic deployments when new image is pushed to ECR"
+  type        = bool
+  default     = true
+}

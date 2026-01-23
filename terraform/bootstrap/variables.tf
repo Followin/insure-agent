@@ -10,12 +10,6 @@ variable "state_bucket_name" {
   default     = "insure-agent-terraform-state"
 }
 
-variable "lock_table_name" {
-  description = "Name of the DynamoDB table for state locking"
-  type        = string
-  default     = "insure-agent-terraform-locks"
-}
-
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
