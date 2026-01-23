@@ -1,0 +1,43 @@
+<h1>Редактировать человека</h1>
+<div class="grid grid-cols-2 gap-8">
+  <p-card class="p-2 pt-4">
+    <div class="grid gap-8">
+      <h3>Личные данные</h3>
+      <div class="grid grid-flow-col gap-8">
+        <p-floatlabel>
+          <input id="firstName" type="text" pInputText [formControl]="personGroup.controls.firstName" class="w-full"/>
+          <label for="firstName">Имя</label>
+        </p-floatlabel>
+        <p-floatlabel>
+          <input id="lastName" type="text" pInputText [formControl]="personGroup.controls.lastName" class="w-full"/>
+          <label for="lastName">Фамилия</label>
+        </p-floatlabel>
+      </div>
+      <p-floatlabel>
+        <input id="email" type="email" pInputText [formControl]="personGroup.controls.email" class="w-full"/>
+        <label for="email">Email адрес</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="phone" type="text" pInputText [formControl]="personGroup.controls.phone" class="w-full"/>
+        <label for="phone">Телефон</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <p-datepicker [formControl]="personGroup.controls.birthDate" id="birthDate" showIcon fluid></p-datepicker>
+        <label for="birthDate">Дата рождения</label>
+      </p-floatlabel>
+    </div>
+  </p-card>
+  <p-card class="p-2 pt-4">
+    <div class="grid gap-8">
+      <h3>Адрес</h3>
+      <p-floatlabel>
+        <input id="country" type="text" pInputText [formControl]="personGroup.controls.country" class="w-full"/>
+        <label for="country">Страна</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="address" type="text" pInputText [formControl]="personGroup.controls.address" class="w-full"/>
+        <label for="address">Адрес</label>
+      </p-floatlabel>
+    </div>
+  </p-card>
+</div>

@@ -1,0 +1,31 @@
+<div class="grid grid-cols-2 items-center">
+  <h1>Люди</h1>
+  <a routerLink="/people/new" class="justify-self-end" pButton>
+    <i class="pi pi-plus"></i>
+    Добавить человека
+  </a>
+</div>
+<p-card>
+  <p-table [value]="people" size="large">
+    <ng-template #header>
+      <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Email</th>
+        <th>Телефон</th>
+        <th>Страна</th>
+        <th>Дата рождения</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-person>
+      <tr>
+        <td>{{person.firstName}}</td>
+        <td>{{person.lastName}}</td>
+        <td>{{person.email}}</td>
+        <td>{{person.phone}}</td>
+        <td>{{person.country}}</td>
+        <td>{{person.birthDate | date:'mediumDate'}}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
