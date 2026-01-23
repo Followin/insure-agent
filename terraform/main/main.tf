@@ -11,11 +11,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "insure-agent-terraform-state"
-    key            = "terraform.tfstate"
-    region         = "eu-central-1"
-    encrypt        = true
-    use_lockfile   = true
+    bucket       = "insure-agent-terraform-state"
+    key          = "terraform.tfstate"
+    region       = "eu-central-1"
+    encrypt      = true
+    use_lockfile = true
   }
 }
 
@@ -51,9 +51,9 @@ resource "aws_ecr_lifecycle_policy" "main" {
         rulePriority = 1
         description  = "Keep last ${var.max_image_count} images"
         selection = {
-          tagStatus     = "any"
-          countType     = "imageCountMoreThan"
-          countNumber   = var.max_image_count
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = var.max_image_count
         }
         action = {
           type = "expire"

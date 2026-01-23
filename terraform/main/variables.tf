@@ -107,3 +107,16 @@ variable "auto_deploy" {
   type        = bool
   default     = true
 }
+
+# Route53 / Custom Domain variables
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID for custom domain"
+  type        = string
+  default     = "Z04379903GX9AARXIW31U"
+}
+
+variable "domain_name" {
+  description = "Custom domain name for the App Runner service (e.g., app.example.com)"
+  type        = string
+  default     = "insure-agent.online"
+}

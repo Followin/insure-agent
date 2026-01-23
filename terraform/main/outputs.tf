@@ -54,3 +54,4 @@ output "apprunner_service_id" {
   description = "The ID of the App Runner service"
   value       = aws_apprunner_service.main.service_id
 }
+
