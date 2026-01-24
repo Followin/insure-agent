@@ -23,41 +23,7 @@
       </p-floatlabel>
     </div>
   </p-card>
-  <p-card class="p-2 pt-4">
-    <div class="grid gap-8">
-      <h3>Лицо на полисе</h3>
-      <p-floatlabel>
-        <p-autocomplete [suggestions]="peopleSearchItems" (completeMethod)="search($event)" optionLabel="name" optionValue="code" fluid [formControl]="holderIdControl" id="existingPerson"/>
-        <label for="existingPerson">Существующий</label>
-      </p-floatlabel>
-      <div class="grid grid-flow-col gap-8">
-        <p-floatlabel>
-          <input id="firstName"type="text" pInputText [formControl]="holderGroup.controls.firstName" class="w-full"/>
-          <label for="firstName">Имя</label>
-        </p-floatlabel>
-        <p-floatlabel>
-          <input id="lastName"type="text" pInputText [formControl]="holderGroup.controls.lastName" class="w-full"/>
-          <label for="lastName">Фамилия</label>
-        </p-floatlabel>
-      </div>
-      <p-floatlabel>
-        <input id="email" type="text" pInputText [formControl]="holderGroup.controls.email" class="w-full"/>
-        <label for="email">Email адрес</label>
-      </p-floatlabel>
-      <p-floatlabel>
-        <input id="phone" type="text" pInputText [formControl]="holderGroup.controls.phone" class="w-full"/>
-        <label for="phone">Телефон</label>
-      </p-floatlabel>
-      <p-floatlabel>
-        <input id="address" type="text" pInputText [formControl]="holderGroup.controls.address" class="w-full"/>
-        <label for="address">Адрес</label>
-      </p-floatlabel>
-      <p-floatlabel>
-        <p-datepicker [formControl]="holderGroup.controls.birthDate" id="birthDate" showIcon fluid></p-datepicker>
-        <label for="birthDate">Дата рождения</label>
-      </p-floatlabel>
-    </div>
-  </p-card>
+  <app-person-editor [allowExisting]="true" header="Лицо"/>
   @switch (generalGroup.controls.type.value) {
     @case('life') {
       <p-card class="p-2 pt-4 col-span-2">
@@ -140,3 +106,5 @@
     }
   }
 </div>
+<p-button label="Сохранить" icon="pi pi-save" (onClick)="save()"></p-button>
+
