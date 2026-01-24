@@ -180,3 +180,41 @@ resource "aws_apprunner_service" "main" {
 
   tags = var.tags
 }
+
+# =============================================================================
+# Custom Domain Configuration
+# =============================================================================
+
+# App Runner Custom Domain Association
+resource "aws_apprunner_custom_domain_association" "main" {
+  domain_name          = var.domain_name
+  service_arn          = aws_apprunner_service.main.arn
+  enable_www_subdomain = false
+}
+
+# Get App Runner hosted zone ID for the region
+data "aws_apprunner_hosted_zone_id" "main" {}
+
+# Route53 DNS records for App Runner custom domain validation
+resource "aws_route53_record" "apprunner_validation" {
+  count = length(aws_apprunner_custom_domain_association.main.certificate_validation_records)
+
+  zone_id = var.hosted_zone_id
+  name    = tolist(aws_apprunner_custom_domain_association.main.certificate_validation_records)[count.index].name
+  type    = tolist(aws_apprunner_custom_domain_association.main.certificate_validation_records)[count.index].type
+  ttl     = 300
+  records = [tolist(aws_apprunner_custom_domain_association.main.certificate_validation_records)[count.index].value]
+}
+
+# A record (alias) to route traffic to App Runner
+resource "aws_route53_record" "apprunner" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_apprunner_custom_domain_association.main.dns_target
+    zone_id                = data.aws_apprunner_hosted_zone_id.main.id
+    evaluate_target_health = true
+  }
+}

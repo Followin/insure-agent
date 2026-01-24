@@ -2,7 +2,6 @@
 <div class="grid grid-cols-2 gap-8">
   <p-card class="p-2 pt-4">
     <div class="grid gap-8">
-      <h3>Личные данные</h3>
       <div class="grid grid-flow-col gap-8">
         <p-floatlabel>
           <input id="firstName" type="text" pInputText [formControl]="personGroup.controls.firstName" class="w-full"/>
@@ -25,11 +24,6 @@
         <p-datepicker [formControl]="personGroup.controls.birthDate" id="birthDate" showIcon fluid></p-datepicker>
         <label for="birthDate">Дата рождения</label>
       </p-floatlabel>
-    </div>
-  </p-card>
-  <p-card class="p-2 pt-4">
-    <div class="grid gap-8">
-      <h3>Адрес</h3>
       <p-floatlabel>
         <input id="country" type="text" pInputText [formControl]="personGroup.controls.country" class="w-full"/>
         <label for="country">Страна</label>
