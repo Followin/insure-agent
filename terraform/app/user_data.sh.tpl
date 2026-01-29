@@ -10,7 +10,6 @@ pip install certbot
 
 # Obtain Let's Encrypt certificates (standalone mode, nginx not yet running)
 certbot certonly --standalone --non-interactive --agree-tos \
-  --staging \
   --email ${email} \
   -d ${domain} \
   -d ${api_domain}
