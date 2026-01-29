@@ -20,7 +20,7 @@ async fn main() {
                 .await
                 .unwrap();
 
-            format!("Hello, {}, from {}", row.name, row.id)
+            format!("Hello, update1 {}, from {}", row.name, row.id)
         }),
     );
 
