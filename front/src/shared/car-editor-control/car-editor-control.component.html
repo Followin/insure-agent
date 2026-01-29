@@ -1,0 +1,49 @@
+<p-card class="p-2 pt-4">
+  <div class="grid gap-8">
+    <h3>{{header()}}</h3>
+    @if (allowExisting()) {
+      <p-floatlabel class="mb-8">
+        <p-autocomplete [suggestions]="carSearchSuggestions" (completeMethod)="search($event)" fluid [formControl]="existingCarIdControl" id="existingCar"/>
+        <label for="existingCar">Найти существующую</label>
+      </p-floatlabel>
+    }
+    <div class="grid grid-flow-col gap-8">
+      <p-floatlabel>
+        <input id="make" type="text" pInputText [formControl]="carGroup.controls.make" class="w-full"/>
+        <label for="make">Марка</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="model" type="text" pInputText [formControl]="carGroup.controls.model" class="w-full"/>
+        <label for="model">Модель</label>
+      </p-floatlabel>
+    </div>
+    <p-floatlabel>
+      <p-inputnumber [formControl]="carGroup.controls.year" id="year" fluid [useGrouping]="false"></p-inputnumber>
+      <label for="year">Год выпуска</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <input id="vin" type="text" pInputText [formControl]="carGroup.controls.vin" class="w-full"/>
+      <label for="vin">VIN</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <input id="plate" type="text" pInputText [formControl]="carGroup.controls.plate" class="w-full"/>
+      <label for="plate">Номерной знак</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <input id="chassis" type="text" pInputText [formControl]="carGroup.controls.chassis" class="w-full"/>
+      <label for="chassis">Кузов</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <input id="type" type="text" pInputText [formControl]="carGroup.controls.type" class="w-full"/>
+      <label for="type">Тип</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <input id="registration" type="text" pInputText [formControl]="carGroup.controls.registration" class="w-full"/>
+      <label for="registration">Регистрация</label>
+    </p-floatlabel>
+    <p-floatlabel>
+      <p-inputnumber [formControl]="carGroup.controls.mileageKm" id="mileageKm" fluid suffix=" км"></p-inputnumber>
+      <label for="mileageKm">Пробег</label>
+    </p-floatlabel>
+  </div>
+</p-card>

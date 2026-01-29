@@ -1,0 +1,33 @@
+services:
+  postgres:
+    profiles:
+      - deps
+      - full
+    image: postgres:18
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: insure
+    volumes:
+      - ./docker-compose/postgres/:/docker-entrypoint-initdb.d/
+  frontend:
+    profiles:
+      - full
+    build:
+      context: ./front
+    ports:
+      - "8000:80"
+    environment:
+      - BACKEND_URL=backend:80
+  backend:
+    profiles:
+      - full
+    build:
+      context: ./back
+    ports:
+      - "8001:80"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/insure

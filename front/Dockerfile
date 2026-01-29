@@ -19,8 +19,8 @@ RUN npm run build
 # Stage 2: Serve with nginx
 FROM nginx:alpine AS production
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config template
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
 # Copy built assets from build stage
 COPY --from=build /app/dist/insure/browser /usr/share/nginx/html
@@ -28,5 +28,8 @@ COPY --from=build /app/dist/insure/browser /usr/share/nginx/html
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Default backend URL (overridable at runtime)
+ENV BACKEND_URL=backend:80
+
+# Substitute env vars in nginx config template, then start nginx
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

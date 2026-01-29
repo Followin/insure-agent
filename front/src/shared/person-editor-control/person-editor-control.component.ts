@@ -70,7 +70,7 @@ export class PersonEditorControlComponent {
     });
   }
 
-  public getSelectedPerson(): ExistingPerson | NewPerson | null {
+  public getSelectedPerson(): ExistingPerson | NewPerson {
     if (this.existingPersonIdControl.value) {
       return {
         type: 'existing',
@@ -93,6 +93,6 @@ export class PersonEditorControlComponent {
       };
     }
 
-    return null;
+    throw new Error('Invalid state');
   }
 }

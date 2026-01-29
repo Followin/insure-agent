@@ -1,13 +1,19 @@
 variable "aws_region" {
-  description = "AWS region for the ECR repository"
+  description = "AWS region"
   type        = string
   default     = "eu-central-1"
 }
 
-variable "repository_name" {
-  description = "Name of the ECR repository"
+variable "project_name" {
+  description = "Project name used as prefix for all resources"
   type        = string
   default     = "insure-agent"
+}
+
+variable "ecr_image_names" {
+  description = "List of Docker image names to create ECR repositories for"
+  type        = list(string)
+  default     = ["front", "back"]
 }
 
 variable "image_tag_mutability" {
@@ -53,7 +59,7 @@ variable "enable_lifecycle_policy" {
 variable "max_image_count" {
   description = "Maximum number of images to keep in the repository"
   type        = number
-  default     = 30
+  default     = 5
 }
 
 variable "repository_policy" {
@@ -62,61 +68,17 @@ variable "repository_policy" {
   default     = null
 }
 
-variable "tags" {
-  description = "Tags to apply to the ECR repository"
-  type        = map(string)
-  default = {
-    Project   = "insure-agent"
-    ManagedBy = "terraform"
-  }
-}
-
 variable "ci_user_name" {
   description = "Name of the IAM user for CI/CD ECR access"
   type        = string
   default     = "insure-agent-ci"
 }
 
-# App Runner variables
-variable "image_tag" {
-  description = "Image tag to deploy"
-  type        = string
-  default     = "latest"
-}
-
-variable "container_port" {
-  description = "Port the container listens on"
-  type        = number
-  default     = 80
-}
-
-variable "apprunner_cpu" {
-  description = "CPU units for App Runner (256, 512, 1024, 2048, 4096)"
-  type        = string
-  default     = "256"
-}
-
-variable "apprunner_memory" {
-  description = "Memory for App Runner (512, 1024, 2048, 3072, 4096, 6144, 8192, 10240, 12288)"
-  type        = string
-  default     = "512"
-}
-
-variable "auto_deploy" {
-  description = "Enable automatic deployments when new image is pushed to ECR"
-  type        = bool
-  default     = true
-}
-
-# Route53 / Custom Domain variables
-variable "hosted_zone_id" {
-  description = "Route53 hosted zone ID for custom domain"
-  type        = string
-  default     = "Z04379903GX9AARXIW31U"
-}
-
-variable "domain_name" {
-  description = "Custom domain name for the App Runner service (e.g., app.example.com)"
-  type        = string
-  default     = "insure-agent.online"
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default = {
+    Project   = "insure-agent"
+    ManagedBy = "terraform"
+  }
 }

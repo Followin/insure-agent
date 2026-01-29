@@ -17,6 +17,18 @@ server {
         add_header Cache-Control "public, immutable";
     }
 
+    # Reverse proxy API requests to the backend
+    location /api {
+        rewrite ^/api(/.*)$ $1 break;
+        rewrite ^/api$ / break;
+        proxy_pass http://${BACKEND_URL};
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
     # Handle Angular routing - serve index.html for all routes
     location / {
         try_files $uri $uri/ /index.html;

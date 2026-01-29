@@ -1,4 +1,4 @@
-import { Person, Policy } from './data-model';
+import { Car, Person, Policy } from './data-model';
 
 export const john: Person = {
   id: 1,
@@ -23,6 +23,21 @@ export const jane: Person = {
 };
 
 export const people: Person[] = [john, jane];
+
+export const car1: Car = {
+  id: 1,
+  make: 'Toyota',
+  model: 'Camry',
+  year: 2020,
+  vin: '1A2B3C4D5E6F7G8H9I0J',
+  plate: 'ABC-123',
+  chassis: 'Chassis',
+  type: 'B1',
+  registration: 'Kharkiv',
+  mileageKm: 13050,
+};
+
+export const cars: Car[] = [car1];
 
 export const policies: Policy[] = [
   {
@@ -65,17 +80,6 @@ export const policies: Policy[] = [
     termDays: 12,
     premium: 1000,
     territory: 'USA',
-    car: {
-      id: 1,
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2020,
-      vin: '1A2B3C4D5E6F7G8H9I0J',
-      plate: 'ABC-123',
-      chassis: 'Chassis',
-      type: 'B1',
-      registration: 'Kharkiv',
-      mileageKm: 13050,
-    },
+    car: car1,
   },
 ];

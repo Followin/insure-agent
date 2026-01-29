@@ -23,10 +23,10 @@
       </p-floatlabel>
     </div>
   </p-card>
-  <app-person-editor [allowExisting]="true" header="Лицо"/>
+  <app-person-editor [allowExisting]="true" header="Страхователь" #holder />
   @switch (generalGroup.controls.type.value) {
     @case('life') {
-      <p-card class="p-2 pt-4 col-span-2">
+      <p-card class="p-2 pt-4">
         <div class="grid gap-8">
           <h3>Детали Лайф</h3>
           <p-floatlabel>
@@ -43,6 +43,7 @@
           </p-floatlabel>
         </div>
       </p-card>
+      <app-person-editor [allowExisting]="true" header="Застрахованное лицо" #insured />
     }
     @case('green-card') {
       <p-card class="p-2 pt-4">
@@ -62,49 +63,9 @@
           </p-floatlabel>
         </div>
       </p-card>
-      <p-card class="p-2 pt-4">
-        <div class="grid gap-8">
-          <h3>Детали автомобиля</h3>
-          <p-floatlabel>
-            <input id="make" type="text" pInputText [formControl]="greenCardCarGroup.controls.make" class="w-full"/>
-            <label for="make">Марка</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="model" type="text" pInputText [formControl]="greenCardCarGroup.controls.model" class="w-full"/>
-            <label for="model">Модель</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="year" type="number" pInputText [formControl]="greenCardCarGroup.controls.year" class="w-full"/>
-            <label for="year">Год</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="vin" type="text" pInputText [formControl]="greenCardCarGroup.controls.vin" class="w-full"/>
-            <label for="vin">VIN</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="plate" type="text" pInputText [formControl]="greenCardCarGroup.controls.plate" class="w-full"/>
-            <label for="plate">Номерной знак</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="chassis" type="text" pInputText [formControl]="greenCardCarGroup.controls.chassis" class="w-full"/>
-            <label for="chassis">Кузов</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="type" type="text" pInputText [formControl]="greenCardCarGroup.controls.type" class="w-full"/>
-            <label for="type">Категория</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="registration" type="text" pInputText [formControl]="greenCardCarGroup.controls.registration" class="w-full"/>
-            <label for="registration">Регистрация</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <input id="mileageKm" type="number" pInputText [formControl]="greenCardCarGroup.controls.mileageKm" class="w-full"/>
-            <label for="mileageKm">Километров пробега</label>
-          </p-floatlabel>
-        </div>
-      </p-card>
+      <app-car-editor [allowExisting]="true" header="Автомобиль"/>
     }
   }
+  <p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="col-span-2 justify-self-end"/>
 </div>
-<p-button label="Сохранить" icon="pi pi-save" (onClick)="save()"></p-button>
 

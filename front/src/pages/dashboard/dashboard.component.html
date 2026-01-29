@@ -1,6 +1,10 @@
 <div data-id="cards" class="grid grid-cols-3 gap-8">
-  <p-card header="People">
-    That's my people
+  <p-card header="Api">
+    @if (apiResponse | async; as response) {
+      That's my new api response: {{ response }}
+    } @else {
+      Loading...
+    }
   </p-card>
   <p-card header="Policies">
     That's my policies
@@ -36,7 +40,7 @@
         <tr>
           <th>Серия</th>
           <th>Номер</th>
-          <th>Платильщик</th>
+          <th>Страхователь</th>
           <th>Дата начала</th>
           <th>Дата окончания</th>
           <th>Тип</th>

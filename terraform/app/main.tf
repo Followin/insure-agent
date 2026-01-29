@@ -1,0 +1,271 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "s3" {
+    bucket       = "insure-agent-terraform-state"
+    key          = "app/terraform.tfstate"
+    region       = "eu-central-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# Read outputs from infra layer
+data "terraform_remote_state" "infra" {
+  backend = "s3"
+
+  config = {
+    bucket = "insure-agent-terraform-state"
+    key    = "infra/terraform.tfstate"
+    region = "eu-central-1"
+  }
+}
+
+locals {
+  ecr_repository_urls = data.terraform_remote_state.infra.outputs.ecr_repository_urls
+  ecr_registry_url    = data.terraform_remote_state.infra.outputs.ecr_registry_url
+}
+
+# =============================================================================
+# EC2 Instance
+# =============================================================================
+
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+data "aws_ami" "al2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_security_group" "ec2" {
+  name        = "${var.project_name}-ec2-sg"
+  description = "Allow HTTP, HTTPS, and SSH inbound"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = var.tags
+}
+
+resource "aws_key_pair" "main" {
+  key_name   = "${var.project_name}-key"
+  public_key = var.ssh_public_key
+
+  tags = var.tags
+}
+
+# IAM role for EC2 to pull from ECR
+resource "aws_iam_role" "ec2_ecr" {
+  name = "${var.project_name}-ec2-ecr-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_ecr" {
+  role       = aws_iam_role.ec2_ecr.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_instance_profile" "ec2" {
+  name = "${var.project_name}-ec2-profile"
+  role = aws_iam_role.ec2_ecr.name
+
+  tags = var.tags
+}
+
+resource "aws_instance" "main" {
+  ami                    = data.aws_ami.al2023.id
+  instance_type          = var.instance_type
+  key_name               = aws_key_pair.main.key_name
+  vpc_security_group_ids = [aws_security_group.ec2.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2.name
+  subnet_id              = tolist(data.aws_subnets.default.ids)[0]
+
+  user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
+    region       = var.aws_region
+    ecr_url      = local.ecr_registry_url
+    front_image  = "${local.ecr_repository_urls["front"]}:${var.image_tag}"
+    back_image   = "${local.ecr_repository_urls["back"]}:${var.image_tag}"
+    email        = var.certbot_email
+    domain       = var.domain_name
+    api_domain   = var.api_domain_name
+    database_url = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+
+    nginx_conf = templatefile("${path.module}/files/nginx-apps.conf.tpl", {
+      domain     = var.domain_name
+      api_domain = var.api_domain_name
+    })
+
+    certbot_renew_service = file("${path.module}/files/certbot-renew.service")
+    certbot_renew_timer   = file("${path.module}/files/certbot-renew.timer")
+
+    docker_auto_update_script = templatefile("${path.module}/files/docker-auto-update.sh.tpl", {
+      region       = var.aws_region
+      ecr_url      = local.ecr_registry_url
+      front_image  = "${local.ecr_repository_urls["front"]}:${var.image_tag}"
+      back_image   = "${local.ecr_repository_urls["back"]}:${var.image_tag}"
+      database_url = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+    })
+
+    docker_auto_update_service = file("${path.module}/files/docker-auto-update.service")
+    docker_auto_update_timer   = file("${path.module}/files/docker-auto-update.timer")
+  }))
+
+  tags = merge(var.tags, {
+    Name = var.project_name
+  })
+}
+
+resource "aws_eip" "main" {
+  instance = aws_instance.main.id
+  domain   = "vpc"
+
+  tags = var.tags
+}
+
+# =============================================================================
+# DNS Configuration
+# =============================================================================
+
+resource "aws_route53_record" "front" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.main.public_ip]
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = var.hosted_zone_id
+  name    = var.api_domain_name
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.main.public_ip]
+}
+
+# =============================================================================
+# RDS PostgreSQL (Free Tier)
+# =============================================================================
+
+resource "aws_security_group" "rds" {
+  name        = "${var.project_name}-rds-sg"
+  description = "Allow PostgreSQL access from EC2"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    description     = "PostgreSQL from EC2"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2.id]
+  }
+
+  ingress {
+    description = "PostgreSQL from anywhere"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = var.tags
+}
+
+resource "aws_db_instance" "postgres" {
+  identifier     = "${var.project_name}-db"
+  engine         = "postgres"
+  engine_version = "17"
+
+  instance_class    = "db.t3.micro"
+  allocated_storage = 20
+  storage_type      = "gp2"
+
+  db_name  = var.db_name
+  username = var.db_username
+  password = var.db_password
+
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  publicly_accessible    = true
+  skip_final_snapshot    = true
+
+  tags = var.tags
+}
