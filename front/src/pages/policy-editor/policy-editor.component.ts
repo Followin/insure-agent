@@ -3,7 +3,7 @@ import { sharedImports } from '../../shared/shared-imports';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LifePolicyPeriods, lifePolicyPeriodValues, policyTypes } from '../../data/data-model';
 import { getPeriodLocalizedName, getTypeLocalizedName } from '../../data/localization-pipes';
-import { PersonEditorControlComponent } from '../../shared/person-editor-control/person-editor-control.component';
+import { PersonEditorControlComponent, PersonEditorValue } from '../../shared/person-editor-control/person-editor-control.component';
 import { CarEditorControlComponent } from '../../shared/car-editor-control/car-editor-control.component';
 import { CreatePolicyRequest } from './create-policy-request';
 import { CreatePolicyService } from './create-policy-service';
@@ -20,8 +20,8 @@ export class PolicyEditorComponent {
     private router: Router,
   ) { }
 
-  public holderEditorControlComponent = viewChild.required<PersonEditorControlComponent>('holder');
-  public insuredEditorControlComponent = viewChild<PersonEditorControlComponent>('insured');
+  public holderControl = new FormControl<PersonEditorValue>(null);
+  public insuredControl = new FormControl<PersonEditorValue>(null);
   public greenCardCarEditorControlComponent = viewChild(CarEditorControlComponent);
 
   public generalGroup = new FormGroup({
@@ -56,10 +56,11 @@ export class PolicyEditorComponent {
   }));
 
   private getPolicyRequest(): CreatePolicyRequest {
+    const holder = this.holderControl.value!;
     const request = {
       series: this.generalGroup.controls.series.value!,
       number: this.generalGroup.controls.number.value!,
-      holder: this.holderEditorControlComponent().getSelectedPerson(),
+      holder,
       startDate: this.generalGroup.controls.startDate.value!,
       endDate: this.generalGroup.controls.startDate.value!,
       status: 'active',
@@ -69,7 +70,7 @@ export class PolicyEditorComponent {
       return {
         ...request,
         type: 'life',
-        insured: this.insuredEditorControlComponent()!.getSelectedPerson(),
+        insured: this.insuredControl.value!,
         termYears: this.lifePolicyGroup.controls.termYears.value!,
         premium: this.lifePolicyGroup.controls.premium.value!,
         period: this.lifePolicyGroup.controls.period.value!,

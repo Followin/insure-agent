@@ -3,6 +3,21 @@ import { CreatePolicyRequest } from './create-policy-request';
 import { Observable, of } from 'rxjs';
 import { cars, people, policies } from '../../data/data';
 import { Car, Person } from '../../data/data-model';
+import { CreatePersonDto } from '../../shared/person-editor-control/person.model';
+
+function mapNewPerson(dto: CreatePersonDto, id: number): Person {
+  return {
+    id,
+    firstName: dto.first_name,
+    lastName: dto.last_name,
+    sex: dto.sex,
+    birthDate: new Date(dto.birth_date),
+    taxNumber: dto.tax_number,
+    phone: dto.phone,
+    phone2: dto.phone2,
+    email: dto.email,
+  };
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +26,8 @@ export class CreatePolicyService {
   public createPolicy(request: CreatePolicyRequest): Observable<void> {
     const lastPolicyId = Math.max(...policies.map((x) => x.id));
 
+    if (!request.holder) throw new Error('Holder is required');
+
     let holder: Person;
 
     if (request.holder.type === 'existing') {
@@ -18,14 +35,13 @@ export class CreatePolicyService {
       holder = people.find((x) => x.id === id)!;
     } else {
       const lastPersonId = Math.max(...people.map((x) => x.id));
-      holder = {
-        ...request.holder.person,
-        id: lastPersonId + 1,
-      };
+      holder = mapNewPerson(request.holder.person, lastPersonId + 1);
       people.push(holder);
     }
 
     if (request.type === 'life') {
+      if (!request.insured) throw new Error('Insured is required');
+
       let insured: Person;
 
       if (request.insured.type === 'existing') {
@@ -33,10 +49,7 @@ export class CreatePolicyService {
         insured = people.find((x) => x.id === id)!;
       } else {
         const lastPersonId = Math.max(...people.map((x) => x.id));
-        insured = {
-          ...request.insured.person,
-          id: lastPersonId + 1,
-        };
+        insured = mapNewPerson(request.insured.person, lastPersonId + 1);
         people.push(insured);
       }
 

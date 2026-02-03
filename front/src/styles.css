@@ -24,12 +24,6 @@ html, body {
 
 }
 
-@media (prefers-color-scheme: dark) {
-  html, body {
-    background: var(--p-surface-800);
-  }
-}
-
 h1 {
   font-size: 2rem;
   margin-bottom: 1rem;

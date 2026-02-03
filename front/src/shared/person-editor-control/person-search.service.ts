@@ -1,26 +1,32 @@
-import { Observable, of } from 'rxjs';
-import { people } from '../../data/data';
-import { Injectable } from '@angular/core';
-import { Person } from '../../data/data-model';
+import { Observable, map } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { PersonDto } from './person.model';
+import { environment } from '../../environments/environment';
+
+interface PersonSearchResult {
+  id: number;
+  label: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class PersonSearchService {
-  public search(name: string): Observable<AutocompleteSugggestion<number>[]> {
-    const result = people
-      .filter((person) =>
-        `${person.firstName.toLowerCase()} ${person.lastName.toLowerCase()}`.includes(
-          name.toLowerCase(),
-        ),
-      )
-      .map((person) => ({
-        value: person.id,
-        label: `${person.firstName} ${person.lastName}`,
-      }));
+  private http = inject(HttpClient);
+  private baseUrl = `${environment.apiUrl}/people`;
 
-    return of(result);
+  public search(name: string): Observable<AutocompleteSugggestion<number>[]> {
+    return this.http
+      .get<PersonSearchResult[]>(`${this.baseUrl}/search`, {
+        params: { q: name },
+      })
+      .pipe(
+        map((results) =>
+          results.map((r) => ({ value: r.id, label: r.label })),
+        ),
+      );
   }
 
-  public getPerson(id: number): Observable<Person | null> {
-    return of(people.find((person) => person.id === id) || null);
+  public getPerson(id: number): Observable<PersonDto | null> {
+    return this.http.get<PersonDto>(`${this.baseUrl}/${id}`);
   }
 }

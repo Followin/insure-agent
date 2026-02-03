@@ -6,26 +6,40 @@
   </a>
 </div>
 <p-card>
-  <p-table [value]="people" size="large">
+  <p-table [value]="people() ?? skeletonRows" size="large">
     <ng-template #header>
       <tr>
         <th>Имя</th>
         <th>Фамилия</th>
-        <th>Email</th>
-        <th>Телефон</th>
-        <th>Страна</th>
+        <th>Пол</th>
         <th>Дата рождения</th>
+        <th>ИНН</th>
+        <th>Телефон</th>
+        <th>Email</th>
       </tr>
     </ng-template>
     <ng-template #body let-person>
-      <tr>
-        <td>{{person.firstName}}</td>
-        <td>{{person.lastName}}</td>
-        <td>{{person.email}}</td>
-        <td>{{person.phone}}</td>
-        <td>{{person.country}}</td>
-        <td>{{person.birthDate | date:'mediumDate'}}</td>
-      </tr>
+      @if (people()) {
+        <tr>
+          <td>{{person.first_name}}</td>
+          <td>{{person.last_name}}</td>
+          <td>{{person.sex}}</td>
+          <td>{{person.birth_date}}</td>
+          <td>{{person.tax_number}}</td>
+          <td>{{person.phone}}</td>
+          <td>{{person.email}}</td>
+        </tr>
+      } @else {
+        <tr>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+          <td><p-skeleton /></td>
+        </tr>
+      }
     </ng-template>
   </p-table>
 </p-card>

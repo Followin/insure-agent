@@ -12,10 +12,13 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SkeletonModule } from 'primeng/skeleton';
 import {
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
   PolicyPeriodLocalPipe,
+  BackendPolicyTypeLocalPipe,
+  BackendPolicyStatusLocalPipe,
 } from '../data/localization-pipes';
 
 export const sharedImports = [
@@ -33,7 +36,10 @@ export const sharedImports = [
   AutoCompleteModule,
   SelectModule,
   InputNumberModule,
+  SkeletonModule,
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
   PolicyPeriodLocalPipe,
+  BackendPolicyTypeLocalPipe,
+  BackendPolicyStatusLocalPipe,
 ];

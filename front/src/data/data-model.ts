@@ -1,12 +1,15 @@
+export type Sex = 'M' | 'F';
+
 export interface Person {
   id: number;
   firstName: string;
   lastName: string;
-  email: string;
-  phone: string;
-  country: string;
-  address: string;
+  sex: Sex;
   birthDate: Date;
+  taxNumber: string;
+  phone: string;
+  phone2: string | null;
+  email: string;
 }
 
 export interface PolicyBase {

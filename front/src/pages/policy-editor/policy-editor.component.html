@@ -1,8 +1,7 @@
 <h1>Редактировать полис</h1>
 <div class="grid grid-cols-2 gap-8">
-  <p-card class="p-2 pt-4">
-    <div class="grid gap-8">
-      <h3>Общие данные</h3>
+  <p-panel class="p-2 pt-4" header="Общие данные">
+    <div class="grid gap-8 mt-6">
       <div class="grid grid-flow-col gap-8">
         <p-floatlabel>
           <input id="series"type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
@@ -22,13 +21,12 @@
         <label for="type">Тип</label>
       </p-floatlabel>
     </div>
-  </p-card>
-  <app-person-editor [allowExisting]="true" header="Страхователь" #holder />
+  </p-panel>
+  <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />
   @switch (generalGroup.controls.type.value) {
     @case('life') {
-      <p-card class="p-2 pt-4">
-        <div class="grid gap-8">
-          <h3>Детали Лайф</h3>
+      <p-panel class="p-2 pt-4" header="Детали Лайф">
+        <div class="grid gap-8 mt-6">
           <p-floatlabel>
             <p-select [formControl]="lifePolicyGroup.controls.period" id="period" fluid [options]="lifePolicyPeriods"></p-select>
             <label for="period">Период</label>
@@ -42,13 +40,12 @@
             <label for="premium">Взнос</label>
           </p-floatlabel>
         </div>
-      </p-card>
-      <app-person-editor [allowExisting]="true" header="Застрахованное лицо" #insured />
+      </p-panel>
+      <app-person-editor-control [allowExisting]="true" header="Застрахованное лицо" [formControl]="insuredControl" showNameInHeader/>
     }
     @case('green-card') {
-      <p-card class="p-2 pt-4">
-        <div class="grid gap-8">
-          <h3>Детали зеленой карты</h3>
+      <p-panel class="p-2 pt-4" header="Детали зеленой карты">
+        <div class="grid gap-8 mt-6">
           <p-floatlabel>
             <input id="territory" type="text" pInputText [formControl]="greenCardPolicyGroup.controls.territory" class="w-full"/>
             <label for="territory">Территория</label>
@@ -62,10 +59,10 @@
             <label for="premium">Взнос</label>
           </p-floatlabel>
         </div>
-      </p-card>
+      </p-panel>
       <app-car-editor [allowExisting]="true" header="Автомобиль"/>
     }
   }
-  <p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="col-span-2 justify-self-end"/>
+  <p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="col-span-2"/>
 </div>
 

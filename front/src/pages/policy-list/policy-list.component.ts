@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
-import { Policy } from '../../data/data-model';
-import { policies } from '../../data/data';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { sharedImports } from '../../shared/shared-imports';
+import { PolicyService } from './policy.service';
+import { delay } from 'rxjs';
+import { fakeLoadingDelay } from '../../shared/shared-delay';
 
 @Component({
   selector: 'app-policy-list',
@@ -9,5 +11,7 @@ import { sharedImports } from '../../shared/shared-imports';
   imports: [sharedImports],
 })
 export class PolicyListComponent {
-  public policies: Policy[] = policies;
+  private policyService = inject(PolicyService);
+  public policies = toSignal(this.policyService.getAll().pipe(delay(fakeLoadingDelay)));
+  public skeletonRows = Array(13).fill({});
 }

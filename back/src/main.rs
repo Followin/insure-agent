@@ -1,28 +1,19 @@
+mod endpoints;
+
 use axum::http::{HeaderMap, Uri};
-use axum::{Router, response::Redirect, routing::get};
+use axum::{Router, response::Redirect};
 use sqlx::PgPool;
 use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
-    println!("new");
     let connection_string = std::env::var("DATABASE_URL")
         .unwrap_or("postgres://postgres:postgres@localhost:5432/insure".to_owned());
 
     let pool = PgPool::connect(&connection_string).await.unwrap();
 
-    let mut app = Router::new().route(
-        "/",
-        get(|| async move {
-            let row = sqlx::query!("select id, name from test")
-                .fetch_one(&pool)
-                .await
-                .unwrap();
-
-            format!("Hello, {}, from {}", row.name, row.id)
-        }),
-    );
+    let mut app = endpoints::router().with_state(pool);
 
     if let Ok(origin) = std::env::var("CORS_ORIGIN") {
         println!("CORS mode: origin={}", origin);

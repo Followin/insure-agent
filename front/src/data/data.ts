@@ -4,10 +4,11 @@ export const john: Person = {
   id: 1,
   firstName: 'John',
   lastName: 'Doe',
+  sex: 'M',
   email: 'john.doe@example.com',
   phone: '+1 (555) 555-5555',
-  country: 'USA',
-  address: '123 Main St, Anytown, USA',
+  phone2: null,
+  taxNumber: '1234567890',
   birthDate: new Date(1990, 0, 1),
 };
 
@@ -15,10 +16,11 @@ export const jane: Person = {
   id: 2,
   firstName: 'Jane',
   lastName: 'Doe',
+  sex: 'F',
   email: 'jane.doe@example.com',
   phone: '+1 (555) 555-5555',
-  country: 'USA',
-  address: '123 Main St, Anytown, USA',
+  phone2: null,
+  taxNumber: '0987654321',
   birthDate: new Date(1990, 0, 1),
 };
 

@@ -1,20 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { sharedImports } from '../../shared/shared-imports';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { PersonService } from '../person-list/person.service';
+import {
+  PersonEditorControlComponent,
+  PersonEditorValue,
+} from '../../shared/person-editor-control/person-editor-control.component';
 
 @Component({
   selector: 'app-person-editor',
   templateUrl: './person-editor.component.html',
-  imports: [sharedImports],
+  imports: [sharedImports, PersonEditorControlComponent],
 })
 export class PersonEditorComponent {
-  public personGroup = new FormGroup({
-    firstName: new FormControl('', [Validators.required]),
-    lastName: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    phone: new FormControl('', [Validators.required]),
-    country: new FormControl('', [Validators.required]),
-    address: new FormControl('', [Validators.required]),
-    birthDate: new FormControl<Date | null>(null, [Validators.required]),
-  });
+  private personService = inject(PersonService);
+  private router = inject(Router);
+
+  public personControl = new FormControl<PersonEditorValue>(null);
+
+  public submit() {
+    const value = this.personControl.value;
+    if (!value || value.type !== 'new') return;
+
+    this.personService.create(value.person).subscribe(() => {
+      this.router.navigate(['/people']);
+    });
+  }
 }

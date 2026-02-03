@@ -1,9 +1,21 @@
-import { booleanAttribute, Component, input } from '@angular/core';
+import { booleanAttribute, Component, computed, forwardRef, input, signal } from '@angular/core';
 import { sharedImports } from '../shared-imports';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  FormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+  Validators,
+} from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PersonSearchService } from './person-search.service';
-import { Person } from '../../data/data-model';
+import { CreatePersonDto, Sex } from './person.model';
+import { map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export type ExistingPerson = {
   type: 'existing';
@@ -12,37 +24,74 @@ export type ExistingPerson = {
 
 export type NewPerson = {
   type: 'new';
-  person: Omit<Person, 'id'>;
+  person: CreatePersonDto;
 };
 
+export type PersonEditorValue = ExistingPerson | NewPerson | null;
+
 @Component({
-  selector: 'app-person-editor',
+  selector: 'app-person-editor-control',
   templateUrl: './person-editor-control.component.html',
   imports: [sharedImports],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PersonEditorControlComponent),
+      multi: true,
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => PersonEditorControlComponent),
+      multi: true,
+    },
+  ],
 })
-export class PersonEditorControlComponent {
+export class PersonEditorControlComponent implements ControlValueAccessor, Validator {
   public readonly allowExisting = input(false, { transform: booleanAttribute });
-  public readonly header = input('Человек');
+  public readonly header = input<string>();
+  public readonly showNameInHeader = input(false, { transform: booleanAttribute });
 
   public existingPersonIdControl = new FormControl<number | null>(null);
 
+  public sexOptions: { label: string; value: Sex }[] = [
+    { label: 'Мужской', value: 'M' },
+    { label: 'Женский', value: 'F' },
+  ];
+
   public personGroup = new FormGroup({
-    firstName: new FormControl('', [Validators.required]),
-    lastName: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
+    first_name: new FormControl('', [Validators.required]),
+    last_name: new FormControl('', [Validators.required]),
+    sex: new FormControl<Sex | null>(null, [Validators.required]),
+    birth_date: new FormControl<Date | null>(null, [Validators.required]),
+    tax_number: new FormControl('', [Validators.required]),
     phone: new FormControl('', [Validators.required]),
-    country: new FormControl('', [Validators.required]),
-    address: new FormControl('', [Validators.required]),
-    birthDate: new FormControl<Date | null>(null, [Validators.required]),
+    phone2: new FormControl<string | null>(null),
+    email: new FormControl('', [Validators.required, Validators.email]),
   });
 
-  public peopleSearchSuggestions: AutocompleteSugggestion<number>[] = [];
+  private personNameSignal = toSignal(
+    this.personGroup.valueChanges.pipe(map((v) => `${v.first_name || ''} ${v.last_name || ''}`)),
+  );
+
+  public readonly fullHeader = computed(() =>
+    this.showNameInHeader()
+      ? `${this.header()}${this.personNameSignal() != ' ' ? ': ' + this.personNameSignal() : ''}`
+      : this.header(),
+  );
+
+  public peopleSearchSuggestions = signal<AutocompleteSugggestion<number>[]>([]);
+
+  private onChange: (value: PersonEditorValue) => void = () => { };
+  private onTouched: () => void = () => { };
 
   constructor(private personSearchService: PersonSearchService) {
+    this.personGroup.valueChanges.subscribe(() => this.emitValue());
+
     this.existingPersonIdControl.valueChanges.subscribe((id) => {
       if (!id || !Number.isInteger(id)) {
         this.personGroup.reset();
         this.personGroup.enable();
+        this.emitValue();
         return;
       }
 
@@ -51,48 +100,95 @@ export class PersonEditorControlComponent {
           throw new Error(`Person with id ${id} not found`);
         }
 
-        this.personGroup.controls.firstName.setValue(person.firstName);
-        this.personGroup.controls.lastName.setValue(person.lastName);
-        this.personGroup.controls.email.setValue(person.email);
+        this.personGroup.controls.first_name.setValue(person.first_name);
+        this.personGroup.controls.last_name.setValue(person.last_name);
+        this.personGroup.controls.sex.setValue(person.sex);
+        this.personGroup.controls.birth_date.setValue(new Date(person.birth_date));
+        this.personGroup.controls.tax_number.setValue(person.tax_number);
         this.personGroup.controls.phone.setValue(person.phone);
-        this.personGroup.controls.country.setValue(person.country);
-        this.personGroup.controls.address.setValue(person.address);
-        this.personGroup.controls.birthDate.setValue(person.birthDate);
+        this.personGroup.controls.phone2.setValue(person.phone2);
+        this.personGroup.controls.email.setValue(person.email);
 
         this.personGroup.disable();
+        this.emitValue();
       });
     });
   }
 
+  writeValue(value: PersonEditorValue): void {
+    if (!value) {
+      this.existingPersonIdControl.reset();
+      this.personGroup.reset();
+      return;
+    }
+
+    if (value.type === 'existing') {
+      this.existingPersonIdControl.setValue(value.id);
+    } else {
+      this.personGroup.controls.first_name.setValue(value.person.first_name);
+      this.personGroup.controls.last_name.setValue(value.person.last_name);
+      this.personGroup.controls.sex.setValue(value.person.sex);
+      this.personGroup.controls.birth_date.setValue(new Date(value.person.birth_date));
+      this.personGroup.controls.tax_number.setValue(value.person.tax_number);
+      this.personGroup.controls.phone.setValue(value.person.phone);
+      this.personGroup.controls.phone2.setValue(value.person.phone2);
+      this.personGroup.controls.email.setValue(value.person.email);
+    }
+  }
+
+  registerOnChange(fn: (value: PersonEditorValue) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  validate(_control: AbstractControl): ValidationErrors | null {
+    if (this.existingPersonIdControl.value) {
+      return null;
+    }
+    return this.personGroup.valid ? null : { invalid: true };
+  }
+
   public search($event: AutoCompleteCompleteEvent) {
     this.personSearchService.search($event.query).subscribe((people) => {
-      this.peopleSearchSuggestions = people;
+      this.peopleSearchSuggestions.set(people);
     });
   }
 
-  public getSelectedPerson(): ExistingPerson | NewPerson {
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private emitValue(): void {
     if (this.existingPersonIdControl.value) {
-      return {
+      this.onChange({
         type: 'existing',
         id: this.existingPersonIdControl.value,
-      };
+      });
+      return;
     }
 
     if (this.personGroup.valid) {
-      return {
+      const v = this.personGroup.value;
+      this.onChange({
         type: 'new',
         person: {
-          firstName: this.personGroup.controls.firstName.value!,
-          lastName: this.personGroup.controls.lastName.value!,
-          email: this.personGroup.controls.email.value!,
-          phone: this.personGroup.controls.phone.value!,
-          country: this.personGroup.controls.country.value!,
-          address: this.personGroup.controls.address.value!,
-          birthDate: this.personGroup.controls.birthDate.value!,
+          first_name: v.first_name!,
+          last_name: v.last_name!,
+          sex: v.sex!,
+          birth_date: this.formatDate(v.birth_date!),
+          tax_number: v.tax_number!,
+          phone: v.phone!,
+          phone2: v.phone2 || null,
+          email: v.email!,
         },
-      };
+      });
+    } else {
+      this.onChange(null);
     }
 
-    throw new Error('Invalid state');
+    this.onTouched();
   }
 }

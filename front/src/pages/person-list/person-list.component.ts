@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
-import { Person } from '../../data/data-model';
-import { people } from '../../data/data';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { sharedImports } from '../../shared/shared-imports';
+import { PersonService } from './person.service';
+import { delay } from 'rxjs';
+import { fakeLoadingDelay } from '../../shared/shared-delay';
 
 @Component({
   selector: 'app-person-list',
@@ -9,5 +11,7 @@ import { sharedImports } from '../../shared/shared-imports';
   imports: [sharedImports],
 })
 export class PersonListComponent {
-  public people: Person[] = people;
+  private personService = inject(PersonService);
+  public people = toSignal(this.personService.getAll().pipe(delay(fakeLoadingDelay)));
+  public skeletonRows = Array(13).fill({});
 }

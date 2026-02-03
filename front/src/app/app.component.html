@@ -1,18 +1,18 @@
-<div class="grid grid-cols-[200px_1fr] gap-2 p-4">
-  <div data-id="sidebar" class="grid grid-rows-[120px_1fr_50px] gap-2">
-    <div data-id="logo">
-      <img src="logo.png" alt="Insurance logo" class="w-[100px] h-[100px]">
-    </div>
-    <div data-id="menu" class="grid grid-flow-row content-start gap-2">
-      <a routerLink="/dashboard" class="font-bold"><i class="pi pi-home"></i> Домашняя страница</a>
-      <a routerLink="/people" class="font-bold"><i class="pi pi-user"></i> Люди</a>
-      <a routerLink="/policies" class="font-bold"><i class="pi pi-credit-card"></i> Полиса</a>
-    </div>
-    <div data-id="user">
-      <p-avatar icon="pi pi-user" class="mr-2" size="large" />
-    </div>
+<div data-id="sidebar" class="grid grid-rows-[120px_1fr_50px] gap-2 bg-surface-200 w-[300px] h-full top-0 fixed p-4 border-r border-surface-300">
+  <div data-id="logo">
+    <img src="logo.png" alt="Insurance logo" class="w-[100px] h-[100px]">
   </div>
-  <div data-id="content ml-4">
+  <div data-id="menu" class="grid grid-flow-row content-start gap-4">
+    <a routerLink="/dashboard" class="text-xl"><i class="pi pi-home"></i> Домашняя страница</a>
+    <a routerLink="/people" class="text-xl"><i class="pi pi-user"></i> Люди</a>
+    <a routerLink="/policies" class="text-xl"><i class="pi pi-credit-card"></i> Полисы</a>
+  </div>
+  <div data-id="user">
+    <p-avatar icon="pi pi-user" class="mr-2" size="large" />
+  </div>
+</div>
+<div data-id="content" class="pl-[300px]">
+  <div class="p-4">
     <router-outlet></router-outlet>
   </div>
 </div>
