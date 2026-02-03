@@ -1,0 +1,8 @@
+- policy creator with backend connection
+- policy viewer
+- payments - simple
+- google login
+- policy attachments
+- person attachments
+- policy search and pagination
+- people search and pagination
