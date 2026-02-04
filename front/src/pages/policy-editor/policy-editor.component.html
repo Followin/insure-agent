@@ -1,20 +1,24 @@
 <h1>Редактировать полис</h1>
-<div class="grid grid-cols-2 gap-8">
-  <p-panel class="p-2 pt-4" header="Общие данные">
+<div class="grid grid-cols-2 gap-8 items-start">
+  <p-panel class="p-2 pt-4" header="Общие данные" toggleable>
     <div class="grid gap-8 mt-6">
       <div class="grid grid-flow-col gap-8">
         <p-floatlabel>
-          <input id="series"type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
+          <input id="series" type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
           <label for="series">Серия</label>
         </p-floatlabel>
         <p-floatlabel>
-          <input id="number"type="text" pInputText [formControl]="generalGroup.controls.number" class="w-full"/>
+          <input id="number" type="text" pInputText [formControl]="generalGroup.controls.number" class="w-full"/>
           <label for="number">Номер</label>
         </p-floatlabel>
       </div>
       <p-floatlabel>
         <p-datepicker [formControl]="generalGroup.controls.startDate" id="startDate" showIcon fluid></p-datepicker>
         <label for="startDate">Дата начала</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <p-datepicker [formControl]="generalGroup.controls.endDate" id="endDate" showIcon fluid></p-datepicker>
+        <label for="endDate">Дата окончания</label>
       </p-floatlabel>
       <p-floatlabel>
         <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
@@ -24,45 +28,64 @@
   </p-panel>
   <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />
   @switch (generalGroup.controls.type.value) {
-    @case('life') {
-      <p-panel class="p-2 pt-4" header="Детали Лайф">
+    @case('GreenCard') {
+      <p-panel class="p-2 pt-4" header="Детали зеленой карты" toggleable>
         <div class="grid gap-8 mt-6">
           <p-floatlabel>
-            <p-select [formControl]="lifePolicyGroup.controls.period" id="period" fluid [options]="lifePolicyPeriods"></p-select>
-            <label for="period">Период</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <p-inputnumber id="termYears" [formControl]="lifePolicyGroup.controls.termYears" class="w-full"/>
-            <label for="termYears">Срок</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <p-inputnumber id="premium" [formControl]="lifePolicyGroup.controls.premium" class="w-full"/>
-            <label for="premium">Взнос</label>
-          </p-floatlabel>
-        </div>
-      </p-panel>
-      <app-person-editor-control [allowExisting]="true" header="Застрахованное лицо" [formControl]="insuredControl" showNameInHeader/>
-    }
-    @case('green-card') {
-      <p-panel class="p-2 pt-4" header="Детали зеленой карты">
-        <div class="grid gap-8 mt-6">
-          <p-floatlabel>
-            <input id="territory" type="text" pInputText [formControl]="greenCardPolicyGroup.controls.territory" class="w-full"/>
+            <input id="territory" type="text" pInputText [formControl]="greenCardGroup.controls.territory" class="w-full"/>
             <label for="territory">Территория</label>
           </p-floatlabel>
           <p-floatlabel>
-            <p-inputnumber inputId="termDays" [formControl]="greenCardPolicyGroup.controls.termDays" class="w-full"/>
-            <label for="termDays">Срок в днях</label>
+            <p-inputnumber inputId="period_months" [formControl]="greenCardGroup.controls.period_months" class="w-full"/>
+            <label for="period_months">Срок (месяцы)</label>
           </p-floatlabel>
           <p-floatlabel>
-            <p-inputnumber id="premium" [formControl]="greenCardPolicyGroup.controls.premium" class="w-full"/>
+            <p-inputnumber id="premium" [formControl]="greenCardGroup.controls.premium" class="w-full"/>
             <label for="premium">Взнос</label>
           </p-floatlabel>
         </div>
       </p-panel>
-      <app-car-editor [allowExisting]="true" header="Автомобиль"/>
+      <app-car-editor-control [allowExisting]="true" header="Автомобиль" [formControl]="carControl"/>
+    }
+    @case('Medassistance') {
+      <p-panel class="p-2 pt-4" header="Детали медассистанс" toggleable>
+        <div class="grid gap-8 mt-6">
+          <p-floatlabel>
+            <input id="territory" type="text" pInputText [formControl]="medassistanceGroup.controls.territory" class="w-full"/>
+            <label for="territory">Территория</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber inputId="period_months" [formControl]="medassistanceGroup.controls.period_months" class="w-full"/>
+            <label for="period_months">Срок (месяцы)</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="premium" [formControl]="medassistanceGroup.controls.premium" class="w-full"/>
+            <label for="premium">Взнос</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="payout" [formControl]="medassistanceGroup.controls.payout" class="w-full"/>
+            <label for="payout">Выплата</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <input id="program" type="text" pInputText [formControl]="medassistanceGroup.controls.program" class="w-full"/>
+            <label for="program">Программа</label>
+          </p-floatlabel>
+        </div>
+      </p-panel>
+      <div class="grid gap-8">
+        @for (control of membersArray.controls; track control; let i = $index) {
+          <app-person-editor-control [allowExisting]="true" [header]="'Застрахованный ' + (i + 1)" [formControl]="control" showNameInHeader [showRemoveButton]="membersArray.length > 1" (onRemove)="removeMember(i)"/>
+        }
+        <p-button label="Добавить застрахованного" icon="pi pi-plus" [outlined]="true" (onClick)="addMember()"/>
+      </div>
+    }
+    @case('Osago') {
+      <p-panel class="p-2 pt-4" header="Детали ОСАГО" toggleable>
+        <div class="grid gap-8 mt-6">
+          <p class="text-gray-500">Дополнительные поля не требуются</p>
+        </div>
+      </p-panel>
     }
   }
   <p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="col-span-2"/>
 </div>
-

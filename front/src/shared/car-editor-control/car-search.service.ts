@@ -1,12 +1,14 @@
 import { Observable, of } from 'rxjs';
-import { cars } from '../../data/data';
 import { Injectable } from '@angular/core';
-import { Car } from '../../data/data-model';
+import { CarDto } from '../models/car.model';
+
+// TODO: Replace with actual backend data when car endpoints are available
+const mockCars: CarDto[] = [];
 
 @Injectable({ providedIn: 'root' })
 export class CarSearchService {
   public search(query: string): Observable<AutocompleteSugggestion<number>[]> {
-    const result = cars
+    const result = mockCars
       .filter((car) =>
         `${car.plate.toLowerCase()} ${car.make.toLowerCase()} ${car.model.toLowerCase()}`.includes(
           query.toLowerCase(),
@@ -20,7 +22,7 @@ export class CarSearchService {
     return of(result);
   }
 
-  public getCar(id: number): Observable<Car | null> {
-    return of(cars.find((car) => car.id === id) || null);
+  public getCar(id: number): Observable<CarDto | null> {
+    return of(mockCars.find((car) => car.id === id) || null);
   }
 }

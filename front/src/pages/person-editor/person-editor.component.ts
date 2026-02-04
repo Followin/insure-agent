@@ -21,9 +21,9 @@ export class PersonEditorComponent {
 
   public submit() {
     const value = this.personControl.value;
-    if (!value || value.type !== 'new') return;
+    if (!value || value.kind !== 'New') return;
 
-    this.personService.create(value.person).subscribe(() => {
+    this.personService.create(value).subscribe(() => {
       this.router.navigate(['/people']);
     });
   }

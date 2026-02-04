@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { LifePolicy, Policy } from './data-model';
-import { PolicyType as BackendPolicyType, PolicyStatus as BackendPolicyStatus } from '../pages/policy-list/policy.model';
 
 export function getTypeLocalizedName(type: Policy['type']): string {
   switch (type) {
@@ -20,28 +19,6 @@ export function getStatusLocalizedName(status: Policy['status']): string {
   }
 }
 
-export function getBackendTypeLocalizedName(type: BackendPolicyType): string {
-  switch (type) {
-    case 'GreenCard':
-      return 'Зеленая карта';
-    case 'Medassistance':
-      return 'Медассистанс';
-    case 'Osago':
-      return 'ОСАГО';
-  }
-}
-
-export function getBackendStatusLocalizedName(status: BackendPolicyStatus): string {
-  switch (status) {
-    case 'Active':
-      return 'Активный';
-    case 'Expired':
-      return 'Истёк';
-    case 'Terminated':
-      return 'Расторгнут';
-  }
-}
-
 export function getPeriodLocalizedName(period: LifePolicy['period']): string {
   switch (period) {
     case 'annual':
@@ -57,31 +34,17 @@ export function getPeriodLocalizedName(period: LifePolicy['period']): string {
   }
 }
 
-@Pipe({ name: 'policyTypeLocal', pure: true })
-export class PolicyTypeLocalPipe implements PipeTransform {
+@Pipe({ name: 'oldPolicyTypeLocal', pure: true })
+export class OldPolicyTypeLocalPipe implements PipeTransform {
   transform(value: Policy['type']) {
     return getTypeLocalizedName(value);
   }
 }
 
-@Pipe({ name: 'policyStatusLocal', pure: true })
-export class PolicyStatusLocalPipe implements PipeTransform {
+@Pipe({ name: 'oldPolicyStatusLocal', pure: true })
+export class OldPolicyStatusLocalPipe implements PipeTransform {
   transform(value: Policy['status']) {
     return getStatusLocalizedName(value);
-  }
-}
-
-@Pipe({ name: 'backendPolicyTypeLocal', pure: true })
-export class BackendPolicyTypeLocalPipe implements PipeTransform {
-  transform(value: BackendPolicyType) {
-    return getBackendTypeLocalizedName(value);
-  }
-}
-
-@Pipe({ name: 'backendPolicyStatusLocal', pure: true })
-export class BackendPolicyStatusLocalPipe implements PipeTransform {
-  transform(value: BackendPolicyStatus) {
-    return getBackendStatusLocalizedName(value);
   }
 }
 

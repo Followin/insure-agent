@@ -26,8 +26,8 @@
           <td class="whitespace-nowrap">{{policy.holder_name}}</td>
           <td>{{policy.start_date | date:'mediumDate'}}</td>
           <td>{{policy.end_date | date:'mediumDate'}}</td>
-          <td>{{policy.policy_type | backendPolicyTypeLocal}}</td>
-          <td><p-tag [value]="policy.status | backendPolicyStatusLocal" [severity]="policy.status === 'Active' ? 'success' : policy.status === 'Expired' ? 'warn' : 'danger'"/></td>
+          <td>{{policy.policy_type | policyTypeLocal}}</td>
+          <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status === 'Active' ? 'success' : policy.status === 'Expired' ? 'warn' : 'danger'"/></td>
         </tr>
       } @else {
         <tr>

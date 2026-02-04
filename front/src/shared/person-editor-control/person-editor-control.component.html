@@ -1,4 +1,9 @@
 <p-panel class="p-2 pt-4" [header]="fullHeader()" [toggleable]="true">
+  @if (showRemoveButton()) {
+    <ng-template #icons>
+      <p-button icon="pi pi-times" severity="danger" rounded text (onClick)="onRemove.emit()"/>
+    </ng-template>
+  }
   <div class="grid gap-8 mt-6">
     @if (allowExisting()) {
       <p-floatlabel class="mb-8">

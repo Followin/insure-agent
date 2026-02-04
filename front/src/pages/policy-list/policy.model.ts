@@ -1,5 +1,4 @@
-export type PolicyType = 'GreenCard' | 'Medassistance' | 'Osago';
-export type PolicyStatus = 'Expired' | 'Active' | 'Terminated';
+import { PolicyStatus, PolicyType } from '../../shared/models/policy.model';
 
 export interface PolicyShort {
   id: number;

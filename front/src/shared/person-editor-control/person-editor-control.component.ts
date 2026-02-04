@@ -1,4 +1,12 @@
-import { booleanAttribute, Component, computed, forwardRef, input, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  forwardRef,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { sharedImports } from '../shared-imports';
 import {
   AbstractControl,
@@ -13,21 +21,11 @@ import {
 } from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PersonSearchService } from './person-search.service';
-import { CreatePersonDto, Sex } from './person.model';
+import { PersonRef, Sex } from './person.model';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-export type ExistingPerson = {
-  type: 'existing';
-  id: number;
-};
-
-export type NewPerson = {
-  type: 'new';
-  person: CreatePersonDto;
-};
-
-export type PersonEditorValue = ExistingPerson | NewPerson | null;
+export type PersonEditorValue = PersonRef | null;
 
 @Component({
   selector: 'app-person-editor-control',
@@ -50,6 +48,8 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   public readonly allowExisting = input(false, { transform: booleanAttribute });
   public readonly header = input<string>();
   public readonly showNameInHeader = input(false, { transform: booleanAttribute });
+  public readonly showRemoveButton = input(false, { transform: booleanAttribute });
+  public readonly onRemove = output<void>();
 
   public existingPersonIdControl = new FormControl<number | null>(null);
 
@@ -122,17 +122,17 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       return;
     }
 
-    if (value.type === 'existing') {
+    if (value.kind === 'Existing') {
       this.existingPersonIdControl.setValue(value.id);
     } else {
-      this.personGroup.controls.first_name.setValue(value.person.first_name);
-      this.personGroup.controls.last_name.setValue(value.person.last_name);
-      this.personGroup.controls.sex.setValue(value.person.sex);
-      this.personGroup.controls.birth_date.setValue(new Date(value.person.birth_date));
-      this.personGroup.controls.tax_number.setValue(value.person.tax_number);
-      this.personGroup.controls.phone.setValue(value.person.phone);
-      this.personGroup.controls.phone2.setValue(value.person.phone2);
-      this.personGroup.controls.email.setValue(value.person.email);
+      this.personGroup.controls.first_name.setValue(value.first_name);
+      this.personGroup.controls.last_name.setValue(value.last_name);
+      this.personGroup.controls.sex.setValue(value.sex);
+      this.personGroup.controls.birth_date.setValue(new Date(value.birth_date));
+      this.personGroup.controls.tax_number.setValue(value.tax_number);
+      this.personGroup.controls.phone.setValue(value.phone);
+      this.personGroup.controls.phone2.setValue(value.phone2);
+      this.personGroup.controls.email.setValue(value.email);
     }
   }
 
@@ -164,7 +164,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   private emitValue(): void {
     if (this.existingPersonIdControl.value) {
       this.onChange({
-        type: 'existing',
+        kind: 'Existing',
         id: this.existingPersonIdControl.value,
       });
       return;
@@ -173,17 +173,15 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
     if (this.personGroup.valid) {
       const v = this.personGroup.value;
       this.onChange({
-        type: 'new',
-        person: {
-          first_name: v.first_name!,
-          last_name: v.last_name!,
-          sex: v.sex!,
-          birth_date: this.formatDate(v.birth_date!),
-          tax_number: v.tax_number!,
-          phone: v.phone!,
-          phone2: v.phone2 || null,
-          email: v.email!,
-        },
+        kind: 'New',
+        first_name: v.first_name!,
+        last_name: v.last_name!,
+        sex: v.sex!,
+        birth_date: this.formatDate(v.birth_date!),
+        tax_number: v.tax_number!,
+        phone: v.phone!,
+        phone2: v.phone2 || null,
+        email: v.email!,
       });
     } else {
       this.onChange(null);

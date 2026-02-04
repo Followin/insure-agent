@@ -14,12 +14,14 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SkeletonModule } from 'primeng/skeleton';
 import {
+  OldPolicyTypeLocalPipe,
+  OldPolicyStatusLocalPipe,
+  PolicyPeriodLocalPipe,
+} from '../data/localization-pipes';
+import {
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
-  PolicyPeriodLocalPipe,
-  BackendPolicyTypeLocalPipe,
-  BackendPolicyStatusLocalPipe,
-} from '../data/localization-pipes';
+} from './pipes/policy-localization.pipe';
 
 export const sharedImports = [
   CardModule,
@@ -37,9 +39,9 @@ export const sharedImports = [
   SelectModule,
   InputNumberModule,
   SkeletonModule,
+  OldPolicyTypeLocalPipe,
+  OldPolicyStatusLocalPipe,
+  PolicyPeriodLocalPipe,
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
-  PolicyPeriodLocalPipe,
-  BackendPolicyTypeLocalPipe,
-  BackendPolicyStatusLocalPipe,
 ];
