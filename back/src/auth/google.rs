@@ -43,8 +43,7 @@ pub struct GoogleOAuthClient {
 impl GoogleOAuthClient {
     pub fn from_env() -> Self {
         Self {
-            client_id: std::env::var("GOOGLE_CLIENT_ID")
-                .expect("GOOGLE_CLIENT_ID must be set"),
+            client_id: std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
             client_secret: std::env::var("GOOGLE_CLIENT_SECRET")
                 .expect("GOOGLE_CLIENT_SECRET must be set"),
             redirect_uri: std::env::var("GOOGLE_REDIRECT_URI")

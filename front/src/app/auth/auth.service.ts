@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface AuthUser {
@@ -15,6 +15,7 @@ export class AuthService {
   isAuthenticated = signal(false);
   userEmail = signal<string | null>(null);
   private authChecked = signal(false);
+  private callbackProcessing = false;
 
   checkAuth(): Observable<boolean> {
     return this.http
@@ -56,6 +57,11 @@ export class AuthService {
   }
 
   handleCallback(code: string): Observable<AuthUser> {
+    if (this.callbackProcessing) {
+      return EMPTY;
+    }
+    this.callbackProcessing = true;
+
     return this.http
       .post<AuthUser>(
         `${this.apiUrl}/auth/callback`,
@@ -66,6 +72,10 @@ export class AuthService {
         tap((user) => {
           this.isAuthenticated.set(true);
           this.userEmail.set(user.email);
+        }),
+        catchError((error) => {
+          this.callbackProcessing = false;
+          throw error;
         })
       );
   }
