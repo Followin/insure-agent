@@ -1,4 +1,4 @@
-<h1>Редактировать полис</h1>
+<h1>{{editMode() ? 'Редактировать полис' : 'Новый полис'}}</h1>
 <div class="grid grid-cols-2 gap-8 items-start">
   <p-panel class="p-2 pt-4" header="Общие данные" toggleable>
     <div class="grid gap-8 mt-6">
@@ -24,6 +24,12 @@
         <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
         <label for="type">Тип</label>
       </p-floatlabel>
+      @if (editMode()) {
+        <p-floatlabel>
+          <p-select [formControl]="generalGroup.controls.status" id="status" fluid [options]="policyStatuses"></p-select>
+          <label for="status">Статус</label>
+        </p-floatlabel>
+      }
     </div>
   </p-panel>
   <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />

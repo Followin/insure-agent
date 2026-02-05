@@ -2,7 +2,7 @@
   <div class="grid gap-8 mt-6">
     @if (allowExisting()) {
       <p-floatlabel class="mb-8">
-        <p-autocomplete [suggestions]="carSearchSuggestions()" (completeMethod)="search($event)" fluid [formControl]="existingCarIdControl" id="existingCar"/>
+        <p-autocomplete #existingCarAutocomplete [suggestions]="carSearchSuggestions()" (completeMethod)="search($event)" fluid [formControl]="existingCarIdControl" id="existingCar"/>
         <label for="existingCar">Найти существующую</label>
       </p-floatlabel>
     }

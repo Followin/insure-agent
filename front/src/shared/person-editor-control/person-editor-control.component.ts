@@ -6,7 +6,9 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
+import { AutoComplete } from 'primeng/autocomplete';
 import { sharedImports } from '../shared-imports';
 import {
   AbstractControl,
@@ -50,6 +52,8 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   public readonly showNameInHeader = input(false, { transform: booleanAttribute });
   public readonly showRemoveButton = input(false, { transform: booleanAttribute });
   public readonly onRemove = output<void>();
+
+  private autocomplete = viewChild<AutoComplete>('existingPersonAutocomplete');
 
   public existingPersonIdControl = new FormControl<number | null>(null);
 
@@ -98,6 +102,12 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       this.personSearchService.getPerson(id).subscribe((person) => {
         if (!person) {
           throw new Error(`Person with id ${id} not found`);
+        }
+
+        const autocomplete = this.autocomplete();
+        if (this.peopleSearchSuggestions.length == 0 && autocomplete?.inputEL) {
+          // initial load
+          autocomplete.inputEL.nativeElement.value = `${person.first_name} ${person.last_name}`;
         }
 
         this.personGroup.controls.first_name.setValue(person.first_name);

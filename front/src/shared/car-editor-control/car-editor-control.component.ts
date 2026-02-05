@@ -1,4 +1,5 @@
-import { booleanAttribute, Component, forwardRef, input, signal } from '@angular/core';
+import { booleanAttribute, Component, forwardRef, input, signal, viewChild } from '@angular/core';
+import { AutoComplete } from 'primeng/autocomplete';
 import { sharedImports } from '../shared-imports';
 import {
   AbstractControl,
@@ -38,6 +39,8 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
   public readonly allowExisting = input(false, { transform: booleanAttribute });
   public readonly header = input('Автомобиль');
 
+  private autocomplete = viewChild<AutoComplete>('existingCarAutocomplete');
+
   public existingCarIdControl = new FormControl<number | null>(null);
 
   public carGroup = new FormGroup({
@@ -73,6 +76,12 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
       this.carSearchService.getCar(id).subscribe((car) => {
         if (!car) {
           throw new Error(`Car with id ${id} not found`);
+        }
+
+        const autocomplete = this.autocomplete();
+        if (this.carSearchSuggestions.length == 0 && autocomplete?.inputEL) {
+          // initial load
+          autocomplete.inputEL.nativeElement.value = `${car.make} ${car.model} (${car.plate})`;
         }
 
         this.carGroup.controls.chassis.setValue(car.chassis);

@@ -16,6 +16,7 @@
         <th>Дата окончания</th>
         <th>Тип</th>
         <th>Статус</th>
+        <th>Действия</th>
       </tr>
     </ng-template>
     <ng-template #body let-policy>
@@ -28,9 +29,18 @@
           <td>{{policy.end_date | date:'mediumDate'}}</td>
           <td>{{policy.policy_type | policyTypeLocal}}</td>
           <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status === 'Active' ? 'success' : policy.status === 'Expired' ? 'warn' : 'danger'"/></td>
+          <td class="whitespace-nowrap">
+            <a [routerLink]="['/policies', policy.id]" pButton [text]="true" size="small">
+              <i class="pi pi-eye"></i>
+            </a>
+            <a [routerLink]="['/policies', policy.id, 'edit']" pButton [text]="true" size="small">
+              <i class="pi pi-pencil"></i>
+            </a>
+          </td>
         </tr>
       } @else {
         <tr>
+          <td><p-skeleton /></td>
           <td><p-skeleton /></td>
           <td><p-skeleton /></td>
           <td><p-skeleton /></td>

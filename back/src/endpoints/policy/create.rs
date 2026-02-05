@@ -118,7 +118,7 @@ struct IdResult {
     id: i32,
 }
 
-async fn resolve_person(
+pub async fn resolve_person(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     person_ref: PersonRef,
 ) -> Result<i32, sqlx::Error> {
@@ -148,7 +148,7 @@ async fn resolve_person(
     }
 }
 
-async fn resolve_car(
+pub async fn resolve_car(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     car_ref: CarRef,
 ) -> Result<i32, sqlx::Error> {

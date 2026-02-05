@@ -1,28 +1,32 @@
-import { Observable, of } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CarDto } from '../models/car.model';
+import { environment } from '../../environments/environment';
 
-// TODO: Replace with actual backend data when car endpoints are available
-const mockCars: CarDto[] = [];
+interface CarSearchResult {
+  id: number;
+  label: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CarSearchService {
-  public search(query: string): Observable<AutocompleteSugggestion<number>[]> {
-    const result = mockCars
-      .filter((car) =>
-        `${car.plate.toLowerCase()} ${car.make.toLowerCase()} ${car.model.toLowerCase()}`.includes(
-          query.toLowerCase(),
-        ),
-      )
-      .map((car) => ({
-        value: car.id,
-        label: `${car.plate} (${car.make} ${car.model})`,
-      }));
+  private http = inject(HttpClient);
+  private baseUrl = `${environment.apiUrl}/cars`;
 
-    return of(result);
+  public search(query: string): Observable<AutocompleteSugggestion<number>[]> {
+    return this.http
+      .get<CarSearchResult[]>(`${this.baseUrl}/search`, {
+        params: { q: query },
+      })
+      .pipe(
+        map((results) =>
+          results.map((r) => ({ value: r.id, label: r.label })),
+        ),
+      );
   }
 
   public getCar(id: number): Observable<CarDto | null> {
-    return of(mockCars.find((car) => car.id === id) || null);
+    return this.http.get<CarDto>(`${this.baseUrl}/${id}`);
   }
 }

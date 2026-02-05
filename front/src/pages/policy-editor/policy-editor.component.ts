@@ -9,11 +9,19 @@ import {
   CarEditorControlComponent,
   CarEditorValue,
 } from '../../shared/car-editor-control/car-editor-control.component';
-import { policyTypeValues, PolicyType } from '../../shared/models/policy.model';
-import { getPolicyTypeLocalizedName } from '../../shared/pipes/policy-localization.pipe';
-import { CreatePolicyRequest } from './policy.model';
+import {
+  policyTypeValues,
+  PolicyType,
+  policyStatusValues,
+  PolicyStatus,
+} from '../../shared/models/policy.model';
+import {
+  getPolicyTypeLocalizedName,
+  getPolicyStatusLocalizedName,
+} from '../../shared/pipes/policy-localization.pipe';
+import { CreatePolicyRequest, PolicyFull, UpdatePolicyRequest } from './policy.model';
 import { PolicyEditorService } from './policy.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-policy-list',
@@ -23,6 +31,11 @@ import { Router } from '@angular/router';
 export class PolicyEditorComponent {
   private policyService = inject(PolicyEditorService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  public editMode = signal(false);
+  public policyId = signal<number | null>(null);
+  public loading = signal(false);
 
   public holderControl = new FormControl<PersonEditorValue>(null);
   public carControl = new FormControl<CarEditorValue>(null);
@@ -33,6 +46,7 @@ export class PolicyEditorComponent {
     startDate: new FormControl<Date | null>(null, [Validators.required]),
     endDate: new FormControl<Date | null>(null),
     type: new FormControl<PolicyType | null>(null, [Validators.required]),
+    status: new FormControl<PolicyStatus>('Active', [Validators.required]),
   });
 
   public greenCardGroup = new FormGroup({
@@ -53,6 +67,64 @@ export class PolicyEditorComponent {
     new FormControl<PersonEditorValue>(null),
   ]);
 
+  constructor() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.editMode.set(true);
+      this.policyId.set(Number(id));
+      this.loading.set(true);
+      this.loadPolicy(Number(id));
+    }
+  }
+
+  private loadPolicy(id: number) {
+    this.policyService.getById(id).subscribe({
+      next: (policy) => {
+        this.populateForm(policy);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.router.navigate(['/policies']);
+      },
+    });
+  }
+
+  private populateForm(policy: PolicyFull) {
+    this.generalGroup.controls.series.setValue(policy.series);
+    this.generalGroup.controls.number.setValue(policy.number);
+    this.generalGroup.controls.startDate.setValue(new Date(policy.start_date));
+    this.generalGroup.controls.endDate.setValue(
+      policy.end_date ? new Date(policy.end_date) : null
+    );
+    this.generalGroup.controls.type.setValue(policy.policy_type);
+    this.generalGroup.controls.status.setValue(policy.status);
+
+    // Disable type change in edit mode
+    this.generalGroup.controls.type.disable();
+
+    this.holderControl.setValue({ kind: 'Existing', id: policy.holder.id });
+
+    if (policy.policy_type === 'GreenCard') {
+      this.greenCardGroup.controls.territory.setValue(policy.territory);
+      this.greenCardGroup.controls.period_months.setValue(policy.period_months);
+      this.greenCardGroup.controls.premium.setValue(policy.premium);
+      this.carControl.setValue({ kind: 'Existing', id: policy.car.id });
+    } else if (policy.policy_type === 'Medassistance') {
+      this.medassistanceGroup.controls.territory.setValue(policy.territory);
+      this.medassistanceGroup.controls.period_months.setValue(policy.period_months);
+      this.medassistanceGroup.controls.premium.setValue(policy.premium);
+      this.medassistanceGroup.controls.payout.setValue(policy.payout);
+      this.medassistanceGroup.controls.program.setValue(policy.program);
+
+      this.membersArray.clear();
+      for (const member of policy.members) {
+        this.membersArray.push(
+          new FormControl<PersonEditorValue>({ kind: 'Existing', id: member.id })
+        );
+      }
+    }
+  }
+
   public addMember() {
     this.membersArray.push(new FormControl<PersonEditorValue>(null));
   }
@@ -68,11 +140,16 @@ export class PolicyEditorComponent {
     value: x,
   }));
 
+  public policyStatuses = policyStatusValues.map((x) => ({
+    label: getPolicyStatusLocalizedName(x),
+    value: x,
+  }));
+
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
 
-  private getPolicyRequest(): CreatePolicyRequest {
+  private getPolicyRequest(): CreatePolicyRequest | UpdatePolicyRequest {
     const holder = this.holderControl.value!;
     const base = {
       series: this.generalGroup.controls.series.value!,
@@ -84,11 +161,17 @@ export class PolicyEditorComponent {
         : null,
     };
 
-    const policyType = this.generalGroup.controls.type.value;
+    const statusBase = this.editMode()
+      ? { status: this.generalGroup.controls.status.value! }
+      : {};
+
+    // Use getRawValue to get the value even if disabled
+    const policyType = this.generalGroup.controls.type.getRawValue();
 
     if (policyType === 'GreenCard') {
       return {
         ...base,
+        ...statusBase,
         policy_type: 'GreenCard',
         territory: this.greenCardGroup.controls.territory.value!,
         period_months: this.greenCardGroup.controls.period_months.value!,
@@ -101,6 +184,7 @@ export class PolicyEditorComponent {
         .filter((m): m is NonNullable<PersonEditorValue> => m !== null);
       return {
         ...base,
+        ...statusBase,
         policy_type: 'Medassistance',
         territory: this.medassistanceGroup.controls.territory.value!,
         period_months: this.medassistanceGroup.controls.period_months.value!,
@@ -112,6 +196,7 @@ export class PolicyEditorComponent {
     } else if (policyType === 'Osago') {
       return {
         ...base,
+        ...statusBase,
         policy_type: 'Osago',
       };
     }
@@ -125,7 +210,7 @@ export class PolicyEditorComponent {
       return;
     }
 
-    const policyType = this.generalGroup.controls.type.value;
+    const policyType = this.generalGroup.controls.type.getRawValue();
 
     if (policyType === 'GreenCard' && this.greenCardGroup.invalid) {
       this.greenCardGroup.markAllAsTouched();
@@ -138,8 +223,17 @@ export class PolicyEditorComponent {
     }
 
     const request = this.getPolicyRequest();
-    this.policyService.create(request).subscribe(() => {
-      this.router.navigate(['/policies']);
-    });
+
+    if (this.editMode() && this.policyId()) {
+      this.policyService
+        .update(this.policyId()!, request as UpdatePolicyRequest)
+        .subscribe(() => {
+          this.router.navigate(['/policies', this.policyId()]);
+        });
+    } else {
+      this.policyService.create(request as CreatePolicyRequest).subscribe(() => {
+        this.router.navigate(['/policies']);
+      });
+    }
   }
 }

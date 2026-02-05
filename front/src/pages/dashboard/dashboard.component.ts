@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Person, Policy } from '../../data/data-model';
-import { people, policies } from '../../data/data';
 import { sharedImports } from '../../shared/shared-imports';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -12,8 +10,8 @@ import { Observable } from 'rxjs';
   imports: [sharedImports],
 })
 export class DashboardComponent {
-  public people: Person[] = people;
-  public policies: Policy[] = policies;
+  public people = [];
+  public policies = [];
   public apiResponse: Observable<string>;
 
   constructor(private http: HttpClient) {

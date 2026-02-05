@@ -1,8 +1,8 @@
-import { PersonRef } from '../../shared/person-editor-control/person.model';
-import { CarRef } from '../../shared/models/car.model';
+import { PersonDto, PersonRef } from '../../shared/person-editor-control/person.model';
+import { CarDto, CarRef } from '../../shared/models/car.model';
 import { PolicyStatus, PolicyType } from '../../shared/models/policy.model';
 
-// === Policy Type Specific Data ===
+// === Policy Type Specific Data (for requests) ===
 
 export interface GreenCardData {
   policy_type: 'GreenCard';
@@ -38,6 +38,12 @@ export type CreatePolicyRequest = {
   end_date: string | null;
 } & PolicyData;
 
+// === Update Policy Request ===
+
+export type UpdatePolicyRequest = CreatePolicyRequest & {
+  status: PolicyStatus;
+};
+
 // === Create Policy Response ===
 
 export interface CreatePolicyResponse {
@@ -50,3 +56,39 @@ export interface CreatePolicyResponse {
   end_date: string | null;
   status: PolicyStatus;
 }
+
+// === Policy Full Response (for GET by id) ===
+
+export interface GreenCardDetails {
+  policy_type: 'GreenCard';
+  territory: string;
+  period_months: number;
+  premium: number;
+  car: CarDto;
+}
+
+export interface MedassistanceDetails {
+  policy_type: 'Medassistance';
+  territory: string;
+  period_months: number;
+  premium: number;
+  payout: number;
+  program: string;
+  members: PersonDto[];
+}
+
+export interface OsagoDetails {
+  policy_type: 'Osago';
+}
+
+export type PolicyDetails = GreenCardDetails | MedassistanceDetails | OsagoDetails;
+
+export type PolicyFull = {
+  id: number;
+  holder: PersonDto;
+  series: string;
+  number: string;
+  start_date: string;
+  end_date: string | null;
+  status: PolicyStatus;
+} & PolicyDetails;
