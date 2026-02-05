@@ -1,8 +1,11 @@
+mod auth;
 mod endpoints;
 
-use axum::http::{HeaderMap, Uri};
+use axum::http::{HeaderMap, HeaderName, Method, Uri};
+use axum::middleware;
 use axum::{Router, response::Redirect};
 use sqlx::PgPool;
+use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer;
 
 #[tokio::main]
@@ -13,14 +16,30 @@ async fn main() {
 
     let pool = PgPool::connect(&connection_string).await.unwrap();
 
-    let mut app = endpoints::router().with_state(pool);
+    let mut app = Router::new()
+        .merge(endpoints::router())
+        .merge(auth::router())
+        .layer(middleware::from_fn(auth::middleware::auth_middleware))
+        .layer(CookieManagerLayer::new())
+        .with_state(pool);
 
     if let Ok(origin) = std::env::var("CORS_ORIGIN") {
         println!("CORS mode: origin={}", origin);
         let cors = CorsLayer::new()
             .allow_origin(origin.parse::<axum::http::HeaderValue>().unwrap())
-            .allow_methods(tower_http::cors::Any)
-            .allow_headers(tower_http::cors::Any);
+            .allow_methods([
+                Method::GET,
+                Method::POST,
+                Method::PUT,
+                Method::DELETE,
+                Method::OPTIONS,
+            ])
+            .allow_headers([
+                HeaderName::from_static("content-type"),
+                HeaderName::from_static("authorization"),
+                HeaderName::from_static("accept"),
+            ])
+            .allow_credentials(true);
         app = app.layer(cors);
     }
 

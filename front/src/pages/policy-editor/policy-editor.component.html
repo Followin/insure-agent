@@ -1,4 +1,5 @@
-<h1>{{editMode() ? 'Редактировать полис' : 'Новый полис'}}</h1>
+<h1 class="justify-self-start">{{editMode() ? 'Редактировать полис' : 'Новый полис'}}</h1>
+<p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="fixed right-4 top-4 z-10" raised />
 <div class="grid grid-cols-2 gap-8 items-start">
   <p-panel class="p-2 pt-4" header="Общие данные" toggleable>
     <div class="grid gap-8 mt-6">
@@ -93,5 +94,4 @@
       </p-panel>
     }
   }
-  <p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="col-span-2"/>
 </div>

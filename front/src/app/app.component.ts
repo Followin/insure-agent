@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +13,12 @@ import { TableModule } from 'primeng/table';
 })
 export class App {
   protected readonly title = signal('insure');
+  protected authService = inject(AuthService);
+  private router = inject(Router);
+
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
+  }
 }

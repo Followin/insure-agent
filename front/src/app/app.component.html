@@ -1,18 +1,29 @@
-<div data-id="sidebar" class="grid grid-rows-[120px_1fr_50px] gap-2 bg-surface-200 w-[300px] h-full top-0 fixed p-4 border-r border-surface-300">
-  <div data-id="logo">
-    <img src="logo.png" alt="Insurance logo" class="w-[100px] h-[100px]">
+@if (authService.isAuthenticated()) {
+  <div data-id="sidebar" class="grid grid-rows-[120px_1fr_150px] gap-2 bg-surface-200 w-[300px] h-full top-0 fixed p-4 border-r border-surface-300">
+    <div data-id="logo">
+      <img src="logo.png" alt="Insurance logo" class="w-[100px] h-[100px]">
+    </div>
+    <div data-id="menu" class="grid grid-flow-row content-start gap-4">
+      <a routerLink="/dashboard" class="text-xl"><i class="pi pi-home"></i> Домашняя страница</a>
+      <a routerLink="/people" class="text-xl"><i class="pi pi-user"></i> Люди</a>
+      <a routerLink="/policies" class="text-xl"><i class="pi pi-credit-card"></i> Полисы</a>
+    </div>
+    <div data-id="user" class="grid items-center content-center gap-4">
+      <span class="text-sm truncate">{{ authService.userEmail() }}</span>
+      <p-button
+        label="Выход"
+        icon="pi pi-sign-out"
+        severity="secondary"
+        size="small"
+        (onClick)="logout()"
+      />
+    </div>
   </div>
-  <div data-id="menu" class="grid grid-flow-row content-start gap-4">
-    <a routerLink="/dashboard" class="text-xl"><i class="pi pi-home"></i> Домашняя страница</a>
-    <a routerLink="/people" class="text-xl"><i class="pi pi-user"></i> Люди</a>
-    <a routerLink="/policies" class="text-xl"><i class="pi pi-credit-card"></i> Полисы</a>
+  <div data-id="content" class="pl-[300px]">
+    <div class="p-4">
+      <router-outlet></router-outlet>
+    </div>
   </div>
-  <div data-id="user">
-    <p-avatar icon="pi pi-user" class="mr-2" size="large" />
-  </div>
-</div>
-<div data-id="content" class="pl-[300px]">
-  <div class="p-4">
-    <router-outlet></router-outlet>
-  </div>
-</div>
+} @else {
+  <router-outlet></router-outlet>
+}

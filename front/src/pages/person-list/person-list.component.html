@@ -1,10 +1,5 @@
-<div class="grid grid-cols-2 items-center">
-  <h1>Люди</h1>
-  <a routerLink="/people/new" class="justify-self-end" pButton>
-    <i class="pi pi-plus"></i>
-    Добавить человека
-  </a>
-</div>
+<h1>Люди</h1>
+<p-button routerLink="/people/new" class="fixed right-4 top-4 z-10" label="Добавить человека" icon="pi pi-plus" raised />
 <p-card>
   <p-table [value]="people() ?? skeletonRows" size="large">
     <ng-template #header>
