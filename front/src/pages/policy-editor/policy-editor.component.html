@@ -89,9 +89,29 @@
     @case('Osago') {
       <p-panel class="p-2 pt-4" header="Детали ОСАГО" toggleable>
         <div class="grid gap-8 mt-6">
-          <p class="text-gray-500">Дополнительные поля не требуются</p>
+          <p-floatlabel>
+            <input id="zone" type="text" pInputText [formControl]="osagoGroup.controls.zone" class="w-full"/>
+            <label for="zone">Зона</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber inputId="osago_period_months" [formControl]="osagoGroup.controls.period_months" class="w-full"/>
+            <label for="osago_period_months">Срок (месяцы)</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-inputnumber id="osago_premium" [formControl]="osagoGroup.controls.premium" class="w-full"/>
+            <label for="osago_premium">Взнос</label>
+          </p-floatlabel>
+          <div class="flex items-center gap-2">
+            <p-checkbox [formControl]="osagoGroup.controls.exempt" [binary]="true" inputId="exempt"/>
+            <label for="exempt">Льгота</label>
+          </div>
+          <p-floatlabel>
+            <p-inputnumber id="franchise" [formControl]="osagoGroup.controls.franchise" class="w-full"/>
+            <label for="franchise">Франшиза</label>
+          </p-floatlabel>
         </div>
       </p-panel>
+      <app-car-editor-control [allowExisting]="true" header="Автомобиль" [formControl]="carControl"/>
     }
   }
 </div>

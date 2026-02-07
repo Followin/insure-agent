@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -7,7 +7,7 @@ import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ButtonModule, AvatarModule, TableModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ButtonModule, AvatarModule, TableModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })

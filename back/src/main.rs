@@ -19,6 +19,9 @@ async fn main() {
     let mut app = Router::new()
         .merge(endpoints::router())
         .merge(auth::router())
+        .layer(middleware::from_fn(
+            auth::middleware::allowed_users_middleware,
+        ))
         .layer(middleware::from_fn(auth::middleware::auth_middleware))
         .layer(CookieManagerLayer::new())
         .with_state(pool);

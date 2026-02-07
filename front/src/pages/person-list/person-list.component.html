@@ -2,6 +2,12 @@
 <p-button routerLink="/people/new" class="fixed right-4 top-4 z-10" label="Добавить человека" icon="pi pi-plus" raised />
 <p-card>
   <p-table [value]="people() ?? skeletonRows" size="large">
+    <ng-template #caption>
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input type="text" pInputText [formControl]="searchControl" placeholder="Поиск по ФИО, ИНН, телефону, email" class="w-full" />
+      </p-iconfield>
+    </ng-template>
     <ng-template #header>
       <tr>
         <th>Имя</th>
@@ -14,7 +20,7 @@
       </tr>
     </ng-template>
     <ng-template #body let-person>
-      @if (people()) {
+      @if (!loading) {
         <tr>
           <td>{{person.first_name}}</td>
           <td>{{person.last_name}}</td>

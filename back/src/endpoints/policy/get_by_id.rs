@@ -29,7 +29,14 @@ pub struct MedassistanceDetails {
 }
 
 #[derive(Serialize)]
-pub struct OsagoDetails {}
+pub struct OsagoDetails {
+    pub period_months: i32,
+    pub zone: String,
+    pub exempt: bool,
+    pub premium: i32,
+    pub franchise: i32,
+    pub car: Car,
+}
 
 #[derive(Serialize)]
 #[serde(tag = "policy_type")]
@@ -78,6 +85,15 @@ struct MedassistanceRow {
     premium: i32,
     payout: i32,
     program: String,
+}
+
+struct OsagoRow {
+    period_months: i32,
+    zone: String,
+    exempt: bool,
+    premium: i32,
+    franchise: i32,
+    car_id: i32,
 }
 
 // === Endpoint ===
@@ -232,7 +248,60 @@ pub async fn get_policy_by_id(
                 members,
             })
         }
-        PolicyType::Osago => PolicyDetails::Osago(OsagoDetails {}),
+        PolicyType::Osago => {
+            let row = sqlx::query_as!(
+                OsagoRow,
+                r#"
+                select
+                    period_months,
+                    zone,
+                    exempt,
+                    premium,
+                    franchise,
+                    car_id
+                from osago_policy
+                where id = $1
+                "#,
+                id
+            )
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            let car = sqlx::query_as!(
+                Car,
+                r#"
+                select
+                    id,
+                    chassis,
+                    make,
+                    model,
+                    registration,
+                    plate,
+                    year,
+                    engine_displacement_litres,
+                    mileage_km,
+                    unladen_weight,
+                    laden_weight,
+                    seats
+                from car
+                where id = $1
+                "#,
+                row.car_id
+            )
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            PolicyDetails::Osago(OsagoDetails {
+                period_months: row.period_months,
+                zone: row.zone,
+                exempt: row.exempt,
+                premium: row.premium,
+                franchise: row.franchise,
+                car,
+            })
+        }
     };
 
     Ok(Json(PolicyFull {

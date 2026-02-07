@@ -1,6 +1,2 @@
-create table if not exists test (
-    id serial primary key,
-    name varchar(255) not null
-);
-
-insert into test (id, name) values (1, 'test');
+-- Enable dblink extension for cross-database queries (used by migration script)
+create extension if not exists dblink;

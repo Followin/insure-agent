@@ -63,6 +63,14 @@ export class PolicyEditorComponent {
     program: new FormControl('', [Validators.required]),
   });
 
+  public osagoGroup = new FormGroup({
+    period_months: new FormControl<number | null>(null, [Validators.required]),
+    zone: new FormControl('', [Validators.required]),
+    exempt: new FormControl<boolean>(false, [Validators.required]),
+    premium: new FormControl<number | null>(null, [Validators.required]),
+    franchise: new FormControl<number | null>(null, [Validators.required]),
+  });
+
   public membersArray = new FormArray<FormControl<PersonEditorValue>>([
     new FormControl<PersonEditorValue>(null),
   ]);
@@ -122,6 +130,13 @@ export class PolicyEditorComponent {
           new FormControl<PersonEditorValue>({ kind: 'Existing', id: member.id })
         );
       }
+    } else if (policy.policy_type === 'Osago') {
+      this.osagoGroup.controls.period_months.setValue(policy.period_months);
+      this.osagoGroup.controls.zone.setValue(policy.zone);
+      this.osagoGroup.controls.exempt.setValue(policy.exempt);
+      this.osagoGroup.controls.premium.setValue(policy.premium);
+      this.osagoGroup.controls.franchise.setValue(policy.franchise);
+      this.carControl.setValue({ kind: 'Existing', id: policy.car.id });
     }
   }
 
@@ -198,6 +213,12 @@ export class PolicyEditorComponent {
         ...base,
         ...statusBase,
         policy_type: 'Osago',
+        period_months: this.osagoGroup.controls.period_months.value!,
+        zone: this.osagoGroup.controls.zone.value!,
+        exempt: this.osagoGroup.controls.exempt.value!,
+        premium: this.osagoGroup.controls.premium.value!,
+        franchise: this.osagoGroup.controls.franchise.value!,
+        car: this.carControl.value!,
       };
     }
 
@@ -219,6 +240,11 @@ export class PolicyEditorComponent {
 
     if (policyType === 'Medassistance' && this.medassistanceGroup.invalid) {
       this.medassistanceGroup.markAllAsTouched();
+      return;
+    }
+
+    if (policyType === 'Osago' && this.osagoGroup.invalid) {
+      this.osagoGroup.markAllAsTouched();
       return;
     }
 

@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs';
 import { sharedImports } from '../../shared/shared-imports';
-import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { DashboardService } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,11 +10,14 @@ import { Observable } from 'rxjs';
   imports: [sharedImports],
 })
 export class DashboardComponent {
-  public people = [];
-  public policies = [];
-  public apiResponse: Observable<string>;
+  private dashboardService = inject(DashboardService);
 
-  constructor(private http: HttpClient) {
-    this.apiResponse = this.http.get(environment.apiUrl, { responseType: 'text' });
-  }
+  public loading = true;
+  public skeletonRows = Array(5).fill({});
+
+  public stats = toSignal(
+    this.dashboardService.getStats().pipe(
+      tap(() => (this.loading = false))
+    )
+  );
 }

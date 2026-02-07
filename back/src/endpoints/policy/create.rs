@@ -74,7 +74,12 @@ pub struct MedassistanceData {
 
 #[derive(Deserialize)]
 pub struct OsagoData {
-    // osago has no extra fields in the schema
+    pub period_months: i32,
+    pub zone: String,
+    pub exempt: bool,
+    pub premium: i32,
+    pub franchise: i32,
+    pub car: CarRef,
 }
 
 #[derive(Deserialize)]
@@ -281,8 +286,27 @@ pub async fn create_policy(
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
             }
         }
-        PolicyData::Osago(_) => {
-            // Osago has no additional tables
+        PolicyData::Osago(data) => {
+            let car_id = resolve_car(&mut tx, data.car)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            sqlx::query!(
+                r#"
+                insert into osago_policy (id, period_months, car_id, zone, exempt, premium, franchise)
+                values ($1, $2, $3, $4, $5, $6, $7)
+                "#,
+                policy.id,
+                data.period_months,
+                car_id,
+                data.zone,
+                data.exempt,
+                data.premium,
+                data.franchise
+            )
+            .execute(&mut *tx)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
         }
     }
 

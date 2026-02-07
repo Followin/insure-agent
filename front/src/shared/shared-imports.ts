@@ -13,6 +13,9 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SkeletonModule } from 'primeng/skeleton';
+import { CheckboxModule } from 'primeng/checkbox';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { PolicyTypeLocalPipe, PolicyStatusLocalPipe } from './pipes/policy-localization.pipe';
 
 export const sharedImports = [
@@ -31,6 +34,9 @@ export const sharedImports = [
   SelectModule,
   InputNumberModule,
   SkeletonModule,
+  CheckboxModule,
+  IconFieldModule,
+  InputIconModule,
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
 ];

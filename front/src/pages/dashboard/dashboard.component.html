@@ -1,55 +1,119 @@
 <div data-id="cards" class="grid grid-cols-3 gap-8">
   <p-card header="Люди">
-    <span class="text-xl">15</span>
+    @if (stats()) {
+      <span class="text-xl">{{ stats()!.people_count }}</span>
+    } @else {
+      <p-skeleton width="3rem" height="1.5rem" />
+    }
   </p-card>
   <p-card header="Полисы">
-    <span class="text-xl">15</span>
+    @if (stats()) {
+      <span class="text-xl">{{ stats()!.policy_count }}</span>
+    } @else {
+      <p-skeleton width="3rem" height="1.5rem" />
+    }
   </p-card>
   <p-card header="Машины">
-    <span class="text-xl">15</span>
+    @if (stats()) {
+      <span class="text-xl">{{ stats()!.car_count }}</span>
+    } @else {
+      <p-skeleton width="3rem" height="1.5rem" />
+    }
   </p-card>
 </div>
 <div data-id="tables" class="grid grid-cols-2 gap-8 mt-8">
-  <p-panel header="Дни рождения" >
-    <p-table [value]="people" size="large">
+  <p-panel header="Дни рождения (ближайшие 7 дней)">
+    <p-table [value]="stats()?.upcoming_birthdays ?? skeletonRows" size="large">
       <ng-template #header>
         <tr>
           <th>Имя</th>
-          <th>Email</th>
           <th>Телефон</th>
           <th>Дата рождения</th>
+          <th>Возраст</th>
+          <th>Через дней</th>
         </tr>
       </ng-template>
       <ng-template #body let-person>
+        @if (!loading) {
+          <tr>
+            <td class="whitespace-nowrap">
+              <a [routerLink]="['/people', person.id]">
+                {{ person.first_name }} {{ person.last_name }}
+              </a>
+            </td>
+            <td>{{ person.phone }}</td>
+            <td>{{ person.birth_date | date:'d MMM' }}</td>
+            <td>{{ person.age }}</td>
+            <td>
+              @if (person.days_until === 0) {
+                <p-tag severity="success" value="Сегодня!" />
+              } @else {
+                {{ person.days_until }}
+              }
+            </td>
+          </tr>
+        } @else {
+          <tr>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
         <tr>
-          <td class="whitespace-nowrap">{{ person.firstName }} {{ person.lastName }}</td>
-          <td>{{person.email}}</td>
-          <td>{{person.phone}}</td>
-          <td>{{person.birthDate | date:'mediumDate'}}</td>
+          <td colspan="5" class="text-center text-gray-500 py-4">Нет дней рождения в ближайшие 7 дней</td>
         </tr>
       </ng-template>
     </p-table>
   </p-panel>
-  <p-panel header="Полисы" >
-    <p-table [value]="policies" size="large">
+  <p-panel header="Полисы заканчиваются (ближайшие 7 дней)">
+    <p-table [value]="stats()?.expiring_policies ?? skeletonRows" size="large">
       <ng-template #header>
         <tr>
-          <th>Серия</th>
-          <th>Номер</th>
+          <th>Серия/Номер</th>
           <th>Страхователь</th>
-          <th>Дата начала</th>
-          <th>Дата окончания</th>
           <th>Тип</th>
+          <th>Дата окончания</th>
+          <th>Через дней</th>
         </tr>
       </ng-template>
       <ng-template #body let-policy>
+        @if (!loading) {
+          <tr>
+            <td>
+              <a [routerLink]="['/policies', policy.id]" class="text-primary hover:underline">
+                {{ policy.series }} {{ policy.number }}
+              </a>
+            </td>
+            <td class="whitespace-nowrap">{{ policy.holder_first_name }} {{ policy.holder_last_name }}</td>
+            <td>{{ policy.policy_type | policyTypeLocal }}</td>
+            <td>{{ policy.end_date | date:'mediumDate' }}</td>
+            <td>
+              @if (policy.days_until === 0) {
+                <p-tag severity="danger" value="Сегодня!" />
+              } @else if (policy.days_until <= 2) {
+                <p-tag severity="warn" [value]="policy.days_until.toString()" />
+              } @else {
+                {{ policy.days_until }}
+              }
+            </td>
+          </tr>
+        } @else {
+          <tr>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+            <td><p-skeleton /></td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
         <tr>
-          <td>{{policy.series}}</td>
-          <td>{{policy.number}}</td>
-          <td class="whitespace-nowrap">{{ policy.holder.firstName }} {{ policy.holder.lastName }}</td>
-          <td>{{policy.startDate | date:'mediumDate'}}</td>
-          <td>{{policy.endDate | date:'mediumDate'}}</td>
-          <td>{{policy.type | policyTypeLocal}}</td>
+          <td colspan="5" class="text-center text-gray-500 py-4">Нет полисов, заканчивающихся в ближайшие 7 дней</td>
         </tr>
       </ng-template>
     </p-table>

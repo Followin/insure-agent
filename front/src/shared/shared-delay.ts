@@ -1,1 +1,1 @@
-export const fakeLoadingDelay = 500;
+export const fakeLoadingDelay = 0;

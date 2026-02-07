@@ -245,8 +245,68 @@ pub async fn update_policy(
                 members,
             })
         }
-        PolicyData::Osago(_) => {
-            super::get_by_id::PolicyDetails::Osago(super::get_by_id::OsagoDetails {})
+        PolicyData::Osago(data) => {
+            let car_id = resolve_car(&mut tx, data.car)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            sqlx::query!(
+                r#"
+                update osago_policy
+                set
+                    period_months = $2,
+                    zone = $3,
+                    exempt = $4,
+                    premium = $5,
+                    franchise = $6,
+                    car_id = $7
+                where id = $1
+                "#,
+                id,
+                data.period_months,
+                data.zone,
+                data.exempt,
+                data.premium,
+                data.franchise,
+                car_id
+            )
+            .execute(&mut *tx)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            let car = sqlx::query_as!(
+                Car,
+                r#"
+                select
+                    id,
+                    chassis,
+                    make,
+                    model,
+                    registration,
+                    plate,
+                    year,
+                    engine_displacement_litres,
+                    mileage_km,
+                    unladen_weight,
+                    laden_weight,
+                    seats
+                from car
+                where id = $1
+                "#,
+                car_id
+            )
+            .fetch_one(&mut *tx)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            super::get_by_id::PolicyDetails::Osago(super::get_by_id::OsagoDetails {
+                period_months: data.period_months,
+                zone: data.zone,
+                exempt: data.exempt,
+                premium: data.premium,
+                franchise: data.franchise,
+                car,
+            })
         }
     };
 

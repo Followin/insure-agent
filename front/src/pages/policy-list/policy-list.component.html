@@ -2,6 +2,20 @@
 <p-button routerLink="/policies/new" class="fixed right-4 top-4 z-10" label="Добавить полис" icon="pi pi-plus" raised />
 <p-card>
   <p-table [value]="policies() ?? skeletonRows" size="large">
+    <ng-template #caption>
+      <div class="flex items-center gap-16" [formGroup]="filterForm">
+        <div class="flex-1">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input type="text" pInputText formControlName="search" placeholder="Поиск по серии/номеру, ФИО, авто" class="w-full" />
+          </p-iconfield>
+        </div>
+        <div class="flex gap-2">
+          <p-checkbox formControlName="activeOnly" [binary]="true" inputId="activeOnly" />
+          <label for="activeOnly">Только активные</label>
+        </div>
+      </div>
+    </ng-template>
     <ng-template #header>
       <tr>
         <th>Серия</th>
@@ -15,7 +29,7 @@
       </tr>
     </ng-template>
     <ng-template #body let-policy>
-      @if (policies()) {
+      @if (!loading) {
         <tr>
           <td>{{policy.series}}</td>
           <td>{{policy.number}}</td>

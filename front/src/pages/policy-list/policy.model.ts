@@ -9,4 +9,6 @@ export interface PolicyShort {
   start_date: string;
   end_date: string | null;
   status: PolicyStatus;
+  car_model: string | null;
+  car_plate: string | null;
 }

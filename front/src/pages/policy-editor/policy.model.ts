@@ -24,6 +24,12 @@ export interface MedassistanceData {
 
 export interface OsagoData {
   policy_type: 'Osago';
+  period_months: number;
+  zone: string;
+  exempt: boolean;
+  premium: number;
+  franchise: number;
+  car: CarRef;
 }
 
 export type PolicyData = GreenCardData | MedassistanceData | OsagoData;
@@ -79,6 +85,12 @@ export interface MedassistanceDetails {
 
 export interface OsagoDetails {
   policy_type: 'Osago';
+  period_months: number;
+  zone: string;
+  exempt: boolean;
+  premium: number;
+  franchise: number;
+  car: CarDto;
 }
 
 export type PolicyDetails = GreenCardDetails | MedassistanceDetails | OsagoDetails;

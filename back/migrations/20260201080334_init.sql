@@ -62,4 +62,14 @@ create table medassistance_policy(
 create table medassistance_policy_member(
     medassistance_policy_id int references medassistance_policy(id) not null,
     member_id int references person(id) not null
-)
+);
+
+create table osago_policy(
+    id serial references policy(id) primary key,
+    period_months int not null,
+    car_id int references car(id) not null,
+    zone varchar(255) not null,
+    exempt boolean not null,
+    premium int not null,
+    franchise int not null
+);

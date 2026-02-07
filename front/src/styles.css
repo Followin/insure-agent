@@ -36,3 +36,7 @@ h2 {
 h3 {
   font-size: 1.25rem;
 }
+
+a:not([pButton]):hover {
+  text-decoration: underline;
+}
