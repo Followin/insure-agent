@@ -17,7 +17,15 @@ export class PersonService {
     return this.http.get<PersonDto[]>(this.url, { params });
   }
 
+  getById(id: number): Observable<PersonDto> {
+    return this.http.get<PersonDto>(`${this.url}/${id}`);
+  }
+
   create(person: CreatePersonDto): Observable<PersonDto> {
     return this.http.post<PersonDto>(this.url, person);
+  }
+
+  update(id: number, person: CreatePersonDto): Observable<PersonDto> {
+    return this.http.put<PersonDto>(`${this.url}/${id}`, person);
   }
 }

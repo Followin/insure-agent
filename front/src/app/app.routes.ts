@@ -5,6 +5,7 @@ import { PolicyEditorComponent } from '../pages/policy-editor/policy-editor.comp
 import { PolicyViewComponent } from '../pages/policy-view/policy-view.component';
 import { PersonListComponent } from '../pages/person-list/person-list.component';
 import { PersonEditorComponent } from '../pages/person-editor/person-editor.component';
+import { PersonViewComponent } from '../pages/person-view/person-view.component';
 import { LoginComponent } from '../pages/login/login.component';
 import { AuthCallbackComponent } from '../pages/auth-callback/auth-callback.component';
 import { authGuard } from './auth/auth.guard';
@@ -24,6 +25,8 @@ export const routes: Routes = [
       { path: 'policies/:id/edit', component: PolicyEditorComponent },
       { path: 'people', component: PersonListComponent },
       { path: 'people/new', component: PersonEditorComponent },
+      { path: 'people/:id', component: PersonViewComponent },
+      { path: 'people/:id/edit', component: PersonEditorComponent },
     ],
   },
 ];

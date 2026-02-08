@@ -16,7 +16,9 @@ pub async fn get_people(
 ) -> Json<Vec<Person>> {
     let search = query.search.unwrap_or_default().to_lowercase();
     let search_pattern = format!("%{}%", search);
-    let phone_pattern = format!("%{}%", search.chars().filter(|c| c.is_ascii_digit()).collect::<String>());
+    let phone_digits: String = search.chars().filter(|c| c.is_ascii_digit()).collect();
+    let has_digits = !phone_digits.is_empty();
+    let phone_pattern = format!("%{}%", phone_digits);
 
     let people = sqlx::query_as!(
         Person,
@@ -35,12 +37,14 @@ pub async fn get_people(
         where
             lower(first_name || ' ' || last_name) like $1
             or lower(tax_number) like $1
-            or regexp_replace(phone, '[^0-9]', '', 'g') like $2
+            or ($3 and regexp_replace(phone, '[^0-9]', '', 'g') like $2)
+            or ($3 and regexp_replace(coalesce(phone2, ''), '[^0-9]', '', 'g') like $2)
             or lower(email) like $1
         limit 30
         "#,
         search_pattern,
-        phone_pattern
+        phone_pattern,
+        has_digits
     )
     .fetch_all(&pool)
     .await

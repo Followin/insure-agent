@@ -51,8 +51,6 @@ pub async fn auth_middleware(
         session
     };
 
-    // Add user info to request extensions
-    println!("setting AuthUser: {:?}", session);
     request.extensions_mut().insert(AuthUser {
         email: session.email,
     });
@@ -71,8 +69,6 @@ pub async fn allowed_users_middleware(
     }
 
     let user = request.extensions().get::<AuthUser>();
-
-    println!("user: {:?}", user);
 
     if let Some(user) = user
         && user.email == "dlike.version10@gmail.com"

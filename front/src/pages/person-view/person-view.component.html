@@ -1,0 +1,42 @@
+@if (loading()) {
+  <p-skeleton height="2rem" width="200px" class="mb-4" />
+  <div class="grid grid-cols-2 gap-8">
+    <p-skeleton height="300px" />
+  </div>
+} @else if (person(); as p) {
+  <div class="grid grid-cols-2 items-center mb-4">
+    <h1>{{p.first_name}} {{p.last_name}}</h1>
+    <a [routerLink]="['/people', p.id, 'edit']" class="justify-self-end" pButton>
+      <i class="pi pi-pencil"></i>
+      Редактировать
+    </a>
+  </div>
+  <div class="grid grid-cols-2 gap-8 items-start">
+    <p-panel header="Личные данные">
+      <div class="grid grid-cols-2 gap-4 p-4">
+        <span class="text-color-secondary">Имя:</span>
+        <span>{{p.first_name}}</span>
+        <span class="text-color-secondary">Фамилия:</span>
+        <span>{{p.last_name}}</span>
+        <span class="text-color-secondary">Пол:</span>
+        <span>{{p.sex === 'M' ? 'Мужской' : 'Женский'}}</span>
+        <span class="text-color-secondary">Дата рождения:</span>
+        <span>{{p.birth_date | date:'mediumDate'}}</span>
+        <span class="text-color-secondary">ИНН:</span>
+        <span>{{p.tax_number}}</span>
+      </div>
+    </p-panel>
+    <p-panel header="Контактные данные">
+      <div class="grid grid-cols-2 gap-4 p-4">
+        <span class="text-color-secondary">Телефон:</span>
+        <span>{{p.phone}}</span>
+        @if (p.phone2) {
+          <span class="text-color-secondary">Телефон 2:</span>
+          <span>{{p.phone2}}</span>
+        }
+        <span class="text-color-secondary">Email:</span>
+        <span>{{p.email}}</span>
+      </div>
+    </p-panel>
+  </div>
+}

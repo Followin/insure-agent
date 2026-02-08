@@ -60,6 +60,7 @@ pub async fn get_policies(
             or lower(coalesce(car.make || ' ' || car.model, '')) like $1
             or lower(coalesce(car.plate, '')) like $1)
             and (not $2 or status = 'active')
+        order by start_date desc
         limit 30
         "#,
         search_pattern,

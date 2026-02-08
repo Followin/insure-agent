@@ -34,7 +34,12 @@
     <p-panel header="Страхователь">
       <div class="grid grid-cols-2 gap-4 p-4">
         <span class="text-color-secondary">Имя:</span>
-        <span>{{p.holder.first_name}} {{p.holder.last_name}}</span>
+        <span>
+          {{p.holder.first_name}} {{p.holder.last_name}}
+          <a [routerLink]="['/people', p.holder.id]" pButton [text]="true" size="small">
+            <i class="pi pi-eye"></i>
+          </a>
+        </span>
         <span class="text-color-secondary">Пол:</span>
         <span>{{p.holder.sex === 'M' ? 'Мужской' : 'Женский'}}</span>
         <span class="text-color-secondary">Дата рождения:</span>
@@ -100,7 +105,12 @@
             @for (member of p.members; track member.id; let i = $index) {
               <div class="grid grid-cols-2 gap-4 mb-4 pb-4" [class.border-b]="i < p.members.length - 1">
                 <span class="text-color-secondary">Имя:</span>
-                <span>{{member.first_name}} {{member.last_name}}</span>
+                <span>
+                  {{member.first_name}} {{member.last_name}}
+                  <a [routerLink]="['/people', member.id]" pButton [text]="true" size="small">
+                    <i class="pi pi-eye"></i>
+                  </a>
+                </span>
                 <span class="text-color-secondary">Телефон:</span>
                 <span>{{member.phone}}</span>
                 <span class="text-color-secondary">Email:</span>
