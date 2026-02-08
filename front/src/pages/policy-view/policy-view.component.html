@@ -28,7 +28,7 @@
         <span class="text-color-secondary">Тип:</span>
         <span>{{p.policy_type | policyTypeLocal}}</span>
         <span class="text-color-secondary">Статус:</span>
-        <p-tag [value]="p.status | policyStatusLocal" [severity]="p.status === 'Active' ? 'success' : p.status === 'Expired' ? 'warn' : 'danger'"/>
+        <p-tag [value]="p.status | policyStatusLocal" [severity]="p.status | policyStatusSeverity"/>
       </div>
     </p-panel>
     <p-panel header="Страхователь">
@@ -41,7 +41,7 @@
           </a>
         </span>
         <span class="text-color-secondary">Пол:</span>
-        <span>{{p.holder.sex === 'M' ? 'Мужской' : 'Женский'}}</span>
+        <span>{{p.holder.sex | sexLocal}}</span>
         <span class="text-color-secondary">Дата рождения:</span>
         <span>{{p.holder.birth_date | date:'mediumDate'}}</span>
         <span class="text-color-secondary">ИНН:</span>
@@ -62,8 +62,8 @@
           <div class="grid grid-cols-2 gap-4 p-4">
             <span class="text-color-secondary">Территория:</span>
             <span>{{p.territory}}</span>
-            <span class="text-color-secondary">Срок (месяцы):</span>
-            <span>{{p.period_months}}</span>
+            <span class="text-color-secondary">Срок:</span>
+            <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
             <span class="text-color-secondary">Взнос:</span>
             <span>{{p.premium}}</span>
           </div>
@@ -90,8 +90,8 @@
           <div class="grid grid-cols-2 gap-4 p-4">
             <span class="text-color-secondary">Территория:</span>
             <span>{{p.territory}}</span>
-            <span class="text-color-secondary">Срок (месяцы):</span>
-            <span>{{p.period_months}}</span>
+            <span class="text-color-secondary">Срок (дни):</span>
+            <span>{{p.period_days}}</span>
             <span class="text-color-secondary">Взнос:</span>
             <span>{{p.premium}}</span>
             <span class="text-color-secondary">Выплата:</span>
@@ -125,8 +125,8 @@
           <div class="grid grid-cols-2 gap-4 p-4">
             <span class="text-color-secondary">Зона:</span>
             <span>{{p.zone}}</span>
-            <span class="text-color-secondary">Срок (месяцы):</span>
-            <span>{{p.period_months}}</span>
+            <span class="text-color-secondary">Срок:</span>
+            <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
             <span class="text-color-secondary">Взнос:</span>
             <span>{{p.premium}}</span>
             <span class="text-color-secondary">Льгота:</span>

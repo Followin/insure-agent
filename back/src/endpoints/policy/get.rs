@@ -1,28 +1,14 @@
 use axum::Json;
 use axum::extract::{Query, State};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::PgPool;
 
-use super::model::{PolicyStatus, PolicyType};
+use crate::models::{PolicyShort, PolicyStatus, PolicyType};
 
 #[derive(Deserialize)]
 pub struct PolicyQuery {
     pub search: Option<String>,
     pub active_only: Option<bool>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PolicyShort {
-    pub id: i32,
-    pub policy_type: PolicyType,
-    pub holder_name: String,
-    pub series: String,
-    pub number: String,
-    pub start_date: chrono::NaiveDate,
-    pub end_date: Option<chrono::NaiveDate>,
-    pub status: PolicyStatus,
-    pub car_model: Option<String>,
-    pub car_plate: Option<String>,
 }
 
 pub async fn get_policies(

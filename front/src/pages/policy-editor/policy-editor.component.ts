@@ -14,10 +14,13 @@ import {
   PolicyType,
   policyStatusValues,
   PolicyStatus,
+  carInsurancePeriodUnitValues,
+  CarInsurancePeriodUnit,
 } from '../../shared/models/policy.model';
 import {
   getPolicyTypeLocalizedName,
   getPolicyStatusLocalizedName,
+  getPeriodUnitLocalizedName,
 } from '../../shared/pipes/policy-localization.pipe';
 import { CreatePolicyRequest, PolicyFull, UpdatePolicyRequest } from './policy.model';
 import { PolicyEditorService } from './policy.service';
@@ -51,20 +54,22 @@ export class PolicyEditorComponent {
 
   public greenCardGroup = new FormGroup({
     territory: new FormControl('', [Validators.required]),
-    period_months: new FormControl<number | null>(null, [Validators.required]),
+    period_in_units: new FormControl<number | null>(null, [Validators.required]),
+    period_unit: new FormControl<CarInsurancePeriodUnit | null>(null, [Validators.required]),
     premium: new FormControl<number | null>(null, [Validators.required]),
   });
 
   public medassistanceGroup = new FormGroup({
     territory: new FormControl('', [Validators.required]),
-    period_months: new FormControl<number | null>(null, [Validators.required]),
+    period_days: new FormControl<number | null>(null, [Validators.required]),
     premium: new FormControl<number | null>(null, [Validators.required]),
     payout: new FormControl<number | null>(null, [Validators.required]),
     program: new FormControl('', [Validators.required]),
   });
 
   public osagoGroup = new FormGroup({
-    period_months: new FormControl<number | null>(null, [Validators.required]),
+    period_in_units: new FormControl<number | null>(null, [Validators.required]),
+    period_unit: new FormControl<CarInsurancePeriodUnit | null>(null, [Validators.required]),
     zone: new FormControl('', [Validators.required]),
     exempt: new FormControl<boolean>(false, [Validators.required]),
     premium: new FormControl<number | null>(null, [Validators.required]),
@@ -114,12 +119,13 @@ export class PolicyEditorComponent {
 
     if (policy.policy_type === 'GreenCard') {
       this.greenCardGroup.controls.territory.setValue(policy.territory);
-      this.greenCardGroup.controls.period_months.setValue(policy.period_months);
+      this.greenCardGroup.controls.period_in_units.setValue(policy.period_in_units);
+      this.greenCardGroup.controls.period_unit.setValue(policy.period_unit);
       this.greenCardGroup.controls.premium.setValue(policy.premium);
       this.carControl.setValue({ kind: 'Existing', id: policy.car.id });
     } else if (policy.policy_type === 'Medassistance') {
       this.medassistanceGroup.controls.territory.setValue(policy.territory);
-      this.medassistanceGroup.controls.period_months.setValue(policy.period_months);
+      this.medassistanceGroup.controls.period_days.setValue(policy.period_days);
       this.medassistanceGroup.controls.premium.setValue(policy.premium);
       this.medassistanceGroup.controls.payout.setValue(policy.payout);
       this.medassistanceGroup.controls.program.setValue(policy.program);
@@ -131,7 +137,8 @@ export class PolicyEditorComponent {
         );
       }
     } else if (policy.policy_type === 'Osago') {
-      this.osagoGroup.controls.period_months.setValue(policy.period_months);
+      this.osagoGroup.controls.period_in_units.setValue(policy.period_in_units);
+      this.osagoGroup.controls.period_unit.setValue(policy.period_unit);
       this.osagoGroup.controls.zone.setValue(policy.zone);
       this.osagoGroup.controls.exempt.setValue(policy.exempt);
       this.osagoGroup.controls.premium.setValue(policy.premium);
@@ -157,6 +164,11 @@ export class PolicyEditorComponent {
 
   public policyStatuses = policyStatusValues.map((x) => ({
     label: getPolicyStatusLocalizedName(x),
+    value: x,
+  }));
+
+  public periodUnits = carInsurancePeriodUnitValues.map((x) => ({
+    label: getPeriodUnitLocalizedName(x),
     value: x,
   }));
 
@@ -189,7 +201,8 @@ export class PolicyEditorComponent {
         ...statusBase,
         policy_type: 'GreenCard',
         territory: this.greenCardGroup.controls.territory.value!,
-        period_months: this.greenCardGroup.controls.period_months.value!,
+        period_in_units: this.greenCardGroup.controls.period_in_units.value!,
+        period_unit: this.greenCardGroup.controls.period_unit.value!,
         premium: this.greenCardGroup.controls.premium.value!,
         car: this.carControl.value!,
       };
@@ -202,7 +215,7 @@ export class PolicyEditorComponent {
         ...statusBase,
         policy_type: 'Medassistance',
         territory: this.medassistanceGroup.controls.territory.value!,
-        period_months: this.medassistanceGroup.controls.period_months.value!,
+        period_days: this.medassistanceGroup.controls.period_days.value!,
         premium: this.medassistanceGroup.controls.premium.value!,
         payout: this.medassistanceGroup.controls.payout.value!,
         program: this.medassistanceGroup.controls.program.value!,
@@ -213,7 +226,8 @@ export class PolicyEditorComponent {
         ...base,
         ...statusBase,
         policy_type: 'Osago',
-        period_months: this.osagoGroup.controls.period_months.value!,
+        period_in_units: this.osagoGroup.controls.period_in_units.value!,
+        period_unit: this.osagoGroup.controls.period_unit.value!,
         zone: this.osagoGroup.controls.zone.value!,
         exempt: this.osagoGroup.controls.exempt.value!,
         premium: this.osagoGroup.controls.premium.value!,

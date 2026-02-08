@@ -1,7 +1,6 @@
 pub mod create;
 pub mod get;
 pub mod get_by_id;
-pub mod model;
 pub mod search;
 pub mod update;
 

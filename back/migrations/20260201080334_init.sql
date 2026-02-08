@@ -1,4 +1,10 @@
-create type sex as enum ('M', 'F');
+create type sex as enum ('m', 'f', 'unknown');
+
+create type policy_type as enum ('green_card', 'medassistance', 'osago');
+
+create type policy_status as enum ('active', 'prolonged', 'rejected', 'stopped', 'postponed', 'cancelled', 'project', 'replaced', 'expired');
+
+create type car_insurance_period_unit as enum ('day', 'month', 'year');
 
 create table person (
     id serial primary key,
@@ -11,10 +17,6 @@ create table person (
     phone2 varchar(20) null,
     email varchar(255) not null
 );
-
-create type policy_type as enum ('green_card', 'medassistance', 'osago');
-
-create type policy_status as enum ('active', 'expired', 'terminated');
 
 create table policy (
     id serial primary key,
@@ -45,7 +47,8 @@ create table car(
 create table green_card_policy(
     id serial references policy(id) primary key,
     territory varchar(255) not null,
-    period_months int not null,
+    period_in_units int not null,
+    period_unit car_insurance_period_unit not null,
     premium int not null,
     car_id int references car(id) not null
 );
@@ -53,7 +56,7 @@ create table green_card_policy(
 create table medassistance_policy(
     id serial references policy(id) primary key,
     territory varchar(255) not null,
-    period_months int not null,
+    period_days int not null,
     premium int not null,
     payout int not null,
     program varchar(255) not null
@@ -66,7 +69,8 @@ create table medassistance_policy_member(
 
 create table osago_policy(
     id serial references policy(id) primary key,
-    period_months int not null,
+    period_in_units int not null,
+    period_unit car_insurance_period_unit not null,
     car_id int references car(id) not null,
     zone varchar(255) not null,
     exempt boolean not null,

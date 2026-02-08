@@ -42,10 +42,16 @@
             <input id="territory" type="text" pInputText [formControl]="greenCardGroup.controls.territory" class="w-full"/>
             <label for="territory">Территория</label>
           </p-floatlabel>
-          <p-floatlabel>
-            <p-inputnumber inputId="period_months" [formControl]="greenCardGroup.controls.period_months" class="w-full"/>
-            <label for="period_months">Срок (месяцы)</label>
-          </p-floatlabel>
+          <div class="grid grid-flow-col gap-8">
+            <p-floatlabel>
+              <p-inputnumber inputId="period_in_units" [formControl]="greenCardGroup.controls.period_in_units" class="w-full"/>
+              <label for="period_in_units">Срок</label>
+            </p-floatlabel>
+            <p-floatlabel>
+              <p-select [formControl]="greenCardGroup.controls.period_unit" id="period_unit" fluid [options]="periodUnits"></p-select>
+              <label for="period_unit">Единица</label>
+            </p-floatlabel>
+          </div>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="greenCardGroup.controls.premium" class="w-full"/>
             <label for="premium">Взнос</label>
@@ -62,8 +68,8 @@
             <label for="territory">Территория</label>
           </p-floatlabel>
           <p-floatlabel>
-            <p-inputnumber inputId="period_months" [formControl]="medassistanceGroup.controls.period_months" class="w-full"/>
-            <label for="period_months">Срок (месяцы)</label>
+            <p-inputnumber inputId="period_days" [formControl]="medassistanceGroup.controls.period_days" class="w-full"/>
+            <label for="period_days">Срок (дни)</label>
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="medassistanceGroup.controls.premium" class="w-full"/>
@@ -93,10 +99,16 @@
             <input id="zone" type="text" pInputText [formControl]="osagoGroup.controls.zone" class="w-full"/>
             <label for="zone">Зона</label>
           </p-floatlabel>
-          <p-floatlabel>
-            <p-inputnumber inputId="osago_period_months" [formControl]="osagoGroup.controls.period_months" class="w-full"/>
-            <label for="osago_period_months">Срок (месяцы)</label>
-          </p-floatlabel>
+          <div class="grid grid-flow-col gap-8">
+            <p-floatlabel>
+              <p-inputnumber inputId="osago_period_in_units" [formControl]="osagoGroup.controls.period_in_units" class="w-full"/>
+              <label for="osago_period_in_units">Срок</label>
+            </p-floatlabel>
+            <p-floatlabel>
+              <p-select [formControl]="osagoGroup.controls.period_unit" id="osago_period_unit" fluid [options]="periodUnits"></p-select>
+              <label for="osago_period_unit">Единица</label>
+            </p-floatlabel>
+          </div>
           <p-floatlabel>
             <p-inputnumber id="osago_premium" [formControl]="osagoGroup.controls.premium" class="w-full"/>
             <label for="osago_premium">Взнос</label>

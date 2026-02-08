@@ -16,7 +16,13 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { PolicyTypeLocalPipe, PolicyStatusLocalPipe } from './pipes/policy-localization.pipe';
+import {
+  PolicyTypeLocalPipe,
+  PolicyStatusLocalPipe,
+  PolicyStatusSeverityPipe,
+  PeriodUnitLocalPipe,
+} from './pipes/policy-localization.pipe';
+import { SexLocalPipe } from './pipes/person-localization.pipe';
 
 export const sharedImports = [
   CardModule,
@@ -39,4 +45,7 @@ export const sharedImports = [
   InputIconModule,
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
+  PolicyStatusSeverityPipe,
+  PeriodUnitLocalPipe,
+  SexLocalPipe,
 ];

@@ -1,4 +1,6 @@
-export type Sex = 'M' | 'F';
+import { PolicyShort } from '../models/policy.model';
+
+export type Sex = 'M' | 'F' | 'Unknown';
 
 export interface PersonDto {
   id: number;
@@ -10,6 +12,10 @@ export interface PersonDto {
   phone: string;
   phone2: string | null;
   email: string;
+}
+
+export interface PersonWithPolicies extends PersonDto {
+  policies: PolicyShort[];
 }
 
 export type CreatePersonDto = Omit<PersonDto, 'id'>;

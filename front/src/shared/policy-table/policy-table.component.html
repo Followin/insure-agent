@@ -1,0 +1,71 @@
+<p-table [value]="loading() ? skeletonRows : policies()" size="large">
+  @if (showSearch()) {
+    <ng-template #caption>
+      <div class="flex items-center gap-16" [formGroup]="filterForm">
+        <div class="flex-1">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input type="text" pInputText formControlName="search" placeholder="Поиск по серии/номеру, ФИО, авто" class="w-full" />
+          </p-iconfield>
+        </div>
+        <div class="flex gap-2">
+          <p-checkbox formControlName="activeOnly" [binary]="true" inputId="activeOnly" />
+          <label for="activeOnly">Только активные</label>
+        </div>
+      </div>
+    </ng-template>
+  }
+  <ng-template #header>
+    <tr>
+      <th>Серия</th>
+      <th>Номер</th>
+      @if (showHolderColumn()) {
+        <th>Страхователь</th>
+      }
+      <th>Дата начала</th>
+      <th>Дата окончания</th>
+      <th>Тип</th>
+      <th>Авто</th>
+      <th>Статус</th>
+      <th>Действия</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-policy>
+    @if (!loading()) {
+      <tr>
+        <td>{{policy.series}}</td>
+        <td>{{policy.number}}</td>
+        @if (showHolderColumn()) {
+          <td class="whitespace-nowrap">{{policy.holder_name}}</td>
+        }
+        <td>{{policy.start_date | date:'mediumDate'}}</td>
+        <td>{{policy.end_date | date:'mediumDate'}}</td>
+        <td>{{policy.policy_type | policyTypeLocal}}</td>
+        <td>{{policy.car_model ?? '-'}}</td>
+        <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status | policyStatusSeverity"/></td>
+        <td class="whitespace-nowrap">
+          <a [routerLink]="['/policies', policy.id]" pButton [text]="true" size="small">
+            <i class="pi pi-eye"></i>
+          </a>
+          <a [routerLink]="['/policies', policy.id, 'edit']" pButton [text]="true" size="small">
+            <i class="pi pi-pencil"></i>
+          </a>
+        </td>
+      </tr>
+    } @else {
+      <tr>
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+        @if (showHolderColumn()) {
+          <td><p-skeleton /></td>
+        }
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+        <td><p-skeleton /></td>
+      </tr>
+    }
+  </ng-template>
+</p-table>

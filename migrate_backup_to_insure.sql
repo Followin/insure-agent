@@ -35,7 +35,7 @@ CREATE TABLE staging_people (
     old_id INTEGER PRIMARY KEY,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
-    sex VARCHAR(10),
+    sex sex,
     birth_date DATE,
     tax_number VARCHAR(255),
     phone VARCHAR(255),
@@ -67,11 +67,12 @@ CREATE TABLE staging_green_card (
     territory VARCHAR(255),
     start_date DATE,
     end_date DATE,
-    period_months INTEGER,
+    period_in_units int,
+    period_unit car_insurance_period_unit,
     holder_old_id INTEGER,
     car_old_id INTEGER,
     premium INTEGER,
-    status INTEGER,
+    status policy_status,
     new_policy_id INTEGER
 );
 
@@ -82,11 +83,11 @@ CREATE TABLE staging_medassistance (
     territory VARCHAR(255),
     start_date DATE,
     end_date DATE,
-    period_months INTEGER,
+    period_days INTEGER,
     payout INTEGER,
     program VARCHAR(255),
     premium INTEGER,
-    status INTEGER,
+    status policy_status,
     new_policy_id INTEGER
 );
 
@@ -101,14 +102,15 @@ CREATE TABLE staging_osago (
     number VARCHAR(255),
     start_date DATE,
     end_date DATE,
-    period_months INTEGER,
+    period_in_units int,
+    period_unit car_insurance_period_unit,
     zone VARCHAR(255),
     holder_old_id INTEGER,
     car_old_id INTEGER,
     exempt BOOLEAN,
     premium INTEGER,
     franchise INTEGER,
-    status INTEGER,
+    status policy_status,
     new_policy_id INTEGER
 );
 
@@ -141,12 +143,16 @@ SELECT
     "ClientID",
     COALESCE(NULLIF(TRIM("first_name"), ''), 'N/A'),
     COALESCE(NULLIF(TRIM("last_name"), ''), 'N/A'),
-    COALESCE("sex", 'чол'),
+    CASE
+        WHEN "sex" in ('чол') then 'm'::sex
+        WHEN "sex" in ('жін') then 'f'::sex
+        ELSE 'unknown'::sex
+    END,
     COALESCE("birth_date"::date, '1900-01-01'::date),
-    COALESCE(NULLIF(TRIM("tax_number"), ''), '0000000000'),
-    COALESCE(NULLIF(TRIM("phone"), ''), '0000000000'),
+    COALESCE(NULLIF(TRIM("tax_number"), ''), 'N/A'),
+    COALESCE(NULLIF(TRIM("phone"), ''), 'N/A'),
     NULLIF(TRIM("phone2"), ''),
-    COALESCE(NULLIF(TRIM("email"), ''), 'noemail@example.com')
+    COALESCE(NULLIF(TRIM("email"), ''), 'N/A')
 FROM dblink('dbname=backup',
     $q$SELECT
         "ClientID",
@@ -205,9 +211,9 @@ INSERT INTO staging_cars (
 SELECT
     "Код",
     split_part(COALESCE("chassis", ''), '#', 1),
-    COALESCE("make_model", 'Unknown'),
-    '',
-    COALESCE("registration", 'Unknown'),
+    split_part(COALESCE("make_model", 'N/A'), ' ', 1),
+    substring("make_model" from position(' ' in "make_model") + 1),
+    COALESCE("registration", 'N/A'),
     split_part(COALESCE("plate", ''), '#', 1),
     COALESCE("year", 2000),
     CASE WHEN "engine" ~ '^[0-9]+$' THEN "engine"::integer ELSE 0 END,
@@ -267,7 +273,8 @@ INSERT INTO staging_green_card (
     territory,
     start_date,
     end_date,
-    period_months,
+    period_in_units,
+    period_unit,
     holder_old_id,
     car_old_id,
     premium,
@@ -275,24 +282,58 @@ INSERT INTO staging_green_card (
 )
 SELECT
     "Код",
-    COALESCE("series", ''),
-    COALESCE("number"::text, ''),
-    COALESCE("territory", 'Unknown'),
+    COALESCE("series", 'N/A'),
+    COALESCE("number"::text, 'N/A'),
+    COALESCE("territory", 'N/A'),
     COALESCE("start_date"::date, CURRENT_DATE),
     "end_date"::date,
     CASE
-        WHEN "period" ~ '15' THEN 1
-        WHEN "period" ~ '1 міс' OR "period" ~ '1міс' OR "period" = '1' THEN 1
-        WHEN "period" ~ '2 міс' OR "period" ~ '2міс' THEN 2
-        WHEN "period" ~ '3 міс' OR "period" ~ '3міс' THEN 3
-        WHEN "period" ~ '6 міс' OR "period" ~ '6міс' THEN 6
-        WHEN "period" ~ '1рік' OR "period" ~ '1 рік' OR "period" = '12' THEN 12
-        ELSE 1
+        WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 15
+        WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 1
+        WHEN "period" in ('2 міс', '2міс') THEN 2
+        WHEN "period" in ('3', '3 міс', '3 міс') THEN 3
+        WHEN "period" in ('4 міс') THEN 4
+        WHEN "period" in ('5 міс') THEN 5
+        WHEN "period" in ('6 мес', '6 міс') THEN 6
+        WHEN "period" in ('7 міс') THEN 7
+        WHEN "period" in ('8 міс') THEN 8
+        WHEN "period" in ('9 міс') THEN 9
+        WHEN "period" in ('10 міс') THEN 10
+        WHEN "period" in ('11 міс') THEN 11
+        WHEN "period" in ('12', '1 рік', '1 РІК', '1рік') THEN 1
+        ELSE 0
+    END,
+    CASE
+        WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 'day'::car_insurance_period_unit
+        WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('2 міс', '2міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('3', '3 міс', '3 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('4 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('5 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('6 мес', '6 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('7 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('8 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('9 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('10 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('11 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('12', '1 рік', '1 РІК', '1рік') THEN 'year'::car_insurance_period_unit
+        ELSE 'day'::car_insurance_period_unit
     END,
     "holder",
     "car",
     COALESCE("premium"::integer, 0),
-    COALESCE("status", 1)
+    CASE
+        WHEN status = 1 THEN 'active'::policy_status
+        WHEN status = 2 THEN 'prolonged'::policy_status
+        WHEN status = 3 THEN 'rejected'::policy_status
+        WHEN status = 4 THEN 'stopped'::policy_status
+        WHEN status = 5 THEN 'postponed'::policy_status
+        WHEN status = 6 THEN 'cancelled'::policy_status
+        WHEN status = 7 THEN 'project'::policy_status
+        WHEN status = 8 THEN 'replaced'::policy_status
+        WHEN status = 9 THEN 'expired'::policy_status
+        ELSE 'expired'::policy_status
+    END
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -345,7 +386,7 @@ INSERT INTO staging_medassistance (
     territory,
     start_date,
     end_date,
-    period_months,
+    period_days,
     payout,
     program,
     premium,
@@ -353,16 +394,27 @@ INSERT INTO staging_medassistance (
 )
 SELECT
     "Код",
-    COALESCE("series", ''),
-    COALESCE("number", ''),
-    COALESCE("territory", ''),
+    COALESCE("series", 'N/A'),
+    COALESCE("number", 'N/A'),
+    COALESCE("territory", 'N/A'),
     COALESCE("start_date"::date, CURRENT_DATE),
     "end_date"::date,
     COALESCE("period"::integer, 1),
     COALESCE("payout"::integer, 0),
     COALESCE("program", 'STANDART'),
     COALESCE("premium"::integer, 0),
-    COALESCE("status", 1)
+    CASE
+        WHEN status = 1 THEN 'active'::policy_status
+        WHEN status = 2 THEN 'prolonged'::policy_status
+        WHEN status = 3 THEN 'rejected'::policy_status
+        WHEN status = 4 THEN 'stopped'::policy_status
+        WHEN status = 5 THEN 'postponed'::policy_status
+        WHEN status = 6 THEN 'cancelled'::policy_status
+        WHEN status = 7 THEN 'project'::policy_status
+        WHEN status = 8 THEN 'replaced'::policy_status
+        WHEN status = 9 THEN 'expired'::policy_status
+        ELSE 'expired'::policy_status
+    END
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -441,7 +493,8 @@ INSERT INTO staging_osago (
     number,
     start_date,
     end_date,
-    period_months,
+    period_in_units,
+    period_unit,
     zone,
     holder_old_id,
     car_old_id,
@@ -452,26 +505,60 @@ INSERT INTO staging_osago (
 )
 SELECT
     "Код",
-    COALESCE("series", ''),
-    COALESCE("number", ''),
+    COALESCE("series", 'N/A'),
+    COALESCE("number", 'N/A'),
     COALESCE("start_date"::date, CURRENT_DATE),
     "end_date"::date,
     CASE
-        WHEN "period" ~ '15' THEN 1
-        WHEN "period" ~ '1 міс' OR "period" ~ '1міс' OR "period" = '1' THEN 1
-        WHEN "period" ~ '2 міс' OR "period" ~ '2міс' THEN 2
-        WHEN "period" ~ '3 міс' OR "period" ~ '3міс' THEN 3
-        WHEN "period" ~ '6 міс' OR "period" ~ '6міс' THEN 6
-        WHEN "period" ~ '1рік' OR "period" ~ '1 рік' OR "period" = '12' THEN 12
-        ELSE 12
-    END,
+        WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 15
+        WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 1
+        WHEN "period" in ('2 міс', '2міс') THEN 2
+        WHEN "period" in ('3', '3 міс', '3 міс') THEN 3
+        WHEN "period" in ('4 міс') THEN 4
+        WHEN "period" in ('5 міс') THEN 5
+        WHEN "period" in ('6 мес', '6 міс') THEN 6
+        WHEN "period" in ('7 міс') THEN 7
+        WHEN "period" in ('8 міс') THEN 8
+        WHEN "period" in ('9 міс') THEN 9
+        WHEN "period" in ('10 міс') THEN 10
+        WHEN "period" in ('11 міс') THEN 11
+        WHEN "period" in ('12', '1 рік', '1 РІК', '1рік') THEN 1
+        ELSE 0
+        END,
+    CASE
+        WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 'day'::car_insurance_period_unit
+        WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('2 міс', '2міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('3', '3 міс', '3 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('4 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('5 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('6 мес', '6 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('7 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('8 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('9 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('10 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('11 міс') THEN 'month'::car_insurance_period_unit
+        WHEN "period" in ('12', '1 рік', '1 РІК', '1рік') THEN 'year'::car_insurance_period_unit
+        ELSE 'day'::car_insurance_period_unit
+        END,
     COALESCE("zone"::text, '1'),
     "holder",
     "car",
     COALESCE("exempt", false),
     COALESCE("premium"::integer, 0),
     COALESCE("franchise", 0),
-    COALESCE("status", 1)
+    CASE
+        WHEN status = 1 THEN 'active'::policy_status
+        WHEN status = 2 THEN 'prolonged'::policy_status
+        WHEN status = 3 THEN 'rejected'::policy_status
+        WHEN status = 4 THEN 'stopped'::policy_status
+        WHEN status = 5 THEN 'postponed'::policy_status
+        WHEN status = 6 THEN 'cancelled'::policy_status
+        WHEN status = 7 THEN 'project'::policy_status
+        WHEN status = 8 THEN 'replaced'::policy_status
+        WHEN status = 9 THEN 'expired'::policy_status
+        ELSE 'expired'::policy_status
+    END
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -528,11 +615,7 @@ BEGIN
         VALUES (
             r.first_name,
             r.last_name,
-            CASE
-                WHEN r.sex IN ('чол', 'Чол', 'ч', 'Ч', 'M', 'm', 'male') THEN 'M'::sex
-                WHEN r.sex IN ('жін', 'Жін', 'ж', 'Ж', 'F', 'f', 'жен', 'female') THEN 'F'::sex
-                ELSE 'M'::sex
-            END,
+            r.sex,
             r.birth_date,
             r.tax_number,
             r.phone,
@@ -606,13 +689,6 @@ BEGIN
         SELECT new_id INTO v_car_new_id FROM staging_cars WHERE old_id = r.car_old_id;
 
         IF v_holder_new_id IS NOT NULL AND v_car_new_id IS NOT NULL THEN
-            -- Determine policy status
-            v_policy_status := CASE
-                WHEN r.status = 1 THEN 'active'::policy_status
-                WHEN r.status = 9 THEN 'expired'::policy_status
-                ELSE 'expired'::policy_status
-            END;
-
             -- Insert into policy table
             INSERT INTO policy (
                 type,
@@ -626,11 +702,11 @@ BEGIN
             VALUES (
                 'green_card'::policy_type,
                 v_holder_new_id,
-                COALESCE(NULLIF(r.series, ''), 'UA'),
-                COALESCE(NULLIF(r.number, ''), '0'),
+                r.series,
+                r.number,
                 r.start_date,
                 r.end_date,
-                v_policy_status
+                r.status
             )
             RETURNING id INTO v_new_policy_id;
 
@@ -638,14 +714,16 @@ BEGIN
             INSERT INTO green_card_policy (
                 id,
                 territory,
-                period_months,
+                period_in_units,
+                period_unit,
                 premium,
                 car_id
             )
             VALUES (
                 v_new_policy_id,
                 r.territory,
-                r.period_months,
+                r.period_in_units,
+                r.period_unit,
                 r.premium,
                 v_car_new_id
             );
@@ -676,13 +754,6 @@ BEGIN
         LIMIT 1;
 
         IF v_holder_new_id IS NOT NULL THEN
-            -- Determine policy status
-            v_policy_status := CASE
-                WHEN r.status = 1 THEN 'active'::policy_status
-                WHEN r.status = 9 THEN 'expired'::policy_status
-                ELSE 'expired'::policy_status
-            END;
-
             -- Insert into policy table
             INSERT INTO policy (
                 type,
@@ -696,11 +767,11 @@ BEGIN
             VALUES (
                 'medassistance'::policy_type,
                 v_holder_new_id,
-                COALESCE(NULLIF(r.series, ''), 'MED'),
-                COALESCE(NULLIF(r.number, ''), '0'),
+                r.series,
+                r.number,
                 r.start_date,
                 r.end_date,
-                v_policy_status
+                r.status
             )
             RETURNING id INTO v_new_policy_id;
 
@@ -708,7 +779,7 @@ BEGIN
             INSERT INTO medassistance_policy (
                 id,
                 territory,
-                period_months,
+                period_days,
                 premium,
                 payout,
                 program
@@ -716,7 +787,7 @@ BEGIN
             VALUES (
                 v_new_policy_id,
                 r.territory,
-                r.period_months,
+                r.period_days,
                 r.premium,
                 r.payout,
                 COALESCE(NULLIF(r.program, ''), 'STANDART')
@@ -762,13 +833,6 @@ BEGIN
         SELECT new_id INTO v_car_new_id FROM staging_cars WHERE old_id = r.car_old_id;
 
         IF v_holder_new_id IS NOT NULL AND v_car_new_id IS NOT NULL THEN
-            -- Determine policy status
-            v_policy_status := CASE
-                WHEN r.status = 1 THEN 'active'::policy_status
-                WHEN r.status = 9 THEN 'expired'::policy_status
-                ELSE 'expired'::policy_status
-            END;
-
             -- Insert into policy table
             INSERT INTO policy (
                 type,
@@ -782,18 +846,19 @@ BEGIN
             VALUES (
                 'osago'::policy_type,
                 v_holder_new_id,
-                COALESCE(NULLIF(r.series, ''), 'OSAGO'),
-                COALESCE(NULLIF(r.number, ''), '0'),
+                r.series,
+                r.number,
                 r.start_date,
                 r.end_date,
-                v_policy_status
+                r.status
             )
             RETURNING id INTO v_new_policy_id;
 
             -- Insert into osago_policy table
             INSERT INTO osago_policy (
                 id,
-                period_months,
+                period_in_units,
+                period_unit,
                 car_id,
                 zone,
                 exempt,
@@ -802,7 +867,8 @@ BEGIN
             )
             VALUES (
                 v_new_policy_id,
-                r.period_months,
+                r.period_in_units,
+                r.period_unit,
                 v_car_new_id,
                 r.zone,
                 r.exempt,

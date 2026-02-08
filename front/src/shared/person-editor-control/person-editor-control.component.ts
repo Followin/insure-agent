@@ -60,6 +60,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   public sexOptions: { label: string; value: Sex }[] = [
     { label: 'Мужской', value: 'M' },
     { label: 'Женский', value: 'F' },
+    { label: 'Неизвестно', value: 'Unknown' },
   ];
 
   public personGroup = new FormGroup({

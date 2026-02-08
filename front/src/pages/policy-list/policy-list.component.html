@@ -1,64 +1,12 @@
 <h1>Полисы</h1>
 <p-button routerLink="/policies/new" class="fixed right-4 top-4 z-10" label="Добавить полис" icon="pi pi-plus" raised />
 <p-card>
-  <p-table [value]="policies() ?? skeletonRows" size="large">
-    <ng-template #caption>
-      <div class="flex items-center gap-16" [formGroup]="filterForm">
-        <div class="flex-1">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input type="text" pInputText formControlName="search" placeholder="Поиск по серии/номеру, ФИО, авто" class="w-full" />
-          </p-iconfield>
-        </div>
-        <div class="flex gap-2">
-          <p-checkbox formControlName="activeOnly" [binary]="true" inputId="activeOnly" />
-          <label for="activeOnly">Только активные</label>
-        </div>
-      </div>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th>Серия</th>
-        <th>Номер</th>
-        <th>Страхователь</th>
-        <th>Дата начала</th>
-        <th>Дата окончания</th>
-        <th>Тип</th>
-        <th>Статус</th>
-        <th>Действия</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-policy>
-      @if (!loading) {
-        <tr>
-          <td>{{policy.series}}</td>
-          <td>{{policy.number}}</td>
-          <td class="whitespace-nowrap">{{policy.holder_name}}</td>
-          <td>{{policy.start_date | date:'mediumDate'}}</td>
-          <td>{{policy.end_date | date:'mediumDate'}}</td>
-          <td>{{policy.policy_type | policyTypeLocal}}</td>
-          <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status === 'Active' ? 'success' : policy.status === 'Expired' ? 'warn' : 'danger'"/></td>
-          <td class="whitespace-nowrap">
-            <a [routerLink]="['/policies', policy.id]" pButton [text]="true" size="small">
-              <i class="pi pi-eye"></i>
-            </a>
-            <a [routerLink]="['/policies', policy.id, 'edit']" pButton [text]="true" size="small">
-              <i class="pi pi-pencil"></i>
-            </a>
-          </td>
-        </tr>
-      } @else {
-        <tr>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-          <td><p-skeleton /></td>
-        </tr>
-      }
-    </ng-template>
-  </p-table>
+  <app-policy-table
+    [policies]="policies() ?? []"
+    [loading]="loading"
+    showSearch
+    [initialSearch]="initialSearch"
+    [initialActiveOnly]="initialActiveOnly"
+    (filterChange)="onFilterChange($event)"
+  />
 </p-card>

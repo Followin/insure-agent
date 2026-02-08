@@ -6,9 +6,9 @@ use sqlx::PgPool;
 
 use super::create::{PersonRef, PolicyData, resolve_car, resolve_person};
 use super::get_by_id::PolicyFull;
-use super::model::{PolicyStatus, PolicyType};
 use crate::endpoints::car::model::Car;
 use crate::endpoints::person::model::Person;
+use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
 
 // === Update Request ===
 
@@ -37,7 +37,10 @@ pub async fn update_policy(
     Path(id): Path<i32>,
     Json(body): Json<UpdatePolicyRequest>,
 ) -> Result<Json<PolicyFull>, StatusCode> {
-    let mut tx = pool.begin().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let mut tx = pool
+        .begin()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Verify the policy exists and get its type
     let existing = sqlx::query_as!(
@@ -107,14 +110,16 @@ pub async fn update_policy(
                 update green_card_policy
                 set
                     territory = $2,
-                    period_months = $3,
-                    premium = $4,
-                    car_id = $5
+                    period_in_units = $3,
+                    period_unit = $4,
+                    premium = $5,
+                    car_id = $6
                 where id = $1
                 "#,
                 id,
                 data.territory,
-                data.period_months,
+                data.period_in_units,
+                data.period_unit as CarInsurancePeriodUnit,
                 data.premium,
                 car_id
             )
@@ -149,7 +154,8 @@ pub async fn update_policy(
 
             super::get_by_id::PolicyDetails::GreenCard(super::get_by_id::GreenCardDetails {
                 territory: data.territory,
-                period_months: data.period_months,
+                period_unit: data.period_unit,
+                period_in_units: data.period_in_units,
                 premium: data.premium,
                 car,
             })
@@ -160,7 +166,7 @@ pub async fn update_policy(
                 update medassistance_policy
                 set
                     territory = $2,
-                    period_months = $3,
+                    period_days = $3,
                     premium = $4,
                     payout = $5,
                     program = $6
@@ -168,7 +174,7 @@ pub async fn update_policy(
                 "#,
                 id,
                 data.territory,
-                data.period_months,
+                data.period_days,
                 data.premium,
                 data.payout,
                 data.program
@@ -238,7 +244,7 @@ pub async fn update_policy(
 
             super::get_by_id::PolicyDetails::Medassistance(super::get_by_id::MedassistanceDetails {
                 territory: data.territory,
-                period_months: data.period_months,
+                period_days: data.period_days,
                 premium: data.premium,
                 payout: data.payout,
                 program: data.program,
@@ -254,16 +260,18 @@ pub async fn update_policy(
                 r#"
                 update osago_policy
                 set
-                    period_months = $2,
-                    zone = $3,
-                    exempt = $4,
-                    premium = $5,
-                    franchise = $6,
-                    car_id = $7
+                    period_in_units = $2,
+                    period_unit = $3,
+                    zone = $4,
+                    exempt = $5,
+                    premium = $6,
+                    franchise = $7,
+                    car_id = $8
                 where id = $1
                 "#,
                 id,
-                data.period_months,
+                data.period_in_units,
+                data.period_unit as CarInsurancePeriodUnit,
                 data.zone,
                 data.exempt,
                 data.premium,
@@ -300,7 +308,8 @@ pub async fn update_policy(
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
             super::get_by_id::PolicyDetails::Osago(super::get_by_id::OsagoDetails {
-                period_months: data.period_months,
+                period_in_units: data.period_in_units,
+                period_unit: data.period_unit,
                 zone: data.zone,
                 exempt: data.exempt,
                 premium: data.premium,
@@ -333,7 +342,9 @@ pub async fn update_policy(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    tx.commit().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tx.commit()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(PolicyFull {
         id,

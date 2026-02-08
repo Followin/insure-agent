@@ -4,16 +4,17 @@ use axum::http::StatusCode;
 use serde::Serialize;
 use sqlx::PgPool;
 
-use super::model::{PolicyStatus, PolicyType};
 use crate::endpoints::car::model::Car;
 use crate::endpoints::person::model::Person;
+use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
 
 // === Response Models ===
 
 #[derive(Serialize)]
 pub struct GreenCardDetails {
     pub territory: String,
-    pub period_months: i32,
+    pub period_in_units: i32,
+    pub period_unit: CarInsurancePeriodUnit,
     pub premium: i32,
     pub car: Car,
 }
@@ -21,7 +22,7 @@ pub struct GreenCardDetails {
 #[derive(Serialize)]
 pub struct MedassistanceDetails {
     pub territory: String,
-    pub period_months: i32,
+    pub period_days: i32,
     pub premium: i32,
     pub payout: i32,
     pub program: String,
@@ -30,7 +31,8 @@ pub struct MedassistanceDetails {
 
 #[derive(Serialize)]
 pub struct OsagoDetails {
-    pub period_months: i32,
+    pub period_in_units: i32,
+    pub period_unit: CarInsurancePeriodUnit,
     pub zone: String,
     pub exempt: bool,
     pub premium: i32,
@@ -74,21 +76,23 @@ struct PolicyBase {
 
 struct GreenCardRow {
     territory: String,
-    period_months: i32,
+    period_in_units: i32,
+    period_unit: CarInsurancePeriodUnit,
     premium: i32,
     car_id: i32,
 }
 
 struct MedassistanceRow {
     territory: String,
-    period_months: i32,
+    period_days: i32,
     premium: i32,
     payout: i32,
     program: String,
 }
 
 struct OsagoRow {
-    period_months: i32,
+    period_in_units: i32,
+    period_unit: CarInsurancePeriodUnit,
     zone: String,
     exempt: bool,
     premium: i32,
@@ -153,7 +157,8 @@ pub async fn get_policy_by_id(
                 r#"
                 select
                     territory,
-                    period_months,
+                    period_in_units,
+                    period_unit as "period_unit: CarInsurancePeriodUnit",
                     premium,
                     car_id
                 from green_card_policy
@@ -192,7 +197,8 @@ pub async fn get_policy_by_id(
 
             PolicyDetails::GreenCard(GreenCardDetails {
                 territory: row.territory,
-                period_months: row.period_months,
+                period_in_units: row.period_in_units,
+                period_unit: row.period_unit,
                 premium: row.premium,
                 car,
             })
@@ -203,7 +209,7 @@ pub async fn get_policy_by_id(
                 r#"
                 select
                     territory,
-                    period_months,
+                    period_days,
                     premium,
                     payout,
                     program
@@ -241,7 +247,7 @@ pub async fn get_policy_by_id(
 
             PolicyDetails::Medassistance(MedassistanceDetails {
                 territory: row.territory,
-                period_months: row.period_months,
+                period_days: row.period_days,
                 premium: row.premium,
                 payout: row.payout,
                 program: row.program,
@@ -253,7 +259,8 @@ pub async fn get_policy_by_id(
                 OsagoRow,
                 r#"
                 select
-                    period_months,
+                    period_in_units,
+                    period_unit as "period_unit: CarInsurancePeriodUnit",
                     zone,
                     exempt,
                     premium,
@@ -294,7 +301,8 @@ pub async fn get_policy_by_id(
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
             PolicyDetails::Osago(OsagoDetails {
-                period_months: row.period_months,
+                period_in_units: row.period_in_units,
+                period_unit: row.period_unit,
                 zone: row.zone,
                 exempt: row.exempt,
                 premium: row.premium,

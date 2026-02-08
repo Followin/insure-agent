@@ -4,8 +4,8 @@ use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use super::model::{PolicyStatus, PolicyType};
 use crate::endpoints::person::model::Sex;
+use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
 
 // === Person Reference ===
 
@@ -57,7 +57,8 @@ pub enum CarRef {
 #[derive(Deserialize)]
 pub struct GreenCardData {
     pub territory: String,
-    pub period_months: i32,
+    pub period_in_units: i32,
+    pub period_unit: CarInsurancePeriodUnit,
     pub premium: i32,
     pub car: CarRef,
 }
@@ -65,7 +66,7 @@ pub struct GreenCardData {
 #[derive(Deserialize)]
 pub struct MedassistanceData {
     pub territory: String,
-    pub period_months: i32,
+    pub period_days: i32,
     pub premium: i32,
     pub payout: i32,
     pub program: String,
@@ -74,7 +75,8 @@ pub struct MedassistanceData {
 
 #[derive(Deserialize)]
 pub struct OsagoData {
-    pub period_months: i32,
+    pub period_in_units: i32,
+    pub period_unit: CarInsurancePeriodUnit,
     pub zone: String,
     pub exempt: bool,
     pub premium: i32,
@@ -192,7 +194,10 @@ pub async fn create_policy(
     State(pool): State<PgPool>,
     Json(body): Json<CreatePolicyRequest>,
 ) -> Result<(StatusCode, Json<CreatePolicyResponse>), StatusCode> {
-    let mut tx = pool.begin().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let mut tx = pool
+        .begin()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let holder_id = resolve_person(&mut tx, body.holder)
         .await
@@ -238,12 +243,13 @@ pub async fn create_policy(
 
             sqlx::query!(
                 r#"
-                insert into green_card_policy (id, territory, period_months, premium, car_id)
-                values ($1, $2, $3, $4, $5)
+                insert into green_card_policy (id, territory, period_in_units, period_unit, premium, car_id)
+                values ($1, $2, $3, $4, $5, $6)
                 "#,
                 policy.id,
                 data.territory,
-                data.period_months,
+                data.period_in_units,
+                data.period_unit as CarInsurancePeriodUnit,
                 data.premium,
                 car_id
             )
@@ -254,12 +260,12 @@ pub async fn create_policy(
         PolicyData::Medassistance(data) => {
             sqlx::query!(
                 r#"
-                insert into medassistance_policy (id, territory, period_months, premium, payout, program)
+                insert into medassistance_policy (id, territory, period_days, premium, payout, program)
                 values ($1, $2, $3, $4, $5, $6)
                 "#,
                 policy.id,
                 data.territory,
-                data.period_months,
+                data.period_days,
                 data.premium,
                 data.payout,
                 data.program
@@ -293,11 +299,12 @@ pub async fn create_policy(
 
             sqlx::query!(
                 r#"
-                insert into osago_policy (id, period_months, car_id, zone, exempt, premium, franchise)
-                values ($1, $2, $3, $4, $5, $6, $7)
+                insert into osago_policy (id, period_in_units, period_unit, car_id, zone, exempt, premium, franchise)
+                values ($1, $2, $3, $4, $5, $6, $7, $8)
                 "#,
                 policy.id,
-                data.period_months,
+                data.period_in_units,
+                data.period_unit as CarInsurancePeriodUnit,
                 car_id,
                 data.zone,
                 data.exempt,
@@ -310,7 +317,9 @@ pub async fn create_policy(
         }
     }
 
-    tx.commit().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tx.commit()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok((StatusCode::CREATED, Json(policy)))
 }

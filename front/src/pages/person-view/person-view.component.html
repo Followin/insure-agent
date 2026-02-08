@@ -19,7 +19,7 @@
         <span class="text-color-secondary">Фамилия:</span>
         <span>{{p.last_name}}</span>
         <span class="text-color-secondary">Пол:</span>
-        <span>{{p.sex === 'M' ? 'Мужской' : 'Женский'}}</span>
+        <span>{{p.sex | sexLocal}}</span>
         <span class="text-color-secondary">Дата рождения:</span>
         <span>{{p.birth_date | date:'mediumDate'}}</span>
         <span class="text-color-secondary">ИНН:</span>
@@ -39,4 +39,9 @@
       </div>
     </p-panel>
   </div>
+  @if (p.policies.length > 0) {
+    <p-panel header="Полисы" class="mt-8">
+      <app-policy-table [policies]="p.policies" [showHolderColumn]="false" />
+    </p-panel>
+  }
 }

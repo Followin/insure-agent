@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CreatePersonDto, PersonDto } from '../../shared/person-editor-control/person.model';
+import { CreatePersonDto, PersonDto, PersonWithPolicies } from '../../shared/person-editor-control/person.model';
 
 @Injectable({ providedIn: 'root' })
 export class PersonService {
@@ -17,8 +17,8 @@ export class PersonService {
     return this.http.get<PersonDto[]>(this.url, { params });
   }
 
-  getById(id: number): Observable<PersonDto> {
-    return this.http.get<PersonDto>(`${this.url}/${id}`);
+  getById(id: number): Observable<PersonWithPolicies> {
+    return this.http.get<PersonWithPolicies>(`${this.url}/${id}`);
   }
 
   create(person: CreatePersonDto): Observable<PersonDto> {

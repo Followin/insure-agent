@@ -1,13 +1,14 @@
 import { PersonDto, PersonRef } from '../../shared/person-editor-control/person.model';
 import { CarDto, CarRef } from '../../shared/models/car.model';
-import { PolicyStatus, PolicyType } from '../../shared/models/policy.model';
+import { PolicyStatus, PolicyType, CarInsurancePeriodUnit } from '../../shared/models/policy.model';
 
 // === Policy Type Specific Data (for requests) ===
 
 export interface GreenCardData {
   policy_type: 'GreenCard';
   territory: string;
-  period_months: number;
+  period_in_units: number;
+  period_unit: CarInsurancePeriodUnit;
   premium: number;
   car: CarRef;
 }
@@ -15,7 +16,7 @@ export interface GreenCardData {
 export interface MedassistanceData {
   policy_type: 'Medassistance';
   territory: string;
-  period_months: number;
+  period_days: number;
   premium: number;
   payout: number;
   program: string;
@@ -24,7 +25,8 @@ export interface MedassistanceData {
 
 export interface OsagoData {
   policy_type: 'Osago';
-  period_months: number;
+  period_in_units: number;
+  period_unit: CarInsurancePeriodUnit;
   zone: string;
   exempt: boolean;
   premium: number;
@@ -68,7 +70,8 @@ export interface CreatePolicyResponse {
 export interface GreenCardDetails {
   policy_type: 'GreenCard';
   territory: string;
-  period_months: number;
+  period_in_units: number;
+  period_unit: CarInsurancePeriodUnit;
   premium: number;
   car: CarDto;
 }
@@ -76,7 +79,7 @@ export interface GreenCardDetails {
 export interface MedassistanceDetails {
   policy_type: 'Medassistance';
   territory: string;
-  period_months: number;
+  period_days: number;
   premium: number;
   payout: number;
   program: string;
@@ -85,7 +88,8 @@ export interface MedassistanceDetails {
 
 export interface OsagoDetails {
   policy_type: 'Osago';
-  period_months: number;
+  period_in_units: number;
+  period_unit: CarInsurancePeriodUnit;
   zone: string;
   exempt: boolean;
   premium: number;

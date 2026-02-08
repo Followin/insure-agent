@@ -2,9 +2,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "sex")]
+#[sqlx(rename_all = "snake_case")]
 pub enum Sex {
     M,
     F,
+    Unknown,
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
