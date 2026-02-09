@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select\n            p.id,\n            p.series,\n            p.number,\n            p.type as \"policy_type: _\",\n            p.end_date as \"end_date!: chrono::NaiveDate\",\n            pe.first_name as holder_first_name,\n            pe.last_name as holder_last_name,\n            (p.end_date - current_date)::int as \"days_until!: i32\"\n        from policy p\n        join person pe on p.holder_id = pe.id\n        where\n            p.end_date >= current_date\n            and p.end_date <= current_date + interval '7 days'\n            and p.status = 'active'\n        order by p.end_date asc\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "series",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "policy_type: _",
+        "type_info": {
+          "Custom": {
+            "name": "policy_type",
+            "kind": {
+              "Enum": [
+                "green_card",
+                "medassistance",
+                "osago"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "end_date!: chrono::NaiveDate",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "holder_first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "holder_last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "days_until!: i32",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "ce583fa147d6a97f5dabc15cfe7bd0d61e14d669ebc89420746b7921f1c5d440"
+}

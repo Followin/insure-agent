@@ -36,9 +36,13 @@ export class AuthService {
       );
   }
 
+  private getRedirectUri(): string {
+    return `${window.location.origin}/auth/callback`;
+  }
+
   loginWithGoogle(): void {
     const clientId = environment.googleClientId;
-    const redirectUri = encodeURIComponent(environment.googleRedirectUri);
+    const redirectUri = encodeURIComponent(this.getRedirectUri());
     const scope = encodeURIComponent('email profile');
     const responseType = 'code';
     const accessType = 'offline';
@@ -65,7 +69,7 @@ export class AuthService {
     return this.http
       .post<AuthUser>(
         `${this.apiUrl}/auth/callback`,
-        { code },
+        { code, redirect_uri: this.getRedirectUri() },
         { withCredentials: true }
       )
       .pipe(

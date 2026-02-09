@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                update green_card_policy\n                set\n                    territory = $2,\n                    period_in_units = $3,\n                    period_unit = $4,\n                    premium = $5,\n                    car_id = $6\n                where id = $1\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Int4",
+        {
+          "Custom": {
+            "name": "car_insurance_period_unit",
+            "kind": {
+              "Enum": [
+                "day",
+                "month",
+                "year"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fd105e9747678c6623ba7fcc857193ce5105eabe1334853e5c38b1504eb2ae79"
+}

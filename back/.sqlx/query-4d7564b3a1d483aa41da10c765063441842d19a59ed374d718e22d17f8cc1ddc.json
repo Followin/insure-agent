@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                    insert into medassistance_policy_member (medassistance_policy_id, member_id)\n                    values ($1, $2)\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4d7564b3a1d483aa41da10c765063441842d19a59ed374d718e22d17f8cc1ddc"
+}

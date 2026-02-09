@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                insert into car (chassis, make, model, registration, plate, year, engine_displacement_litres, mileage_km, unladen_weight, laden_weight, seats)\n                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n                returning id\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c48303b643b32b2da70a1dc1b6d41a893856194ff2d64f6c1bb16a0589970af0"
+}

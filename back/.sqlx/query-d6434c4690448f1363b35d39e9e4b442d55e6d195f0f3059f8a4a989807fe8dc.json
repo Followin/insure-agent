@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select type as \"policy_type: PolicyType\"\n        from policy\n        where id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "policy_type: PolicyType",
+        "type_info": {
+          "Custom": {
+            "name": "policy_type",
+            "kind": {
+              "Enum": [
+                "green_card",
+                "medassistance",
+                "osago"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d6434c4690448f1363b35d39e9e4b442d55e6d195f0f3059f8a4a989807fe8dc"
+}

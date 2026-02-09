@@ -14,6 +14,7 @@ use super::google::GoogleOAuthClient;
 #[derive(Debug, Deserialize)]
 pub struct CallbackRequest {
     code: String,
+    redirect_uri: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -49,7 +50,7 @@ async fn callback(
 
     // Exchange code for tokens
     let token_response = google_client
-        .exchange_code(&payload.code)
+        .exchange_code(&payload.code, &payload.redirect_uri)
         .await
         .map_err(|e| {
             (

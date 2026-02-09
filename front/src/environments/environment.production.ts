@@ -1,5 +1,4 @@
 export const environment = {
   apiUrl: '/api',
-  googleClientId: 'YOUR_GOOGLE_CLIENT_ID',
-  googleRedirectUri: 'https://your-domain.com/auth/callback',
+  googleClientId: '478157598310-nrk0pgl96usfpfmvkq16sbtj8f1hjpk6.apps.googleusercontent.com',
 };

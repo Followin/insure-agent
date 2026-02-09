@@ -1,0 +1,81 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    id,\n                    first_name,\n                    last_name,\n                    sex as \"sex: _\",\n                    birth_date,\n                    tax_number,\n                    phone,\n                    phone2,\n                    email\n                from person\n                where id = any($1)\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "sex: _",
+        "type_info": {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "birth_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "tax_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "phone",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "phone2",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "1041f9f4be92365bda732236df735f18cfd128ac4df06134ddaca2c2c2149504"
+}

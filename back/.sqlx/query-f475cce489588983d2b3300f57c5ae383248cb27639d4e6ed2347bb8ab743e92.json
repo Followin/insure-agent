@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, plate || ' (' || make || ' ' || model || ')' AS \"label!\" FROM car WHERE LOWER(plate || ' ' || make || ' ' || model) LIKE $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "label!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "f475cce489588983d2b3300f57c5ae383248cb27639d4e6ed2347bb8ab743e92"
+}

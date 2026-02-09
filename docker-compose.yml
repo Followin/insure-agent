@@ -27,13 +27,9 @@ services:
       - full
     build:
       context: ./back
-      secrets:
-        - certs
     ports:
       - "8001:80"
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/insure
-
-secrets:
-  certs:
-    file: /home/main/@data/certs/z-scaler.pem
+      - GOOGLE_CLIENT_ID=478157598310-nrk0pgl96usfpfmvkq16sbtj8f1hjpk6.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}

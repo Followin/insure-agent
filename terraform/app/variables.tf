@@ -16,6 +16,12 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "dockerhub_token" {
+  description = "Docker Hub access token for pulling images"
+  type        = string
+  sensitive   = true
+}
+
 variable "container_port" {
   description = "Port the container listens on"
   type        = number

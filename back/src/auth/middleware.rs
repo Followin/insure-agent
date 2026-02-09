@@ -1,5 +1,6 @@
 use axum::{extract::Request, http::StatusCode, middleware::Next, response::Response};
 use tower_cookies::Cookies;
+use tracing::info;
 
 use super::cookie::{AuthSession, get_auth_session, set_auth_cookie};
 use super::google::GoogleOAuthClient;
@@ -22,6 +23,8 @@ pub async fn auth_middleware(
     }
 
     let session = get_auth_session(&cookies).ok_or(StatusCode::UNAUTHORIZED)?;
+
+    info!("User email: {}", session.email);
 
     // Check if access token is expired and needs refresh
     let session = if session.is_access_token_expired() {

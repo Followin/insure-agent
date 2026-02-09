@@ -21,20 +21,9 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Read outputs from infra layer
-data "terraform_remote_state" "infra" {
-  backend = "s3"
-
-  config = {
-    bucket = "insure-agent-terraform-state"
-    key    = "infra/terraform.tfstate"
-    region = "eu-central-1"
-  }
-}
-
 locals {
-  ecr_repository_urls = data.terraform_remote_state.infra.outputs.ecr_repository_urls
-  ecr_registry_url    = data.terraform_remote_state.infra.outputs.ecr_registry_url
+  front_image = "dlike/insure-agent-front:${var.image_tag}"
+  back_image  = "dlike/insure-agent-back:${var.image_tag}"
 }
 
 # =============================================================================
@@ -113,55 +102,21 @@ resource "aws_key_pair" "main" {
   tags = var.tags
 }
 
-# IAM role for EC2 to pull from ECR
-resource "aws_iam_role" "ec2_ecr" {
-  name = "${var.project_name}-ec2-ecr-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = var.tags
-}
-
-resource "aws_iam_role_policy_attachment" "ec2_ecr" {
-  role       = aws_iam_role.ec2_ecr.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-resource "aws_iam_instance_profile" "ec2" {
-  name = "${var.project_name}-ec2-profile"
-  role = aws_iam_role.ec2_ecr.name
-
-  tags = var.tags
-}
-
 resource "aws_instance" "main" {
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.main.key_name
   vpc_security_group_ids = [aws_security_group.ec2.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2.name
   subnet_id              = tolist(data.aws_subnets.default.ids)[0]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
-    region       = var.aws_region
-    ecr_url      = local.ecr_registry_url
-    front_image  = "${local.ecr_repository_urls["front"]}:${var.image_tag}"
-    back_image   = "${local.ecr_repository_urls["back"]}:${var.image_tag}"
-    email        = var.certbot_email
-    domain       = var.domain_name
-    api_domain   = var.api_domain_name
-    database_url = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+    dockerhub_token = var.dockerhub_token
+    front_image     = local.front_image
+    back_image      = local.back_image
+    email           = var.certbot_email
+    domain          = var.domain_name
+    api_domain      = var.api_domain_name
+    database_url    = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
 
     nginx_conf = templatefile("${path.module}/files/nginx-apps.conf.tpl", {
       domain     = var.domain_name
@@ -172,11 +127,10 @@ resource "aws_instance" "main" {
     certbot_renew_timer   = file("${path.module}/files/certbot-renew.timer")
 
     docker_auto_update_script = templatefile("${path.module}/files/docker-auto-update.sh.tpl", {
-      region       = var.aws_region
-      ecr_url      = local.ecr_registry_url
-      front_image  = "${local.ecr_repository_urls["front"]}:${var.image_tag}"
-      back_image   = "${local.ecr_repository_urls["back"]}:${var.image_tag}"
-      database_url = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+      dockerhub_token = var.dockerhub_token
+      front_image     = local.front_image
+      back_image      = local.back_image
+      database_url    = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
     })
 
     docker_auto_update_service = file("${path.module}/files/docker-auto-update.service")

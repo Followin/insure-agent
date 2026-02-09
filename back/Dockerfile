@@ -1,8 +1,10 @@
 FROM rust:bullseye AS build
 WORKDIR /app
 
-RUN --mount=type=secret,id=certs,target=/tmp/ca-certificates.crt \
-    cat /tmp/ca-certificates.crt >> /etc/ssl/certs/ca-certificates.crt
+RUN --mount=type=secret,id=certs,target=/tmp/ca-certificates.crt,required=false \
+    if [ -f /tmp/ca-certificates.crt ]; then \
+        cat /tmp/ca-certificates.crt >> /etc/ssl/certs/ca-certificates.crt; \
+    fi
 
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 

@@ -36,7 +36,6 @@ pub struct UserInfo {
 pub struct GoogleOAuthClient {
     client_id: String,
     client_secret: String,
-    redirect_uri: String,
     http_client: reqwest::Client,
 }
 
@@ -46,18 +45,16 @@ impl GoogleOAuthClient {
             client_id: std::env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
             client_secret: std::env::var("GOOGLE_CLIENT_SECRET")
                 .expect("GOOGLE_CLIENT_SECRET must be set"),
-            redirect_uri: std::env::var("GOOGLE_REDIRECT_URI")
-                .expect("GOOGLE_REDIRECT_URI must be set"),
             http_client: reqwest::Client::new(),
         }
     }
 
-    pub async fn exchange_code(&self, code: &str) -> Result<TokenResponse, String> {
+    pub async fn exchange_code(&self, code: &str, redirect_uri: &str) -> Result<TokenResponse, String> {
         let request = TokenRequest {
             code: code.to_string(),
             client_id: self.client_id.clone(),
             client_secret: self.client_secret.clone(),
-            redirect_uri: self.redirect_uri.clone(),
+            redirect_uri: redirect_uri.to_string(),
             grant_type: "authorization_code".to_string(),
         };
 

@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    id,\n                    chassis,\n                    make,\n                    model,\n                    registration,\n                    plate,\n                    year,\n                    engine_displacement_litres,\n                    mileage_km,\n                    unladen_weight,\n                    laden_weight,\n                    seats\n                from car\n                where id = $1\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "chassis",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "make",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "registration",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "plate",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "engine_displacement_litres",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "mileage_km",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "unladen_weight",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "laden_weight",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "seats",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2ff9350bfa38139b188f025b27d06a36e4520431e845a1ae9661b0a8348b6f81"
+}

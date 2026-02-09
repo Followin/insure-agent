@@ -53,8 +53,8 @@ async fn main() {
 
     if let Ok(origin) = std::env::var("CORS_ORIGIN") {
         info!("CORS mode: origin={}", origin);
-        let cors = CorsLayer::new()
-            .allow_origin(origin.parse::<axum::http::HeaderValue>().unwrap())
+
+        let mut cors = CorsLayer::new()
             .allow_methods([
                 Method::GET,
                 Method::POST,
@@ -68,6 +68,12 @@ async fn main() {
                 HeaderName::from_static("accept"),
             ])
             .allow_credentials(true);
+
+        let origins = origin.split(',').map(|s| s.trim()).collect::<Vec<_>>();
+        for origin in origins {
+            cors = cors.allow_origin(origin.parse::<axum::http::HeaderValue>().unwrap());
+        }
+
         app = app.layer(cors);
     }
 

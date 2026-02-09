@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select\n            id,\n            first_name,\n            last_name,\n            phone,\n            birth_date,\n            extract(year from age(\n                case\n                    when to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')\n                    then to_date(to_char(current_date, 'YYYY') || to_char(birth_date, 'MMDD'), 'YYYYMMDD')\n                    else to_date(to_char(current_date::date + interval '1 year', 'YYYY') || to_char(birth_date, 'MMDD'), 'YYYYMMDD')\n                end,\n                birth_date\n            ))::int as \"age!: i32\",\n            case\n                when to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')\n                then to_date(to_char(current_date, 'YYYY') || to_char(birth_date, 'MMDD'), 'YYYYMMDD') - current_date\n                else to_date(to_char(current_date::date + interval '1 year', 'YYYY') || to_char(birth_date, 'MMDD'), 'YYYYMMDD') - current_date\n            end as \"days_until!: i32\"\n        from person\n        where\n            (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')\n             and to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD'))\n            or\n            (to_char(current_date + interval '7 days', 'MMDD') < to_char(current_date, 'MMDD')\n             and (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')\n                  or to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD')))\n        order by \"days_until!: i32\" asc\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "phone",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "birth_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "age!: i32",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "days_until!: i32",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "855dd72bdda6df144bd45990f8deee2238bc9ac15593eef629e1fdf63cd6425c"
+}

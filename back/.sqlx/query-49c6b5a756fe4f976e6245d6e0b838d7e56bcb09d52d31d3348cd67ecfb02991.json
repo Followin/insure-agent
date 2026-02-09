@@ -1,0 +1,104 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\"\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        left join medassistance_policy_member mpm on policy.id = mpm.medassistance_policy_id\n        where policy.holder_id = $1 or mpm.member_id = $1\n        order by start_date desc\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "policy_type: PolicyType",
+        "type_info": {
+          "Custom": {
+            "name": "policy_type",
+            "kind": {
+              "Enum": [
+                "green_card",
+                "medassistance",
+                "osago"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "holder_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "series",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 6,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "status: PolicyStatus",
+        "type_info": {
+          "Custom": {
+            "name": "policy_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "prolonged",
+                "rejected",
+                "stopped",
+                "postponed",
+                "cancelled",
+                "project",
+                "replaced",
+                "expired"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "car_model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "car_plate?",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      false,
+      false,
+      false,
+      true,
+      false,
+      null,
+      false
+    ]
+  },
+  "hash": "49c6b5a756fe4f976e6245d6e0b838d7e56bcb09d52d31d3348cd67ecfb02991"
+}

@@ -1,0 +1,99 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        insert into person (first_name, last_name, sex, birth_date, tax_number, phone, phone2, email)\n        values ($1, $2, $3, $4, $5, $6, $7, $8)\n        returning\n            id,\n            first_name,\n            last_name,\n            sex as \"sex: Sex\",\n            birth_date,\n            tax_number,\n            phone,\n            phone2,\n            email\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "sex: Sex",
+        "type_info": {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "birth_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "tax_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "phone",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "phone2",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "Date",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "80585e5a3dc08f213107efb1faba0dd9a8dbfb2424c90d353641e740ccdf957e"
+}

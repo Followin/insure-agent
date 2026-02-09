@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                update medassistance_policy\n                set\n                    territory = $2,\n                    period_days = $3,\n                    premium = $4,\n                    payout = $5,\n                    program = $6\n                where id = $1\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0bf483708284e7b57e83ccc9de3518ffd9788af0dfcbf98e58c2fe75906deae0"
+}

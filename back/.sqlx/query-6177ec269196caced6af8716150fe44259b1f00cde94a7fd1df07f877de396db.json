@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    territory,\n                    period_days,\n                    premium,\n                    payout,\n                    program\n                from medassistance_policy\n                where id = $1\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "territory",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "period_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "premium",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "payout",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "program",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6177ec269196caced6af8716150fe44259b1f00cde94a7fd1df07f877de396db"
+}

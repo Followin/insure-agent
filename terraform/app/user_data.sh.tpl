@@ -17,8 +17,8 @@ certbot certonly --standalone --non-interactive --agree-tos \
 # Create shared Docker network
 docker network create app
 
-# ECR login + pull both images
-aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecr_url}
+# Docker Hub login + pull both images
+echo "${dockerhub_token}" | docker login --username dlike --password-stdin
 docker pull ${front_image}
 docker pull ${back_image}
 

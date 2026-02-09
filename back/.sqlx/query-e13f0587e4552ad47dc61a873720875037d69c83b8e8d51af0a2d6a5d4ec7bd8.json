@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                insert into green_card_policy (id, territory, period_in_units, period_unit, premium, car_id)\n                values ($1, $2, $3, $4, $5, $6)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Int4",
+        {
+          "Custom": {
+            "name": "car_insurance_period_unit",
+            "kind": {
+              "Enum": [
+                "day",
+                "month",
+                "year"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e13f0587e4552ad47dc61a873720875037d69c83b8e8d51af0a2d6a5d4ec7bd8"
+}
