@@ -28,6 +28,7 @@ export class PolicyListComponent {
   constructor() {
     this.filterSubject
       .pipe(
+        debounceTime(300),
         tap((filter) => {
           this.router.navigate([], {
             queryParams: { search: filter.search || null, activeOnly: filter.activeOnly || null },
@@ -35,7 +36,6 @@ export class PolicyListComponent {
             replaceUrl: true,
           });
         }),
-        debounceTime(300),
         switchMap((filter) => {
           this.loading = true;
           return this.policyService.getAll(filter.search, filter.activeOnly).pipe(
