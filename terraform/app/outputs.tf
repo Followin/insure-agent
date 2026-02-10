@@ -13,12 +13,3 @@ output "ec2_public_dns" {
   value       = aws_instance.main.public_dns
 }
 
-output "rds_endpoint" {
-  description = "The RDS instance endpoint"
-  value       = aws_db_instance.postgres.endpoint
-}
-
-output "rds_db_name" {
-  description = "The database name"
-  value       = aws_db_instance.postgres.db_name
-}

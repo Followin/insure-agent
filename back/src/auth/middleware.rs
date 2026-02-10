@@ -74,7 +74,7 @@ pub async fn allowed_users_middleware(
     let user = request.extensions().get::<AuthUser>();
 
     if let Some(user) = user
-        && user.email == "dlike.version10@gmail.com"
+        && (user.email == "dlike.version10@gmail.com" || user.email == "yerig68@gmail.com")
     {
         Ok(next.run(request).await)
     } else {

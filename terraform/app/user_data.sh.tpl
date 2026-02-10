@@ -34,6 +34,8 @@ docker run -d --restart always --name backend \
   -p 8000:80 \
   -e BIND_ADDRESS=0.0.0.0:80 \
   -e DATABASE_URL=${database_url} \
+  -e GOOGLE_CLIENT_ID=${google_client_id} \
+  -e GOOGLE_CLIENT_SECRET=${google_client_secret} \
   ${back_image}
 
 # Nginx reverse proxy config

@@ -110,13 +110,15 @@ resource "aws_instance" "main" {
   subnet_id              = tolist(data.aws_subnets.default.ids)[0]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
-    dockerhub_token = var.dockerhub_token
-    front_image     = local.front_image
-    back_image      = local.back_image
-    email           = var.certbot_email
-    domain          = var.domain_name
-    api_domain      = var.api_domain_name
-    database_url    = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+    dockerhub_token      = var.dockerhub_token
+    front_image          = local.front_image
+    back_image           = local.back_image
+    email                = var.certbot_email
+    domain               = var.domain_name
+    api_domain           = var.api_domain_name
+    database_url         = "postgres://${var.db_username}:${var.db_password}@${var.db_host}:5432/${var.db_name}"
+    google_client_id     = var.google_client_id
+    google_client_secret = var.google_client_secret
 
     nginx_conf = templatefile("${path.module}/files/nginx-apps.conf.tpl", {
       domain     = var.domain_name
@@ -127,10 +129,12 @@ resource "aws_instance" "main" {
     certbot_renew_timer   = file("${path.module}/files/certbot-renew.timer")
 
     docker_auto_update_script = templatefile("${path.module}/files/docker-auto-update.sh.tpl", {
-      dockerhub_token = var.dockerhub_token
-      front_image     = local.front_image
-      back_image      = local.back_image
-      database_url    = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+      dockerhub_token      = var.dockerhub_token
+      front_image          = local.front_image
+      back_image           = local.back_image
+      database_url         = "postgres://${var.db_username}:${var.db_password}@${var.db_host}:5432/${var.db_name}"
+      google_client_id     = var.google_client_id
+      google_client_secret = var.google_client_secret
     })
 
     docker_auto_update_service = file("${path.module}/files/docker-auto-update.service")
@@ -169,57 +173,3 @@ resource "aws_route53_record" "api" {
   records = [aws_eip.main.public_ip]
 }
 
-# =============================================================================
-# RDS PostgreSQL (Free Tier)
-# =============================================================================
-
-resource "aws_security_group" "rds" {
-  name        = "${var.project_name}-rds-sg"
-  description = "Allow PostgreSQL access from EC2"
-  vpc_id      = data.aws_vpc.default.id
-
-  ingress {
-    description     = "PostgreSQL from EC2"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  ingress {
-    description = "PostgreSQL from anywhere"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = var.tags
-}
-
-resource "aws_db_instance" "postgres" {
-  identifier     = "${var.project_name}-db"
-  engine         = "postgres"
-  engine_version = "17"
-
-  instance_class    = "db.t3.micro"
-  allocated_storage = 20
-  storage_type      = "gp2"
-
-  db_name  = var.db_name
-  username = var.db_username
-  password = var.db_password
-
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  publicly_accessible    = true
-  skip_final_snapshot    = true
-
-  tags = var.tags
-}

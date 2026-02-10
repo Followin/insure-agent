@@ -64,20 +64,38 @@ variable "certbot_email" {
   default     = "dlike.version10@gmail.com"
 }
 
+variable "db_host" {
+  description = "PostgreSQL database host"
+  type        = string
+  default     = "aws-1-eu-central-1.pooler.supabase.com"
+}
+
 variable "db_name" {
   description = "PostgreSQL database name"
   type        = string
-  default     = "insure"
+  default     = "postgres"
 }
 
 variable "db_username" {
-  description = "PostgreSQL master username"
+  description = "PostgreSQL username"
   type        = string
-  default     = "insure"
+  default     = "postgres.pvvfiixfywmfpcpvagho"
 }
 
 variable "db_password" {
-  description = "PostgreSQL master password"
+  description = "PostgreSQL password"
+  type        = string
+  sensitive   = true
+}
+
+variable "google_client_id" {
+  description = "Google OAuth client ID"
+  type        = string
+  default     = "478157598310-nrk0pgl96usfpfmvkq16sbtj8f1hjpk6.apps.googleusercontent.com"
+}
+
+variable "google_client_secret" {
+  description = "Google OAuth client secret"
   type        = string
   sensitive   = true
 }

@@ -5,6 +5,8 @@ DOCKERHUB_TOKEN="${dockerhub_token}"
 FRONT_IMAGE="${front_image}"
 BACK_IMAGE="${back_image}"
 DATABASE_URL="${database_url}"
+GOOGLE_CLIENT_ID="${google_client_id}"
+GOOGLE_CLIENT_SECRET="${google_client_secret}"
 
 # Authenticate with Docker Hub
 echo "$DOCKERHUB_TOKEN" | docker login --username dlike --password-stdin >/dev/null 2>&1
@@ -38,4 +40,6 @@ update_container "frontend" "$FRONT_IMAGE" \
 update_container "backend" "$BACK_IMAGE" \
   -p 8000:80 \
   -e BIND_ADDRESS=0.0.0.0:80 \
-  -e "DATABASE_URL=$DATABASE_URL"
+  -e "DATABASE_URL=$DATABASE_URL" \
+  -e "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" \
+  -e "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET"
