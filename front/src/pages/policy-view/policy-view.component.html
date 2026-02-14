@@ -35,7 +35,7 @@
       <div class="grid grid-cols-2 gap-4 p-4">
         <span class="text-color-secondary">Имя:</span>
         <span>
-          {{p.holder.first_name}} {{p.holder.last_name}}
+         {{p.holder.last_name}} {{p.holder.first_name}} {{p.holder.patronymic_name}}
           <a [routerLink]="['/people', p.holder.id]" pButton [text]="true" size="small">
             <i class="pi pi-eye"></i>
           </a>

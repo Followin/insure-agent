@@ -3,10 +3,12 @@ use axum::extract::{Path, State};
 use serde::Serialize;
 use sqlx::PgPool;
 
-use crate::endpoints::car::model::Car;
-use crate::endpoints::person::model::Person;
 use crate::error::{AppError, AppResult};
-use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
+use crate::shared::{
+    car::model::CarFull,
+    person::model::{PersonFull, PersonStatus},
+    policy::model::{CarInsurancePeriodUnit, OsagoZone, PolicyStatus, PolicyType},
+};
 
 // === Response Models ===
 
@@ -16,7 +18,7 @@ pub struct GreenCardDetails {
     pub period_in_units: i32,
     pub period_unit: CarInsurancePeriodUnit,
     pub premium: i32,
-    pub car: Car,
+    pub car: CarFull,
 }
 
 #[derive(Serialize)]
@@ -26,7 +28,7 @@ pub struct MedassistanceDetails {
     pub premium: i32,
     pub payout: i32,
     pub program: String,
-    pub members: Vec<Person>,
+    pub members: Vec<PersonFull>,
 }
 
 #[derive(Serialize)]
@@ -36,7 +38,7 @@ pub struct OsagoDetails {
     pub zone: OsagoZone,
     pub exempt: String,
     pub premium: i32,
-    pub car: Car,
+    pub car: CarFull,
 }
 
 #[derive(Serialize)]
@@ -50,7 +52,7 @@ pub enum PolicyDetails {
 #[derive(Serialize)]
 pub struct PolicyFull {
     pub id: i32,
-    pub holder: Person,
+    pub holder: PersonFull,
     pub series: String,
     pub number: String,
     pub start_date: chrono::NaiveDate,
@@ -126,7 +128,7 @@ pub async fn get_policy_by_id(
     .ok_or(AppError::not_found())?;
 
     let holder = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         select
             id,
@@ -171,7 +173,7 @@ pub async fn get_policy_by_id(
             .await?;
 
             let car = sqlx::query_as!(
-                Car,
+                CarFull,
                 r#"
                 select
                     id,
@@ -221,7 +223,7 @@ pub async fn get_policy_by_id(
             .await?;
 
             let members = sqlx::query_as!(
-                Person,
+                PersonFull,
                 r#"
                 select
                     p.id,
@@ -276,7 +278,7 @@ pub async fn get_policy_by_id(
             .await?;
 
             let car = sqlx::query_as!(
-                Car,
+                CarFull,
                 r#"
                 select
                     id,

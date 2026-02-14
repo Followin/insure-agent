@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        insert into policy (type, holder_id, series, number, start_date, end_date, status)\n        values ($1, $2, $3, $4, $5, $6, 'active')\n        returning\n            id,\n            type as \"policy_type: PolicyType\",\n            holder_id,\n            series,\n            number,\n            start_date,\n            end_date,\n            status as \"status: PolicyStatus\"\n        ",
+  "query": "\n        insert into policy (type, holder_id, series, number, start_date, end_date, status)\n        values ($1, $2, $3, $4, $5, $6, $7)\n        returning\n            id,\n            type as \"policy_type: PolicyType\",\n            holder_id,\n            series,\n            number,\n            start_date,\n            end_date,\n            status as \"status: PolicyStatus\"\n        ",
   "describe": {
     "columns": [
       {
@@ -90,7 +90,25 @@
         "Varchar",
         "Varchar",
         "Date",
-        "Date"
+        "Date",
+        {
+          "Custom": {
+            "name": "policy_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "prolonged",
+                "rejected",
+                "stopped",
+                "postponed",
+                "cancelled",
+                "project",
+                "replaced",
+                "expired"
+              ]
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -104,5 +122,5 @@
       false
     ]
   },
-  "hash": "e08aea3bce2569666064a55a95cc3552827579fa6da25e1a512aa62b8da05865"
+  "hash": "d636127c3352c7d2b8631d99a961176be7e4c63d60de8d2648fe4139d852bd64"
 }

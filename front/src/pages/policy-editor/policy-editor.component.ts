@@ -196,9 +196,8 @@ export class PolicyEditorComponent {
       end_date: this.generalGroup.controls.endDate.value
         ? this.formatDate(this.generalGroup.controls.endDate.value)
         : null,
+      status: this.generalGroup.controls.status.value!,
     };
-
-    const statusBase = this.editMode() ? { status: this.generalGroup.controls.status.value! } : {};
 
     // Use getRawValue to get the value even if disabled
     const policyType = this.generalGroup.controls.type.getRawValue();
@@ -206,7 +205,6 @@ export class PolicyEditorComponent {
     if (policyType === 'GreenCard') {
       return {
         ...base,
-        ...statusBase,
         policy_type: 'GreenCard',
         territory: this.greenCardGroup.controls.territory.value!,
         period_in_units: this.greenCardGroup.controls.period_in_units.value!,
@@ -220,7 +218,6 @@ export class PolicyEditorComponent {
         .filter((m): m is NonNullable<PersonEditorValue> => m !== null);
       return {
         ...base,
-        ...statusBase,
         policy_type: 'Medassistance',
         territory: this.medassistanceGroup.controls.territory.value!,
         period_days: this.medassistanceGroup.controls.period_days.value!,
@@ -232,7 +229,6 @@ export class PolicyEditorComponent {
     } else if (policyType === 'Osago') {
       return {
         ...base,
-        ...statusBase,
         policy_type: 'Osago',
         period_in_units: this.osagoGroup.controls.period_in_units.value!,
         period_unit: this.osagoGroup.controls.period_unit.value!,

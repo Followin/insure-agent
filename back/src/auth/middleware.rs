@@ -1,13 +1,21 @@
 use axum::{extract::Request, http::StatusCode, middleware::Next, response::Response};
 use tower_cookies::Cookies;
-use tracing::info;
+use tracing::Span;
 
 use super::cookie::{AuthSession, get_auth_session, set_auth_cookie};
 use super::google::GoogleOAuthClient;
 
+#[derive(Clone)]
+pub struct HttpSpan(pub Span);
+
 #[derive(Clone, Debug)]
 pub struct AuthUser {
     pub email: String,
+}
+
+pub async fn store_http_span_middleware(mut request: Request, next: Next) -> Response {
+    request.extensions_mut().insert(HttpSpan(Span::current()));
+    next.run(request).await
 }
 
 pub async fn auth_middleware(
@@ -23,8 +31,6 @@ pub async fn auth_middleware(
     }
 
     let session = get_auth_session(&cookies).ok_or(StatusCode::UNAUTHORIZED)?;
-
-    info!("User email: {}", session.email);
 
     // Check if access token is expired and needs refresh
     let session = if session.is_access_token_expired() {
@@ -53,6 +59,10 @@ pub async fn auth_middleware(
     } else {
         session
     };
+
+    if let Some(http_span) = request.extensions().get::<HttpSpan>() {
+        http_span.0.record("user_email", &session.email);
+    }
 
     request.extensions_mut().insert(AuthUser {
         email: session.email,

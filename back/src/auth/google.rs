@@ -22,15 +22,11 @@ pub struct TokenResponse {
     pub access_token: String,
     pub refresh_token: Option<String>,
     pub expires_in: i64,
-    pub token_type: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UserInfo {
     pub email: String,
-    pub email_verified: Option<bool>,
-    pub name: Option<String>,
-    pub picture: Option<String>,
 }
 
 pub struct GoogleOAuthClient {
@@ -49,7 +45,11 @@ impl GoogleOAuthClient {
         }
     }
 
-    pub async fn exchange_code(&self, code: &str, redirect_uri: &str) -> Result<TokenResponse, String> {
+    pub async fn exchange_code(
+        &self,
+        code: &str,
+        redirect_uri: &str,
+    ) -> Result<TokenResponse, String> {
         let request = TokenRequest {
             code: code.to_string(),
             client_id: self.client_id.clone(),

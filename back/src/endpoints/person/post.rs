@@ -1,12 +1,11 @@
+use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::Json;
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use super::model::{Person, Sex};
 use crate::error::AppResult;
-use crate::models::PersonStatus;
+use crate::shared::person::model::{PersonFull, PersonStatus, Sex};
 
 #[derive(Deserialize)]
 pub struct CreatePerson {
@@ -28,9 +27,9 @@ pub struct CreatePerson {
 pub async fn create_person(
     State(pool): State<PgPool>,
     Json(body): Json<CreatePerson>,
-) -> AppResult<(StatusCode, Json<Person>)> {
+) -> AppResult<(StatusCode, Json<PersonFull>)> {
     let person = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         insert into person (first_name, first_name_lat, last_name, last_name_lat, patronymic_name, patronymic_name_lat, sex, birth_date, tax_number, phone, phone2, email, status)
         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)

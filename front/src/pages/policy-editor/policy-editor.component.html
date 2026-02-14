@@ -25,12 +25,10 @@
         <p-datepicker [formControl]="generalGroup.controls.endDate" id="endDate" dateFormat="dd/mm/yy" showIcon fluid></p-datepicker>
         <label for="endDate">Дата окончания</label>
       </p-floatlabel>
-      @if (editMode()) {
-        <p-floatlabel>
-          <p-select [formControl]="generalGroup.controls.status" id="status" fluid [options]="policyStatuses"></p-select>
-          <label for="status">Статус</label>
-        </p-floatlabel>
-      }
+      <p-floatlabel>
+        <p-select [formControl]="generalGroup.controls.status" id="status" fluid [options]="policyStatuses"></p-select>
+        <label for="status">Статус</label>
+      </p-floatlabel>
     </div>
   </p-panel>
   <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />

@@ -1,11 +1,10 @@
-use axum::extract::{Path, State};
 use axum::Json;
+use axum::extract::{Path, State};
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use super::model::{Person, Sex};
 use crate::error::{AppError, AppResult};
-use crate::models::PersonStatus;
+use crate::shared::person::model::{PersonFull, PersonStatus, Sex};
 
 #[derive(Deserialize)]
 pub struct UpdatePerson {
@@ -28,9 +27,9 @@ pub async fn update_person(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
     Json(body): Json<UpdatePerson>,
-) -> AppResult<Json<Person>> {
+) -> AppResult<Json<PersonFull>> {
     let person = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         update person
         set

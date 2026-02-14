@@ -3,14 +3,16 @@ use axum::extract::{Path, State};
 use serde::Serialize;
 use sqlx::PgPool;
 
-use super::model::{Person, Sex};
 use crate::error::{AppError, AppResult};
-use crate::models::{PersonStatus, PolicyShort, PolicyStatus, PolicyType};
+use crate::shared::{
+    person::model::{PersonFull, PersonStatus, Sex},
+    policy::model::{PolicyShort, PolicyStatus, PolicyType},
+};
 
 #[derive(Serialize)]
 pub struct PersonWithPolicies {
     #[serde(flatten)]
-    pub person: Person,
+    pub person: PersonFull,
     pub policies: Vec<PolicyShort>,
 }
 
@@ -19,7 +21,7 @@ pub async fn get_person(
     Path(id): Path<i32>,
 ) -> AppResult<Json<PersonWithPolicies>> {
     let person = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         select
             id,

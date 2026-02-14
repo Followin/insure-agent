@@ -3,12 +3,16 @@ use axum::extract::{Path, State};
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use super::create::{PersonRef, PolicyData, resolve_car, resolve_person};
+use super::create::PolicyData;
 use super::get_by_id::PolicyFull;
-use crate::endpoints::car::model::Car;
-use crate::endpoints::person::model::Person;
 use crate::error::{AppError, AppResult};
-use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
+use crate::shared::car::model::CarFull;
+use crate::shared::car::resolver::resolve_car;
+use crate::shared::person::resolver::resolve_person;
+use crate::shared::{
+    person::model::{PersonFull, PersonRef, PersonStatus},
+    policy::model::{CarInsurancePeriodUnit, OsagoZone, PolicyStatus, PolicyType},
+};
 
 // === Update Request ===
 
@@ -118,7 +122,7 @@ pub async fn update_policy(
             .await?;
 
             let car = sqlx::query_as!(
-                Car,
+                CarFull,
                 r#"
                 select
                     id,
@@ -205,7 +209,7 @@ pub async fn update_policy(
 
             // Fetch all members in a single query
             let members = sqlx::query_as!(
-                Person,
+                PersonFull,
                 r#"
                 select
                     id,
@@ -266,7 +270,7 @@ pub async fn update_policy(
             .await?;
 
             let car = sqlx::query_as!(
-                Car,
+                CarFull,
                 r#"
                 select
                     id,
@@ -302,7 +306,7 @@ pub async fn update_policy(
 
     // Fetch updated holder
     let holder = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         select
             id,

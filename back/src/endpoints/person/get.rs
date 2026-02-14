@@ -3,9 +3,8 @@ use axum::extract::{Query, State};
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use super::model::{Person, Sex};
 use crate::error::AppResult;
-use crate::models::PersonStatus;
+use crate::shared::person::model::{PersonFull, PersonStatus, Sex};
 
 #[derive(Deserialize)]
 pub struct PersonQuery {
@@ -15,7 +14,7 @@ pub struct PersonQuery {
 pub async fn get_people(
     State(pool): State<PgPool>,
     Query(query): Query<PersonQuery>,
-) -> AppResult<Json<Vec<Person>>> {
+) -> AppResult<Json<Vec<PersonFull>>> {
     let search = query.search.unwrap_or_default().to_lowercase();
     let search_pattern = format!("%{}%", search);
     let phone_digits: String = search.chars().filter(|c| c.is_ascii_digit()).collect();
@@ -23,7 +22,7 @@ pub async fn get_people(
     let phone_pattern = format!("%{}%", phone_digits);
 
     let people = sqlx::query_as!(
-        Person,
+        PersonFull,
         r#"
         select
             id,
@@ -58,4 +57,3 @@ pub async fn get_people(
 
     Ok(Json(people))
 }
-

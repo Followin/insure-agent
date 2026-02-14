@@ -3,12 +3,12 @@ export type PolicyType = (typeof policyTypeValues)[number];
 
 export const policyStatusValues = [
   'Active',
+  'Project',
   'Prolonged',
   'Rejected',
   'Stopped',
   'Postponed',
   'Cancelled',
-  'Project',
   'Replaced',
   'Expired',
 ] as const;

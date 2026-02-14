@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 use serde::Serialize;
 
-use crate::models::PolicyType;
+use crate::shared::policy::model::PolicyType;
 
 #[derive(Serialize)]
 pub struct DashboardStats {

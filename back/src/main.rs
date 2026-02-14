@@ -1,7 +1,7 @@
 mod auth;
 mod endpoints;
 pub mod error;
-pub mod models;
+pub mod shared;
 
 use axum::http::{HeaderMap, HeaderName, Method, Uri};
 use axum::middleware;
@@ -9,9 +9,8 @@ use axum::{Router, response::Redirect};
 use sqlx::PgPool;
 use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
-use tracing::Level;
-use tracing::info;
+use tower_http::trace::{DefaultOnResponse, TraceLayer};
+use tracing::{Level, field, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -37,13 +36,19 @@ async fn main() {
         ))
         .layer(middleware::from_fn(auth::middleware::auth_middleware))
         .layer(CookieManagerLayer::new())
+        .layer(middleware::from_fn(
+            auth::middleware::store_http_span_middleware,
+        ))
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(
-                    DefaultMakeSpan::new()
-                        .level(Level::INFO)
-                        .include_headers(false),
-                )
+                .make_span_with(|request: &axum::http::Request<_>| {
+                    tracing::info_span!(
+                        "request",
+                        method = %request.method(),
+                        uri = %request.uri(),
+                        user_email = field::Empty,
+                    )
+                })
                 .on_response(
                     DefaultOnResponse::new()
                         .level(Level::INFO)

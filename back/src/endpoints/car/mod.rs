@@ -1,5 +1,4 @@
 pub mod get_by_id;
-pub mod model;
 pub mod search;
 
 use axum::{Router, routing::get};

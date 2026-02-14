@@ -4,7 +4,7 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::error::AppResult;
-use crate::models::{PolicyShort, PolicyStatus, PolicyType};
+use crate::shared::policy::model::{PolicyShort, PolicyStatus, PolicyType};
 
 #[derive(Deserialize)]
 pub struct PolicyQuery {

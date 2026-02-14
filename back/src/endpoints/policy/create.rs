@@ -4,59 +4,14 @@ use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::endpoints::person::model::Sex;
-use crate::error::AppResult;
-use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
-
-// === Person Reference ===
-
-#[derive(Deserialize)]
-pub struct NewPerson {
-    pub first_name: String,
-    pub first_name_lat: Option<String>,
-    pub last_name: String,
-    pub last_name_lat: Option<String>,
-    pub patronymic_name: Option<String>,
-    pub patronymic_name_lat: Option<String>,
-    pub sex: Sex,
-    pub birth_date: chrono::NaiveDate,
-    pub tax_number: String,
-    pub phone: String,
-    pub phone2: Option<String>,
-    pub email: String,
-    pub status: PersonStatus,
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "kind")]
-pub enum PersonRef {
-    Existing { id: i32 },
-    New(NewPerson),
-}
-
-// === Car Reference ===
-
-#[derive(Deserialize)]
-pub struct NewCar {
-    pub chassis: String,
-    pub make: String,
-    pub model: String,
-    pub registration: String,
-    pub plate: String,
-    pub year: i32,
-    pub engine_displacement_litres: i32,
-    pub mileage_km: i32,
-    pub unladen_weight: i32,
-    pub laden_weight: i32,
-    pub seats: i32,
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "kind")]
-pub enum CarRef {
-    Existing { id: i32 },
-    New(NewCar),
-}
+use crate::{
+    error::AppResult,
+    shared::{
+        car::{model::CarRef, resolver::resolve_car},
+        person::{model::PersonRef, resolver::resolve_person},
+        policy::model::{CarInsurancePeriodUnit, OsagoZone, PolicyStatus, PolicyType},
+    },
+};
 
 // === Policy Type Specific Data ===
 
@@ -106,6 +61,7 @@ pub struct CreatePolicyRequest {
     pub number: String,
     pub start_date: chrono::NaiveDate,
     pub end_date: Option<chrono::NaiveDate>,
+    pub status: PolicyStatus,
     #[serde(flatten)]
     pub data: PolicyData,
 }
@@ -122,80 +78,6 @@ pub struct CreatePolicyResponse {
     pub start_date: chrono::NaiveDate,
     pub end_date: Option<chrono::NaiveDate>,
     pub status: PolicyStatus,
-}
-
-// === Helper Functions ===
-
-struct IdResult {
-    id: i32,
-}
-
-pub async fn resolve_person(
-    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    person_ref: PersonRef,
-) -> Result<i32, sqlx::Error> {
-    match person_ref {
-        PersonRef::Existing { id } => Ok(id),
-        PersonRef::New(person) => {
-            let result = sqlx::query_as!(
-                IdResult,
-                r#"
-                insert into person (first_name, first_name_lat, last_name, last_name_lat, patronymic_name, patronymic_name_lat, sex, birth_date, tax_number, phone, phone2, email, status)
-                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-                returning id
-                "#,
-                person.first_name,
-                person.first_name_lat,
-                person.last_name,
-                person.last_name_lat,
-                person.patronymic_name,
-                person.patronymic_name_lat,
-                person.sex as Sex,
-                person.birth_date,
-                person.tax_number,
-                person.phone,
-                person.phone2,
-                person.email,
-                person.status as PersonStatus
-            )
-            .fetch_one(&mut **tx)
-            .await?;
-            Ok(result.id)
-        }
-    }
-}
-
-pub async fn resolve_car(
-    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    car_ref: CarRef,
-) -> Result<i32, sqlx::Error> {
-    match car_ref {
-        CarRef::Existing { id } => Ok(id),
-        CarRef::New(car) => {
-            let result = sqlx::query_as!(
-                IdResult,
-                r#"
-                insert into car (chassis, make, model, registration, plate, year, engine_displacement_litres, mileage_km, unladen_weight, laden_weight, seats)
-                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-                returning id
-                "#,
-                car.chassis,
-                car.make,
-                car.model,
-                car.registration,
-                car.plate,
-                car.year,
-                car.engine_displacement_litres,
-                car.mileage_km,
-                car.unladen_weight,
-                car.laden_weight,
-                car.seats
-            )
-            .fetch_one(&mut **tx)
-            .await?;
-            Ok(result.id)
-        }
-    }
 }
 
 // === Endpoint ===
@@ -218,7 +100,7 @@ pub async fn create_policy(
         CreatePolicyResponse,
         r#"
         insert into policy (type, holder_id, series, number, start_date, end_date, status)
-        values ($1, $2, $3, $4, $5, $6, 'active')
+        values ($1, $2, $3, $4, $5, $6, $7)
         returning
             id,
             type as "policy_type: PolicyType",
@@ -234,7 +116,8 @@ pub async fn create_policy(
         body.series,
         body.number,
         body.start_date,
-        body.end_date
+        body.end_date,
+        body.status as PolicyStatus
     )
     .fetch_one(&mut *tx)
     .await?;

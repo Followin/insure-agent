@@ -48,13 +48,12 @@ export type CreatePolicyRequest = {
   number: string;
   start_date: string;
   end_date: string | null;
+  status: PolicyStatus;
 } & PolicyData;
 
 // === Update Policy Request ===
 
-export type UpdatePolicyRequest = CreatePolicyRequest & {
-  status: PolicyStatus;
-};
+export type UpdatePolicyRequest = CreatePolicyRequest;
 
 // === Create Policy Response ===
 
