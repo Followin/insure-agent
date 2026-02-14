@@ -1,6 +1,15 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
+#[sqlx(type_name = "person_status")]
+#[sqlx(rename_all = "snake_case")]
+pub enum PersonStatus {
+    Active,
+    Inactive,
+    Archived,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "policy_status")]
 #[sqlx(rename_all = "snake_case")]
 pub enum PolicyStatus {
@@ -31,6 +40,18 @@ pub enum CarInsurancePeriodUnit {
     Day,
     Month,
     Year,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
+#[sqlx(type_name = "osago_zone")]
+#[sqlx(rename_all = "snake_case")]
+pub enum OsagoZone {
+    Zone1,
+    Zone2,
+    Zone3,
+    Zone4,
+    Zone5,
+    Outside,
 }
 
 #[derive(Serialize, Deserialize)]

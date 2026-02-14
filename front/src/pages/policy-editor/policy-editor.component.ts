@@ -16,11 +16,14 @@ import {
   PolicyStatus,
   carInsurancePeriodUnitValues,
   CarInsurancePeriodUnit,
+  osagoZoneValues,
+  OsagoZone,
 } from '../../shared/models/policy.model';
 import {
   getPolicyTypeLocalizedName,
   getPolicyStatusLocalizedName,
   getPeriodUnitLocalizedName,
+  getOsagoZoneLocalizedName,
 } from '../../shared/pipes/policy-localization.pipe';
 import { CreatePolicyRequest, PolicyFull, UpdatePolicyRequest } from './policy.model';
 import { PolicyEditorService } from './policy.service';
@@ -70,10 +73,9 @@ export class PolicyEditorComponent {
   public osagoGroup = new FormGroup({
     period_in_units: new FormControl<number | null>(null, [Validators.required]),
     period_unit: new FormControl<CarInsurancePeriodUnit | null>(null, [Validators.required]),
-    zone: new FormControl('', [Validators.required]),
-    exempt: new FormControl<boolean>(false, [Validators.required]),
+    zone: new FormControl<OsagoZone>('Zone1', [Validators.required]),
+    exempt: new FormControl('Нет', [Validators.required]),
     premium: new FormControl<number | null>(null, [Validators.required]),
-    franchise: new FormControl<number | null>(null, [Validators.required]),
   });
 
   public membersArray = new FormArray<FormControl<PersonEditorValue>>([
@@ -88,6 +90,12 @@ export class PolicyEditorComponent {
       this.loading.set(true);
       this.loadPolicy(Number(id));
     }
+
+    this.generalGroup.controls.type.valueChanges.subscribe(() => {
+      if (this.generalGroup.controls.type.value === 'Osago') {
+        this.generalGroup.controls.series.setValue('ЕР');
+      }
+    });
   }
 
   private loadPolicy(id: number) {
@@ -106,9 +114,7 @@ export class PolicyEditorComponent {
     this.generalGroup.controls.series.setValue(policy.series);
     this.generalGroup.controls.number.setValue(policy.number);
     this.generalGroup.controls.startDate.setValue(new Date(policy.start_date));
-    this.generalGroup.controls.endDate.setValue(
-      policy.end_date ? new Date(policy.end_date) : null
-    );
+    this.generalGroup.controls.endDate.setValue(policy.end_date ? new Date(policy.end_date) : null);
     this.generalGroup.controls.type.setValue(policy.policy_type);
     this.generalGroup.controls.status.setValue(policy.status);
 
@@ -133,7 +139,7 @@ export class PolicyEditorComponent {
       this.membersArray.clear();
       for (const member of policy.members) {
         this.membersArray.push(
-          new FormControl<PersonEditorValue>({ kind: 'Existing', id: member.id })
+          new FormControl<PersonEditorValue>({ kind: 'Existing', id: member.id }),
         );
       }
     } else if (policy.policy_type === 'Osago') {
@@ -142,7 +148,6 @@ export class PolicyEditorComponent {
       this.osagoGroup.controls.zone.setValue(policy.zone);
       this.osagoGroup.controls.exempt.setValue(policy.exempt);
       this.osagoGroup.controls.premium.setValue(policy.premium);
-      this.osagoGroup.controls.franchise.setValue(policy.franchise);
       this.carControl.setValue({ kind: 'Existing', id: policy.car.id });
     }
   }
@@ -172,6 +177,11 @@ export class PolicyEditorComponent {
     value: x,
   }));
 
+  public osagoZones = osagoZoneValues.map((x) => ({
+    label: getOsagoZoneLocalizedName(x),
+    value: x,
+  }));
+
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
@@ -188,9 +198,7 @@ export class PolicyEditorComponent {
         : null,
     };
 
-    const statusBase = this.editMode()
-      ? { status: this.generalGroup.controls.status.value! }
-      : {};
+    const statusBase = this.editMode() ? { status: this.generalGroup.controls.status.value! } : {};
 
     // Use getRawValue to get the value even if disabled
     const policyType = this.generalGroup.controls.type.getRawValue();
@@ -231,7 +239,6 @@ export class PolicyEditorComponent {
         zone: this.osagoGroup.controls.zone.value!,
         exempt: this.osagoGroup.controls.exempt.value!,
         premium: this.osagoGroup.controls.premium.value!,
-        franchise: this.osagoGroup.controls.franchise.value!,
         car: this.carControl.value!,
       };
     }
@@ -265,11 +272,9 @@ export class PolicyEditorComponent {
     const request = this.getPolicyRequest();
 
     if (this.editMode() && this.policyId()) {
-      this.policyService
-        .update(this.policyId()!, request as UpdatePolicyRequest)
-        .subscribe(() => {
-          this.router.navigate(['/policies', this.policyId()]);
-        });
+      this.policyService.update(this.policyId()!, request as UpdatePolicyRequest).subscribe(() => {
+        this.router.navigate(['/policies', this.policyId()]);
+      });
     } else {
       this.policyService.create(request as CreatePolicyRequest).subscribe(() => {
         this.router.navigate(['/policies']);

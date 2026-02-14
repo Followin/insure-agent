@@ -19,11 +19,9 @@
       />
     </div>
   </div>
-  <div data-id="content" class="pl-[300px]">
-    <div class="p-4">
-      <router-outlet></router-outlet>
-    </div>
-  </div>
-} @else {
-  <router-outlet></router-outlet>
 }
+<div data-id="content" [class.pl-[300px]]="authService.isAuthenticated()">
+  <div [class.p-4]="authService.isAuthenticated()">
+    <router-outlet></router-outlet>
+  </div>
+</div>

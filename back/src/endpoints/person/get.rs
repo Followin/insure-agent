@@ -4,6 +4,8 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use super::model::{Person, Sex};
+use crate::error::AppResult;
+use crate::models::PersonStatus;
 
 #[derive(Deserialize)]
 pub struct PersonQuery {
@@ -13,7 +15,7 @@ pub struct PersonQuery {
 pub async fn get_people(
     State(pool): State<PgPool>,
     Query(query): Query<PersonQuery>,
-) -> Json<Vec<Person>> {
+) -> AppResult<Json<Vec<Person>>> {
     let search = query.search.unwrap_or_default().to_lowercase();
     let search_pattern = format!("%{}%", search);
     let phone_digits: String = search.chars().filter(|c| c.is_ascii_digit()).collect();
@@ -26,13 +28,18 @@ pub async fn get_people(
         select
             id,
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex as "sex: Sex",
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status as "status: PersonStatus"
         from person
         where
             lower(first_name || ' ' || last_name) like $1
@@ -47,9 +54,8 @@ pub async fn get_people(
         has_digits
     )
     .fetch_all(&pool)
-    .await
-    .unwrap();
+    .await?;
 
-    Json(people)
+    Ok(Json(people))
 }
 

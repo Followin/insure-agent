@@ -1,5 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { PolicyType, PolicyStatus, CarInsurancePeriodUnit } from '../models/policy.model';
+import {
+  PolicyType,
+  PolicyStatus,
+  CarInsurancePeriodUnit,
+  OsagoZone,
+} from '../models/policy.model';
 
 export function getPolicyTypeLocalizedName(type: PolicyType): string {
   switch (type) {
@@ -36,7 +41,7 @@ export function getPolicyStatusLocalizedName(status: PolicyStatus): string {
 }
 
 export function getPolicyStatusSeverity(
-  status: PolicyStatus
+  status: PolicyStatus,
 ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
   switch (status) {
     case 'Active':
@@ -66,6 +71,23 @@ export function getPeriodUnitLocalizedName(unit: CarInsurancePeriodUnit): string
   }
 }
 
+export function getOsagoZoneLocalizedName(zone: OsagoZone): string {
+  switch (zone) {
+    case 'Zone1':
+      return 'Зона 1';
+    case 'Zone2':
+      return 'Зона 2';
+    case 'Zone3':
+      return 'Зона 3';
+    case 'Zone4':
+      return 'Зона 4';
+    case 'Zone5':
+      return 'Зона 5';
+    case 'Outside':
+      return 'Вне Украины';
+  }
+}
+
 @Pipe({ name: 'policyTypeLocal', pure: true, standalone: true })
 export class PolicyTypeLocalPipe implements PipeTransform {
   transform(value: PolicyType) {
@@ -91,5 +113,12 @@ export class PolicyStatusSeverityPipe implements PipeTransform {
 export class PeriodUnitLocalPipe implements PipeTransform {
   transform(value: CarInsurancePeriodUnit) {
     return getPeriodUnitLocalizedName(value);
+  }
+}
+
+@Pipe({ name: 'osagoZoneLocal', pure: true, standalone: true })
+export class OsagoZoneLocalPipe implements PipeTransform {
+  transform(value: OsagoZone) {
+    return getOsagoZoneLocalizedName(value);
   }
 }

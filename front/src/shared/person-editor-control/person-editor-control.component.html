@@ -13,20 +13,46 @@
     }
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
+        <input id="lastName" type="text" pInputText [formControl]="personGroup.controls.last_name" class="w-full"/>
+        <label for="lastName">Фамилия</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="lastNameLat" type="text" pInputText [formControl]="personGroup.controls.last_name_lat" class="w-full"/>
+        <label for="lastNameLat">Фамилия (лат.)</label>
+      </p-floatlabel>
+    </div>
+    <div class="grid grid-flow-col gap-8">
+      <p-floatlabel>
         <input id="firstName" type="text" pInputText [formControl]="personGroup.controls.first_name" class="w-full"/>
         <label for="firstName">Имя</label>
       </p-floatlabel>
       <p-floatlabel>
-        <input id="lastName" type="text" pInputText [formControl]="personGroup.controls.last_name" class="w-full"/>
-        <label for="lastName">Фамилия</label>
+        <input id="firstNameLat" type="text" pInputText [formControl]="personGroup.controls.first_name_lat" class="w-full"/>
+        <label for="firstNameLat">Имя (лат.)</label>
+      </p-floatlabel>
+    </div>
+    <div class="grid grid-flow-col gap-8">
+      <p-floatlabel>
+        <input id="patronymicName" type="text" pInputText [formControl]="personGroup.controls.patronymic_name" class="w-full"/>
+        <label for="patronymicName">Отчество</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <input id="patronymicNameLat" type="text" pInputText [formControl]="personGroup.controls.patronymic_name_lat" class="w-full"/>
+        <label for="patronymicNameLat">Отчество (лат.)</label>
+      </p-floatlabel>
+    </div>
+    <div class="grid grid-flow-col gap-8">
+      <p-floatlabel>
+        <p-select id="sex" [options]="sexOptions" optionLabel="label" optionValue="value" [formControl]="personGroup.controls.sex" fluid />
+        <label for="sex">Пол</label>
+      </p-floatlabel>
+      <p-floatlabel>
+        <p-select id="status" [options]="statusOptions" optionLabel="label" optionValue="value" [formControl]="personGroup.controls.status" fluid />
+        <label for="status">Статус</label>
       </p-floatlabel>
     </div>
     <p-floatlabel>
-      <p-select id="sex" [options]="sexOptions" optionLabel="label" optionValue="value" [formControl]="personGroup.controls.sex" fluid />
-      <label for="sex">Пол</label>
-    </p-floatlabel>
-    <p-floatlabel>
-      <p-datepicker [formControl]="personGroup.controls.birth_date" id="birthDate" showIcon fluid></p-datepicker>
+      <p-datepicker [formControl]="personGroup.controls.birth_date" id="birthDate" dateFormat="dd/mm/yy" showIcon fluid></p-datepicker>
       <label for="birthDate">Дата рождения</label>
     </p-floatlabel>
     <p-floatlabel>

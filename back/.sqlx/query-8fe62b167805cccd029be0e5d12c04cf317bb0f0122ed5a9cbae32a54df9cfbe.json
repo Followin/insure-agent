@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                select\n                    period_in_units,\n                    period_unit as \"period_unit: CarInsurancePeriodUnit\",\n                    zone,\n                    exempt,\n                    premium,\n                    franchise,\n                    car_id\n                from osago_policy\n                where id = $1\n                ",
+  "query": "\n                select\n                    period_in_units,\n                    period_unit as \"period_unit: CarInsurancePeriodUnit\",\n                    zone as \"zone: OsagoZone\",\n                    exempt,\n                    premium,\n                    car_id\n                from osago_policy\n                where id = $1\n                ",
   "describe": {
     "columns": [
       {
@@ -26,13 +26,27 @@
       },
       {
         "ordinal": 2,
-        "name": "zone",
-        "type_info": "Varchar"
+        "name": "zone: OsagoZone",
+        "type_info": {
+          "Custom": {
+            "name": "osago_zone",
+            "kind": {
+              "Enum": [
+                "zone1",
+                "zone2",
+                "zone3",
+                "zone4",
+                "zone5",
+                "outside"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "exempt",
-        "type_info": "Bool"
+        "type_info": "Varchar"
       },
       {
         "ordinal": 4,
@@ -41,11 +55,6 @@
       },
       {
         "ordinal": 5,
-        "name": "franchise",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 6,
         "name": "car_id",
         "type_info": "Int4"
       }
@@ -61,9 +70,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "d843a00a6284a7e968554c058fabaead0cc3f747f881d423751d1575337f6551"
+  "hash": "8fe62b167805cccd029be0e5d12c04cf317bb0f0122ed5a9cbae32a54df9cfbe"
 }

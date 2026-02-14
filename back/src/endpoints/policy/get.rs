@@ -3,6 +3,7 @@ use axum::extract::{Query, State};
 use serde::Deserialize;
 use sqlx::PgPool;
 
+use crate::error::AppResult;
 use crate::models::{PolicyShort, PolicyStatus, PolicyType};
 
 #[derive(Deserialize)]
@@ -14,7 +15,7 @@ pub struct PolicyQuery {
 pub async fn get_policies(
     State(pool): State<PgPool>,
     Query(query): Query<PolicyQuery>,
-) -> Json<Vec<PolicyShort>> {
+) -> AppResult<Json<Vec<PolicyShort>>> {
     let search_pattern = query
         .search
         .map(|s| format!("%{}%", s.to_lowercase()))
@@ -32,7 +33,7 @@ pub async fn get_policies(
             number,
             start_date,
             end_date,
-            status as "status: PolicyStatus",
+            policy.status as "status: PolicyStatus",
             car.make || ' ' || car.model as car_model,
             car.plate as "car_plate?"
         from policy
@@ -45,7 +46,7 @@ pub async fn get_policies(
             or lower(person.first_name || ' ' || person.last_name) like $1
             or lower(coalesce(car.make || ' ' || car.model, '')) like $1
             or lower(coalesce(car.plate, '')) like $1)
-            and (not $2 or status = 'active')
+            and (not $2 or policy.status = 'active')
         order by start_date desc
         limit 30
         "#,
@@ -53,8 +54,7 @@ pub async fn get_policies(
         active_only
     )
     .fetch_all(&pool)
-    .await
-    .unwrap();
+    .await?;
 
-    Json(policies)
+    Ok(Json(policies))
 }

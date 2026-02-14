@@ -1,17 +1,23 @@
 import { PolicyShort } from '../models/policy.model';
 
 export type Sex = 'M' | 'F' | 'Unknown';
+export type PersonStatus = 'Active' | 'Inactive' | 'Archived';
 
 export interface PersonDto {
   id: number;
   first_name: string;
+  first_name_lat: string | null;
   last_name: string;
+  last_name_lat: string | null;
+  patronymic_name: string | null;
+  patronymic_name_lat: string | null;
   sex: Sex;
   birth_date: string;
   tax_number: string;
   phone: string;
   phone2: string | null;
   email: string;
+  status: PersonStatus;
 }
 
 export interface PersonWithPolicies extends PersonDto {

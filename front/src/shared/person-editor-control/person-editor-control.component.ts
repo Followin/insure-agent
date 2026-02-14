@@ -23,7 +23,7 @@ import {
 } from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PersonSearchService } from './person-search.service';
-import { PersonRef, Sex } from './person.model';
+import { PersonRef, PersonStatus, Sex } from './person.model';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -63,15 +63,26 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
     { label: 'Неизвестно', value: 'Unknown' },
   ];
 
+  public statusOptions: { label: string; value: PersonStatus }[] = [
+    { label: 'Активний', value: 'Active' },
+    { label: 'Неактивний', value: 'Inactive' },
+    { label: 'Архівований', value: 'Archived' },
+  ];
+
   public personGroup = new FormGroup({
     first_name: new FormControl('', [Validators.required]),
+    first_name_lat: new FormControl<string | null>(null),
     last_name: new FormControl('', [Validators.required]),
+    last_name_lat: new FormControl<string | null>(null),
+    patronymic_name: new FormControl<string | null>(null),
+    patronymic_name_lat: new FormControl<string | null>(null),
     sex: new FormControl<Sex | null>(null, [Validators.required]),
     birth_date: new FormControl<Date | null>(null, [Validators.required]),
     tax_number: new FormControl('', [Validators.required]),
     phone: new FormControl('', [Validators.required]),
     phone2: new FormControl<string | null>(null),
-    email: new FormControl('', [Validators.required, Validators.email]),
+    email: new FormControl('', [Validators.required]),
+    status: new FormControl<PersonStatus>('Active', [Validators.required]),
   });
 
   private personNameSignal = toSignal(
@@ -112,13 +123,18 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
         }
 
         this.personGroup.controls.first_name.setValue(person.first_name);
+        this.personGroup.controls.first_name_lat.setValue(person.first_name_lat);
         this.personGroup.controls.last_name.setValue(person.last_name);
+        this.personGroup.controls.last_name_lat.setValue(person.last_name_lat);
+        this.personGroup.controls.patronymic_name.setValue(person.patronymic_name);
+        this.personGroup.controls.patronymic_name_lat.setValue(person.patronymic_name_lat);
         this.personGroup.controls.sex.setValue(person.sex);
         this.personGroup.controls.birth_date.setValue(new Date(person.birth_date));
         this.personGroup.controls.tax_number.setValue(person.tax_number);
         this.personGroup.controls.phone.setValue(person.phone);
         this.personGroup.controls.phone2.setValue(person.phone2);
         this.personGroup.controls.email.setValue(person.email);
+        this.personGroup.controls.status.setValue(person.status);
 
         this.personGroup.disable();
         this.emitValue();
@@ -137,13 +153,18 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       this.existingPersonIdControl.setValue(value.id);
     } else {
       this.personGroup.controls.first_name.setValue(value.first_name);
+      this.personGroup.controls.first_name_lat.setValue(value.first_name_lat);
       this.personGroup.controls.last_name.setValue(value.last_name);
+      this.personGroup.controls.last_name_lat.setValue(value.last_name_lat);
+      this.personGroup.controls.patronymic_name.setValue(value.patronymic_name);
+      this.personGroup.controls.patronymic_name_lat.setValue(value.patronymic_name_lat);
       this.personGroup.controls.sex.setValue(value.sex);
       this.personGroup.controls.birth_date.setValue(new Date(value.birth_date));
       this.personGroup.controls.tax_number.setValue(value.tax_number);
       this.personGroup.controls.phone.setValue(value.phone);
       this.personGroup.controls.phone2.setValue(value.phone2);
       this.personGroup.controls.email.setValue(value.email);
+      this.personGroup.controls.status.setValue(value.status);
     }
   }
 
@@ -186,13 +207,18 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       this.onChange({
         kind: 'New',
         first_name: v.first_name!,
+        first_name_lat: v.first_name_lat || null,
         last_name: v.last_name!,
+        last_name_lat: v.last_name_lat || null,
+        patronymic_name: v.patronymic_name || null,
+        patronymic_name_lat: v.patronymic_name_lat || null,
         sex: v.sex!,
         birth_date: this.formatDate(v.birth_date!),
         tax_number: v.tax_number!,
         phone: v.phone!,
         phone2: v.phone2 || null,
         email: v.email!,
+        status: v.status!,
       });
     } else {
       this.onChange(null);

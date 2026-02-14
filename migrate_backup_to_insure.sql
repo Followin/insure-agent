@@ -34,13 +34,18 @@ DROP TABLE IF EXISTS staging_people CASCADE;
 CREATE TABLE staging_people (
     old_id INTEGER PRIMARY KEY,
     first_name VARCHAR(255),
+    first_name_lat VARCHAR(255),
     last_name VARCHAR(255),
+    last_name_lat VARCHAR(255),
+    patronymic_name VARCHAR(255),
+    patronymic_name_lat VARCHAR(255),
     sex sex,
     birth_date DATE,
     tax_number VARCHAR(255),
     phone VARCHAR(255),
     phone2 VARCHAR(255),
     email VARCHAR(255),
+    status person_status,
     new_id INTEGER
 );
 
@@ -104,12 +109,11 @@ CREATE TABLE staging_osago (
     end_date DATE,
     period_in_units int,
     period_unit car_insurance_period_unit,
-    zone VARCHAR(255),
+    zone osago_zone,
     holder_old_id INTEGER,
     car_old_id INTEGER,
-    exempt BOOLEAN,
+    exempt VARCHAR(255),
     premium INTEGER,
-    franchise INTEGER,
     status policy_status,
     new_policy_id INTEGER
 );
@@ -131,51 +135,76 @@ CREATE TABLE staging_osago (
 INSERT INTO staging_people (
     old_id,
     first_name,
+    first_name_lat,
     last_name,
+    last_name_lat,
+    patronymic_name,
+    patronymic_name_lat,
     sex,
     birth_date,
     tax_number,
     phone,
     phone2,
-    email
+    email,
+    status
 )
 SELECT
     "ClientID",
     COALESCE(NULLIF(TRIM("first_name"), ''), 'N/A'),
+    NULLIF(TRIM("first_name_lat"), ''),
     COALESCE(NULLIF(TRIM("last_name"), ''), 'N/A'),
+    NULLIF(TRIM("last_name_lat"), ''),
+    NULLIF(TRIM("patronymic_name"), ''),
+    NULLIF(TRIM("patronymic_name_lat"), ''),
     CASE
         WHEN "sex" in ('чол') then 'm'::sex
         WHEN "sex" in ('жін') then 'f'::sex
         ELSE 'unknown'::sex
     END,
-    COALESCE("birth_date"::date, '1900-01-01'::date),
+    COALESCE(("birth_date" + interval '2 hours')::date, '1900-01-01'::date),
     COALESCE(NULLIF(TRIM("tax_number"), ''), 'N/A'),
     COALESCE(NULLIF(TRIM("phone"), ''), 'N/A'),
     NULLIF(TRIM("phone2"), ''),
-    COALESCE(NULLIF(TRIM("email"), ''), 'N/A')
+    COALESCE(NULLIF(TRIM("email"), ''), 'N/A'),
+    CASE
+        WHEN "status" in ('Активний') then 'active'::person_status
+        WHEN "status" in ('Архів') then 'archived'::person_status
+        WHEN "status" in ('Неактивний') then 'inactive'::person_status
+        ELSE 'active'::person_status
+    END
 FROM dblink('dbname=backup',
     $q$SELECT
         "ClientID",
         "Ім'я" as first_name,
+        "Ім'яLAT" as first_name_lat,
         "Прізвище" as last_name,
+        "ПризвLAT" as last_name_lat,
+        "По батькові" as patronymic_name,
+        "По батькLAT" as patronymic_name_lat,
         "Стать" as sex,
-        "Дата народж"::date as birth_date,
+        "Дата народж" as birth_date,
         "ІПН" as tax_number,
         "телефон 1" as phone,
         "телефон 2" as phone2,
-        "email"
+        "email",
+        "ClientStatus"
     FROM people
     WHERE "ClientID" IS NOT NULL$q$
 ) AS t(
     "ClientID" INTEGER,
     "first_name" VARCHAR,
+    "first_name_lat" VARCHAR,
     "last_name" VARCHAR,
+    "last_name_lat" VARCHAR,
+    "patronymic_name" VARCHAR,
+    "patronymic_name_lat" VARCHAR,
     "sex" VARCHAR,
-    "birth_date" DATE,
+    "birth_date" TIMESTAMP,
     "tax_number" VARCHAR,
     "phone" VARCHAR,
     "phone2" VARCHAR,
-    "email" VARCHAR
+    "email" VARCHAR,
+    "status" VARCHAR
 );
 
 -- =====================================================
@@ -285,8 +314,8 @@ SELECT
     COALESCE("series", 'N/A'),
     COALESCE("number"::text, 'N/A'),
     COALESCE("territory", 'N/A'),
-    COALESCE("start_date"::date, CURRENT_DATE),
-    "end_date"::date,
+    COALESCE(("start_date" + interval '2 hours')::date, CURRENT_DATE),
+    ("end_date" + interval '2 hours')::date,
     CASE
         WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 15
         WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 1
@@ -397,8 +426,8 @@ SELECT
     COALESCE("series", 'N/A'),
     COALESCE("number", 'N/A'),
     COALESCE("territory", 'N/A'),
-    COALESCE("start_date"::date, CURRENT_DATE),
-    "end_date"::date,
+    COALESCE(("start_date" + interval '2 hours')::date, CURRENT_DATE),
+    ("end_date" + interval '2 hours')::date,
     COALESCE("period"::integer, 1),
     COALESCE("payout"::integer, 0),
     COALESCE("program", 'STANDART'),
@@ -484,7 +513,6 @@ FROM dblink('dbname=backup',
 --   ClientID_FK → holder_old_id (FK to people.ClientID)
 --   Льгота → exempt
 --   Стоимость → premium
---   Франшиза → franchise
 --   СтатусПолісу → status (1→active, 9→expired)
 
 INSERT INTO staging_osago (
@@ -500,15 +528,14 @@ INSERT INTO staging_osago (
     car_old_id,
     exempt,
     premium,
-    franchise,
     status
 )
 SELECT
     "Код",
     COALESCE("series", 'N/A'),
     COALESCE("number", 'N/A'),
-    COALESCE("start_date"::date, CURRENT_DATE),
-    "end_date"::date,
+    COALESCE(("start_date" + interval '2 hours')::date, CURRENT_DATE),
+    ("end_date" + interval '2 hours')::date,
     CASE
         WHEN "period" in ('15', '15 д', '15 діб', '15діб', '15 дн', '15дн', '15 дней', '15 днів') THEN 15
         WHEN "period" in ('1 мес', '1 мім', '1 міс', '1міс') THEN 1
@@ -541,12 +568,18 @@ SELECT
         WHEN "period" in ('12', '1 рік', '1 РІК', '1рік') THEN 'year'::car_insurance_period_unit
         ELSE 'day'::car_insurance_period_unit
         END,
-    COALESCE("zone"::text, '1'),
+    CASE
+        WHEN "zone" in (1) THEN 'zone1'::osago_zone
+        WHEN "zone" in (2) THEN 'zone2'::osago_zone
+        WHEN "zone" in (3) THEN 'zone3'::osago_zone
+        WHEN "zone" in (4) THEN 'zone4'::osago_zone
+        WHEN "zone" in (5) THEN 'zone5'::osago_zone
+        ELSE 'outside'::osago_zone
+    END,
     "holder",
     "car",
-    COALESCE("exempt", false),
+    'Нет',
     COALESCE("premium"::integer, 0),
-    COALESCE("franchise", 0),
     CASE
         WHEN status = 1 THEN 'active'::policy_status
         WHEN status = 2 THEN 'prolonged'::policy_status
@@ -570,9 +603,7 @@ FROM dblink('dbname=backup',
         "Зона" as zone,
         "ClientID_FK" as holder,
         "Машина" as car,
-        "Льгота" as exempt,
         "Стоимость" as premium,
-        "Франшиза" as franchise,
         "СтатусПолісу" as status
     FROM osago
     WHERE "Код" IS NOT NULL$q$
@@ -586,9 +617,7 @@ FROM dblink('dbname=backup',
     "zone" SMALLINT,
     "holder" INTEGER,
     "car" INTEGER,
-    "exempt" BOOLEAN,
     "premium" DOUBLE PRECISION,
-    "franchise" INTEGER,
     "status" INTEGER
 );
 
@@ -604,23 +633,33 @@ BEGIN
     FOR r IN SELECT * FROM staging_people ORDER BY old_id LOOP
         INSERT INTO person (
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex,
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status
         )
         VALUES (
             r.first_name,
+            r.first_name_lat,
             r.last_name,
+            r.last_name_lat,
+            r.patronymic_name,
+            r.patronymic_name_lat,
             r.sex,
             r.birth_date,
             r.tax_number,
             r.phone,
             r.phone2,
-            r.email
+            r.email,
+            r.status
         )
         RETURNING id INTO v_new_person_id;
 
@@ -629,7 +668,6 @@ BEGIN
 END $$;
 
 -- =====================================================
--- MIGRATION PHASE 2: Insert cars into car table
 -- =====================================================
 
 DO $$
@@ -862,8 +900,7 @@ BEGIN
                 car_id,
                 zone,
                 exempt,
-                premium,
-                franchise
+                premium
             )
             VALUES (
                 v_new_policy_id,
@@ -872,8 +909,7 @@ BEGIN
                 v_car_new_id,
                 r.zone,
                 r.exempt,
-                r.premium,
-                r.franchise
+                r.premium
             );
 
             UPDATE staging_osago SET new_policy_id = v_new_policy_id WHERE old_id = r.old_id;

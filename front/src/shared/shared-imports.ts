@@ -21,8 +21,13 @@ import {
   PolicyStatusLocalPipe,
   PolicyStatusSeverityPipe,
   PeriodUnitLocalPipe,
+  OsagoZoneLocalPipe,
 } from './pipes/policy-localization.pipe';
-import { SexLocalPipe } from './pipes/person-localization.pipe';
+import {
+  SexLocalPipe,
+  PersonStatusLocalPipe,
+  PersonStatusSeverityPipe,
+} from './pipes/person-localization.pipe';
 
 export const sharedImports = [
   CardModule,
@@ -48,4 +53,7 @@ export const sharedImports = [
   PolicyStatusSeverityPipe,
   PeriodUnitLocalPipe,
   SexLocalPipe,
+  PersonStatusLocalPipe,
+  PersonStatusSeverityPipe,
+  OsagoZoneLocalPipe,
 ];

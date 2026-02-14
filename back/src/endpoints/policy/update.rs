@@ -1,6 +1,5 @@
 use axum::Json;
 use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use serde::Deserialize;
 use sqlx::PgPool;
 
@@ -8,7 +7,8 @@ use super::create::{PersonRef, PolicyData, resolve_car, resolve_person};
 use super::get_by_id::PolicyFull;
 use crate::endpoints::car::model::Car;
 use crate::endpoints::person::model::Person;
-use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
+use crate::error::{AppError, AppResult};
+use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
 
 // === Update Request ===
 
@@ -36,11 +36,8 @@ pub async fn update_policy(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
     Json(body): Json<UpdatePolicyRequest>,
-) -> Result<Json<PolicyFull>, StatusCode> {
-    let mut tx = pool
-        .begin()
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> AppResult<Json<PolicyFull>> {
+    let mut tx = pool.begin().await?;
 
     // Verify the policy exists and get its type
     let existing = sqlx::query_as!(
@@ -53,9 +50,8 @@ pub async fn update_policy(
         id
     )
     .fetch_optional(&mut *tx)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .ok_or(StatusCode::NOT_FOUND)?;
+    .await?
+    .ok_or(AppError::not_found())?;
 
     // Verify the policy type matches (cannot change policy type)
     let request_type = match &body.data {
@@ -65,13 +61,11 @@ pub async fn update_policy(
     };
 
     if std::mem::discriminant(&existing.policy_type) != std::mem::discriminant(&request_type) {
-        return Err(StatusCode::BAD_REQUEST);
+        return Err(AppError::bad_request());
     }
 
     // Resolve holder
-    let holder_id = resolve_person(&mut tx, body.holder)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let holder_id = resolve_person(&mut tx, body.holder).await?;
 
     // Update main policy table
     sqlx::query!(
@@ -95,15 +89,12 @@ pub async fn update_policy(
         body.status as PolicyStatus
     )
     .execute(&mut *tx)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
 
     // Update type-specific data
     let details = match body.data {
         PolicyData::GreenCard(data) => {
-            let car_id = resolve_car(&mut tx, data.car)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            let car_id = resolve_car(&mut tx, data.car).await?;
 
             sqlx::query!(
                 r#"
@@ -124,8 +115,7 @@ pub async fn update_policy(
                 car_id
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             let car = sqlx::query_as!(
                 Car,
@@ -149,8 +139,7 @@ pub async fn update_policy(
                 car_id
             )
             .fetch_one(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             super::get_by_id::PolicyDetails::GreenCard(super::get_by_id::GreenCardDetails {
                 territory: data.territory,
@@ -180,15 +169,12 @@ pub async fn update_policy(
                 data.program
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             // Resolve all member IDs first
             let mut member_ids = Vec::with_capacity(data.members.len());
             for member in data.members {
-                let member_id = resolve_person(&mut tx, member)
-                    .await
-                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                let member_id = resolve_person(&mut tx, member).await?;
                 member_ids.push(member_id);
             }
 
@@ -201,8 +187,7 @@ pub async fn update_policy(
                 id
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             sqlx::query!(
                 r#"
@@ -216,8 +201,7 @@ pub async fn update_policy(
                 &member_ids
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             // Fetch all members in a single query
             let members = sqlx::query_as!(
@@ -226,21 +210,25 @@ pub async fn update_policy(
                 select
                     id,
                     first_name,
+                    first_name_lat,
                     last_name,
+                    last_name_lat,
+                    patronymic_name,
+                    patronymic_name_lat,
                     sex as "sex: _",
                     birth_date,
                     tax_number,
                     phone,
                     phone2,
-                    email
+                    email,
+                    status as "status: PersonStatus"
                 from person
                 where id = any($1)
                 "#,
                 &member_ids
             )
             .fetch_all(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             super::get_by_id::PolicyDetails::Medassistance(super::get_by_id::MedassistanceDetails {
                 territory: data.territory,
@@ -252,9 +240,7 @@ pub async fn update_policy(
             })
         }
         PolicyData::Osago(data) => {
-            let car_id = resolve_car(&mut tx, data.car)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            let car_id = resolve_car(&mut tx, data.car).await?;
 
             sqlx::query!(
                 r#"
@@ -265,22 +251,19 @@ pub async fn update_policy(
                     zone = $4,
                     exempt = $5,
                     premium = $6,
-                    franchise = $7,
-                    car_id = $8
+                    car_id = $7
                 where id = $1
                 "#,
                 id,
                 data.period_in_units,
                 data.period_unit as CarInsurancePeriodUnit,
-                data.zone,
+                data.zone as OsagoZone,
                 data.exempt,
                 data.premium,
-                data.franchise,
                 car_id
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             let car = sqlx::query_as!(
                 Car,
@@ -304,8 +287,7 @@ pub async fn update_policy(
                 car_id
             )
             .fetch_one(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             super::get_by_id::PolicyDetails::Osago(super::get_by_id::OsagoDetails {
                 period_in_units: data.period_in_units,
@@ -313,7 +295,6 @@ pub async fn update_policy(
                 zone: data.zone,
                 exempt: data.exempt,
                 premium: data.premium,
-                franchise: data.franchise,
                 car,
             })
         }
@@ -326,25 +307,27 @@ pub async fn update_policy(
         select
             id,
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex as "sex: _",
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status as "status: PersonStatus"
         from person
         where id = $1
         "#,
         holder_id
     )
     .fetch_one(&mut *tx)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
 
-    tx.commit()
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tx.commit().await?;
 
     Ok(Json(PolicyFull {
         id,

@@ -5,7 +5,7 @@
   </div>
 } @else if (person(); as p) {
   <div class="grid grid-cols-2 items-center mb-4">
-    <h1>{{p.first_name}} {{p.last_name}}</h1>
+    <h1>{{p.last_name}} {{p.first_name}} {{p.patronymic_name}}</h1>
     <a [routerLink]="['/people', p.id, 'edit']" class="justify-self-end" pButton>
       <i class="pi pi-pencil"></i>
       Редактировать
@@ -14,12 +14,30 @@
   <div class="grid grid-cols-2 gap-8 items-start">
     <p-panel header="Личные данные">
       <div class="grid grid-cols-2 gap-4 p-4">
-        <span class="text-color-secondary">Имя:</span>
-        <span>{{p.first_name}}</span>
         <span class="text-color-secondary">Фамилия:</span>
         <span>{{p.last_name}}</span>
+        @if (p.last_name_lat) {
+          <span class="text-color-secondary">Фамилия (лат.):</span>
+          <span>{{p.last_name_lat}}</span>
+        }
+        <span class="text-color-secondary">Имя:</span>
+        <span>{{p.first_name}}</span>
+        @if (p.first_name_lat) {
+          <span class="text-color-secondary">Имя (лат.):</span>
+          <span>{{p.first_name_lat}}</span>
+        }
+        @if (p.patronymic_name) {
+          <span class="text-color-secondary">Отчество:</span>
+          <span>{{p.patronymic_name}}</span>
+        }
+        @if (p.patronymic_name_lat) {
+          <span class="text-color-secondary">Отчество (лат.):</span>
+          <span>{{p.patronymic_name_lat}}</span>
+        }
         <span class="text-color-secondary">Пол:</span>
         <span>{{p.sex | sexLocal}}</span>
+        <span class="text-color-secondary">Статус:</span>
+        <p-tag [value]="p.status | personStatusLocal" [severity]="p.status | personStatusSeverity"/>
         <span class="text-color-secondary">Дата рождения:</span>
         <span>{{p.birth_date | date:'mediumDate'}}</span>
         <span class="text-color-secondary">ИНН:</span>

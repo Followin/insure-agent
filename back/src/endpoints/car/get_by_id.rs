@@ -1,14 +1,14 @@
 use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use axum::Json;
 use sqlx::PgPool;
 
 use super::model::Car;
+use crate::error::{AppError, AppResult};
 
 pub async fn get_car(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
-) -> Result<Json<Car>, StatusCode> {
+) -> AppResult<Json<Car>> {
     sqlx::query_as!(
         Car,
         r#"
@@ -31,8 +31,7 @@ pub async fn get_car(
         id
     )
     .fetch_optional(&pool)
-    .await
-    .unwrap()
+    .await?
     .map(Json)
-    .ok_or(StatusCode::NOT_FOUND)
+    .ok_or(AppError::not_found())
 }

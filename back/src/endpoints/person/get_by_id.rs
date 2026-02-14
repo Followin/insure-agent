@@ -1,11 +1,11 @@
 use axum::Json;
 use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use serde::Serialize;
 use sqlx::PgPool;
 
 use super::model::{Person, Sex};
-use crate::models::{PolicyShort, PolicyStatus, PolicyType};
+use crate::error::{AppError, AppResult};
+use crate::models::{PersonStatus, PolicyShort, PolicyStatus, PolicyType};
 
 #[derive(Serialize)]
 pub struct PersonWithPolicies {
@@ -17,29 +17,33 @@ pub struct PersonWithPolicies {
 pub async fn get_person(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
-) -> Result<Json<PersonWithPolicies>, StatusCode> {
+) -> AppResult<Json<PersonWithPolicies>> {
     let person = sqlx::query_as!(
         Person,
         r#"
         select
             id,
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex as "sex: Sex",
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status as "status: PersonStatus"
         from person
         where id = $1
         "#,
         id
     )
     .fetch_optional(&pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .ok_or(StatusCode::NOT_FOUND)?;
+    .await?
+    .ok_or(AppError::not_found())?;
 
     let policies = sqlx::query_as!(
         PolicyShort,
@@ -52,7 +56,7 @@ pub async fn get_person(
             number,
             start_date,
             end_date,
-            status as "status: PolicyStatus",
+            policy.status as "status: PolicyStatus",
             car.make || ' ' || car.model as car_model,
             car.plate as "car_plate?"
         from policy
@@ -67,8 +71,7 @@ pub async fn get_person(
         id
     )
     .fetch_all(&pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
 
     Ok(Json(PersonWithPolicies { person, policies }))
 }

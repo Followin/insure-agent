@@ -17,6 +17,9 @@ export type PolicyStatus = (typeof policyStatusValues)[number];
 export const carInsurancePeriodUnitValues = ['Day', 'Month', 'Year'] as const;
 export type CarInsurancePeriodUnit = (typeof carInsurancePeriodUnitValues)[number];
 
+export const osagoZoneValues = ['Zone1', 'Zone2', 'Zone3', 'Zone4', 'Zone5', 'Outside'] as const;
+export type OsagoZone = (typeof osagoZoneValues)[number];
+
 export interface PolicyShort {
   id: number;
   policy_type: PolicyType;

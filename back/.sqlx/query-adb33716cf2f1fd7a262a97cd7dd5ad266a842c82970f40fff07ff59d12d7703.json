@@ -1,0 +1,122 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    id,\n                    first_name,\n                    first_name_lat,\n                    last_name,\n                    last_name_lat,\n                    patronymic_name,\n                    patronymic_name_lat,\n                    sex as \"sex: _\",\n                    birth_date,\n                    tax_number,\n                    phone,\n                    phone2,\n                    email,\n                    status as \"status: PersonStatus\"\n                from person\n                where id = any($1)\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "patronymic_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "patronymic_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "sex: _",
+        "type_info": {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "birth_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 9,
+        "name": "tax_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "phone",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "phone2",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "status: PersonStatus",
+        "type_info": {
+          "Custom": {
+            "name": "person_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "archived"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "adb33716cf2f1fd7a262a97cd7dd5ad266a842c82970f40fff07ff59d12d7703"
+}

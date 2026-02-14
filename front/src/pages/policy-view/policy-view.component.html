@@ -64,7 +64,7 @@
             <span>{{p.territory}}</span>
             <span class="text-color-secondary">Срок:</span>
             <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
-            <span class="text-color-secondary">Взнос:</span>
+            <span class="text-color-secondary">Премия:</span>
             <span>{{p.premium}}</span>
           </div>
         </p-panel>
@@ -92,7 +92,7 @@
             <span>{{p.territory}}</span>
             <span class="text-color-secondary">Срок (дни):</span>
             <span>{{p.period_days}}</span>
-            <span class="text-color-secondary">Взнос:</span>
+            <span class="text-color-secondary">Премия:</span>
             <span>{{p.premium}}</span>
             <span class="text-color-secondary">Выплата:</span>
             <span>{{p.payout}}</span>
@@ -124,15 +124,13 @@
         <p-panel header="Детали ОСАГО">
           <div class="grid grid-cols-2 gap-4 p-4">
             <span class="text-color-secondary">Зона:</span>
-            <span>{{p.zone}}</span>
+            <span>{{p.zone | osagoZoneLocal}}</span>
             <span class="text-color-secondary">Срок:</span>
             <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
-            <span class="text-color-secondary">Взнос:</span>
+            <span class="text-color-secondary">Премия:</span>
             <span>{{p.premium}}</span>
             <span class="text-color-secondary">Льгота:</span>
-            <span>{{p.exempt ? 'Да' : 'Нет'}}</span>
-            <span class="text-color-secondary">Франшиза:</span>
-            <span>{{p.franchise}}</span>
+            <span>{{p.exempt}}</span>
           </div>
         </p-panel>
         <p-panel header="Автомобиль">

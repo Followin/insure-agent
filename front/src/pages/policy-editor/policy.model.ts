@@ -1,6 +1,11 @@
 import { PersonDto, PersonRef } from '../../shared/person-editor-control/person.model';
 import { CarDto, CarRef } from '../../shared/models/car.model';
-import { PolicyStatus, PolicyType, CarInsurancePeriodUnit } from '../../shared/models/policy.model';
+import {
+  PolicyStatus,
+  PolicyType,
+  CarInsurancePeriodUnit,
+  OsagoZone,
+} from '../../shared/models/policy.model';
 
 // === Policy Type Specific Data (for requests) ===
 
@@ -27,10 +32,9 @@ export interface OsagoData {
   policy_type: 'Osago';
   period_in_units: number;
   period_unit: CarInsurancePeriodUnit;
-  zone: string;
-  exempt: boolean;
+  zone: OsagoZone;
+  exempt: string;
   premium: number;
-  franchise: number;
   car: CarRef;
 }
 
@@ -90,10 +94,9 @@ export interface OsagoDetails {
   policy_type: 'Osago';
   period_in_units: number;
   period_unit: CarInsurancePeriodUnit;
-  zone: string;
-  exempt: boolean;
+  zone: OsagoZone;
+  exempt: string;
   premium: number;
-  franchise: number;
   car: CarDto;
 }
 

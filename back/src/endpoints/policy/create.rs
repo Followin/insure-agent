@@ -5,20 +5,26 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
 use crate::endpoints::person::model::Sex;
-use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
+use crate::error::AppResult;
+use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
 
 // === Person Reference ===
 
 #[derive(Deserialize)]
 pub struct NewPerson {
     pub first_name: String,
+    pub first_name_lat: Option<String>,
     pub last_name: String,
+    pub last_name_lat: Option<String>,
+    pub patronymic_name: Option<String>,
+    pub patronymic_name_lat: Option<String>,
     pub sex: Sex,
     pub birth_date: chrono::NaiveDate,
     pub tax_number: String,
     pub phone: String,
     pub phone2: Option<String>,
     pub email: String,
+    pub status: PersonStatus,
 }
 
 #[derive(Deserialize)]
@@ -77,10 +83,9 @@ pub struct MedassistanceData {
 pub struct OsagoData {
     pub period_in_units: i32,
     pub period_unit: CarInsurancePeriodUnit,
-    pub zone: String,
-    pub exempt: bool,
+    pub zone: OsagoZone,
+    pub exempt: String,
     pub premium: i32,
-    pub franchise: i32,
     pub car: CarRef,
 }
 
@@ -135,18 +140,23 @@ pub async fn resolve_person(
             let result = sqlx::query_as!(
                 IdResult,
                 r#"
-                insert into person (first_name, last_name, sex, birth_date, tax_number, phone, phone2, email)
-                values ($1, $2, $3, $4, $5, $6, $7, $8)
+                insert into person (first_name, first_name_lat, last_name, last_name_lat, patronymic_name, patronymic_name_lat, sex, birth_date, tax_number, phone, phone2, email, status)
+                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 returning id
                 "#,
                 person.first_name,
+                person.first_name_lat,
                 person.last_name,
+                person.last_name_lat,
+                person.patronymic_name,
+                person.patronymic_name_lat,
                 person.sex as Sex,
                 person.birth_date,
                 person.tax_number,
                 person.phone,
                 person.phone2,
-                person.email
+                person.email,
+                person.status as PersonStatus
             )
             .fetch_one(&mut **tx)
             .await?;
@@ -193,15 +203,10 @@ pub async fn resolve_car(
 pub async fn create_policy(
     State(pool): State<PgPool>,
     Json(body): Json<CreatePolicyRequest>,
-) -> Result<(StatusCode, Json<CreatePolicyResponse>), StatusCode> {
-    let mut tx = pool
-        .begin()
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+) -> AppResult<(StatusCode, Json<CreatePolicyResponse>)> {
+    let mut tx = pool.begin().await?;
 
-    let holder_id = resolve_person(&mut tx, body.holder)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let holder_id = resolve_person(&mut tx, body.holder).await?;
 
     let policy_type = match &body.data {
         PolicyData::GreenCard(_) => PolicyType::GreenCard,
@@ -232,14 +237,11 @@ pub async fn create_policy(
         body.end_date
     )
     .fetch_one(&mut *tx)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
 
     match body.data {
         PolicyData::GreenCard(data) => {
-            let car_id = resolve_car(&mut tx, data.car)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            let car_id = resolve_car(&mut tx, data.car).await?;
 
             sqlx::query!(
                 r#"
@@ -254,8 +256,7 @@ pub async fn create_policy(
                 car_id
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
         }
         PolicyData::Medassistance(data) => {
             sqlx::query!(
@@ -271,13 +272,10 @@ pub async fn create_policy(
                 data.program
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             for member in data.members {
-                let member_id = resolve_person(&mut tx, member)
-                    .await
-                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                let member_id = resolve_person(&mut tx, member).await?;
 
                 sqlx::query!(
                     r#"
@@ -288,38 +286,31 @@ pub async fn create_policy(
                     member_id
                 )
                 .execute(&mut *tx)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                .await?;
             }
         }
         PolicyData::Osago(data) => {
-            let car_id = resolve_car(&mut tx, data.car)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            let car_id = resolve_car(&mut tx, data.car).await?;
 
             sqlx::query!(
                 r#"
-                insert into osago_policy (id, period_in_units, period_unit, car_id, zone, exempt, premium, franchise)
-                values ($1, $2, $3, $4, $5, $6, $7, $8)
+                insert into osago_policy (id, period_in_units, period_unit, car_id, zone, exempt, premium)
+                values ($1, $2, $3, $4, $5, $6, $7)
                 "#,
                 policy.id,
                 data.period_in_units,
                 data.period_unit as CarInsurancePeriodUnit,
                 car_id,
-                data.zone,
+                data.zone as OsagoZone,
                 data.exempt,
-                data.premium,
-                data.franchise
+                data.premium
             )
             .execute(&mut *tx)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
         }
     }
 
-    tx.commit()
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tx.commit().await?;
 
     Ok((StatusCode::CREATED, Json(policy)))
 }

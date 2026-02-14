@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                insert into person (first_name, first_name_lat, last_name, last_name_lat, patronymic_name, patronymic_name_lat, sex, birth_date, tax_number, phone, phone2, email, status)\n                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\n                returning id\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "Date",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "person_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "archived"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e1c512a8482f0c0cbb094a2189d728ea2d6da646bb8ef1914e3dc98694fea656"
+}

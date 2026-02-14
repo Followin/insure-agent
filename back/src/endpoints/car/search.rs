@@ -3,6 +3,8 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
+use crate::error::AppResult;
+
 #[derive(Deserialize)]
 pub struct SearchQuery {
     pub q: String,
@@ -17,7 +19,7 @@ pub struct CarSearchResult {
 pub async fn search_cars(
     State(pool): State<PgPool>,
     Query(query): Query<SearchQuery>,
-) -> Json<Vec<CarSearchResult>> {
+) -> AppResult<Json<Vec<CarSearchResult>>> {
     let pattern = format!("%{}%", query.q.to_lowercase());
     let results = sqlx::query_as!(
         CarSearchResult,
@@ -25,8 +27,7 @@ pub async fn search_cars(
         pattern
     )
     .fetch_all(&pool)
-    .await
-    .unwrap();
+    .await?;
 
-    Json(results)
+    Ok(Json(results))
 }

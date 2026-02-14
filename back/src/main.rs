@@ -1,5 +1,6 @@
 mod auth;
 mod endpoints;
+pub mod error;
 pub mod models;
 
 use axum::http::{HeaderMap, HeaderName, Method, Uri};

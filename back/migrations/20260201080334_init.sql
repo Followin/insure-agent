@@ -1,21 +1,30 @@
 create type sex as enum ('m', 'f', 'unknown');
 
+create type person_status as enum ('active', 'inactive', 'archived');
+
 create type policy_type as enum ('green_card', 'medassistance', 'osago');
 
 create type policy_status as enum ('active', 'prolonged', 'rejected', 'stopped', 'postponed', 'cancelled', 'project', 'replaced', 'expired');
 
 create type car_insurance_period_unit as enum ('day', 'month', 'year');
 
+create type osago_zone as enum ('zone1', 'zone2', 'zone3', 'zone4', 'zone5', 'outside');
+
 create table person (
     id serial primary key,
     first_name varchar(255) not null,
+    first_name_lat varchar(255) null,
     last_name varchar(255) not null,
+    last_name_lat varchar(255) null,
+    patronymic_name varchar(255) null,
+    patronymic_name_lat varchar(255) null,
     sex sex not null,
     birth_date date not null,
     tax_number varchar(20) not null,
     phone varchar(20) not null,
     phone2 varchar(20) null,
-    email varchar(255) not null
+    email varchar(255) not null,
+    status person_status not null
 );
 
 create table policy (
@@ -72,8 +81,7 @@ create table osago_policy(
     period_in_units int not null,
     period_unit car_insurance_period_unit not null,
     car_id int references car(id) not null,
-    zone varchar(255) not null,
-    exempt boolean not null,
-    premium int not null,
-    franchise int not null
+    zone osago_zone not null,
+    exempt varchar(255) not null,
+    premium int not null
 );

@@ -1,0 +1,157 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        update person\n        set\n            first_name = $2,\n            first_name_lat = $3,\n            last_name = $4,\n            last_name_lat = $5,\n            patronymic_name = $6,\n            patronymic_name_lat = $7,\n            sex = $8,\n            birth_date = $9,\n            tax_number = $10,\n            phone = $11,\n            phone2 = $12,\n            email = $13,\n            status = $14\n        where id = $1\n        returning\n            id,\n            first_name,\n            first_name_lat,\n            last_name,\n            last_name_lat,\n            patronymic_name,\n            patronymic_name_lat,\n            sex as \"sex: Sex\",\n            birth_date,\n            tax_number,\n            phone,\n            phone2,\n            email,\n            status as \"status: PersonStatus\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "patronymic_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "patronymic_name_lat",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "sex: Sex",
+        "type_info": {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "birth_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 9,
+        "name": "tax_number",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "phone",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "phone2",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "status: PersonStatus",
+        "type_info": {
+          "Custom": {
+            "name": "person_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "archived"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "Date",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "person_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "archived"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "175b8780ac7c78c0e3f2a6d61f8a99dfc498cbf99c2aca5c8a7942b1d059f259"
+}

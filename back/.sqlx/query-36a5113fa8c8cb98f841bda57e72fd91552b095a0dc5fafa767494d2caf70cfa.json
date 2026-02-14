@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\"\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        left join medassistance_policy_member mpm on policy.id = mpm.medassistance_policy_id\n        where policy.holder_id = $1 or mpm.member_id = $1\n        order by start_date desc\n        ",
+  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\"\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        where\n            (lower(series || number) like $1\n            or lower(person.first_name || ' ' || person.last_name) like $1\n            or lower(coalesce(car.make || ' ' || car.model, '')) like $1\n            or lower(coalesce(car.plate, '')) like $1)\n            and (not $2 or policy.status = 'active')\n        order by start_date desc\n        limit 30\n        ",
   "describe": {
     "columns": [
       {
@@ -84,7 +84,8 @@
     ],
     "parameters": {
       "Left": [
-        "Int4"
+        "Text",
+        "Bool"
       ]
     },
     "nullable": [
@@ -100,5 +101,5 @@
       false
     ]
   },
-  "hash": "49c6b5a756fe4f976e6245d6e0b838d7e56bcb09d52d31d3348cd67ecfb02991"
+  "hash": "36a5113fa8c8cb98f841bda57e72fd91552b095a0dc5fafa767494d2caf70cfa"
 }

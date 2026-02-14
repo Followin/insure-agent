@@ -3,24 +3,22 @@ use axum::extract::State;
 use sqlx::PgPool;
 
 use super::model::{BirthdayPerson, DashboardStats, ExpiringPolicy};
+use crate::error::AppResult;
 
-pub async fn get_dashboard(State(pool): State<PgPool>) -> Json<DashboardStats> {
+pub async fn get_dashboard(State(pool): State<PgPool>) -> AppResult<Json<DashboardStats>> {
     let people_count = sqlx::query_scalar!("select count(*) from person")
         .fetch_one(&pool)
-        .await
-        .unwrap()
+        .await?
         .unwrap_or(0);
 
     let policy_count = sqlx::query_scalar!("select count(*) from policy")
         .fetch_one(&pool)
-        .await
-        .unwrap()
+        .await?
         .unwrap_or(0);
 
     let car_count = sqlx::query_scalar!("select count(*) from car")
         .fetch_one(&pool)
-        .await
-        .unwrap()
+        .await?
         .unwrap_or(0);
 
     // Find people with birthdays in the next 7 days
@@ -55,18 +53,21 @@ pub async fn get_dashboard(State(pool): State<PgPool>) -> Json<DashboardStats> {
             end as "days_until!: i32"
         from person
         where
-            (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')
-             and to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD'))
-            or
-            (to_char(current_date + interval '7 days', 'MMDD') < to_char(current_date, 'MMDD')
-             and (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')
-                  or to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD')))
+            status = 'active'
+            and
+            (
+                (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')
+                 and to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD'))
+                or
+                (to_char(current_date + interval '7 days', 'MMDD') < to_char(current_date, 'MMDD')
+                 and (to_char(birth_date, 'MMDD') >= to_char(current_date, 'MMDD')
+                      or to_char(birth_date, 'MMDD') <= to_char(current_date + interval '7 days', 'MMDD')))
+            )
         order by "days_until!: i32" asc
         "#
     )
     .fetch_all(&pool)
-    .await
-    .unwrap();
+    .await?;
 
     // Policies expiring in the next 7 days
     let expiring_policies = sqlx::query_as!(
@@ -91,14 +92,13 @@ pub async fn get_dashboard(State(pool): State<PgPool>) -> Json<DashboardStats> {
         "#
     )
     .fetch_all(&pool)
-    .await
-    .unwrap();
+    .await?;
 
-    Json(DashboardStats {
+    Ok(Json(DashboardStats {
         people_count,
         policy_count,
         car_count,
         upcoming_birthdays,
         expiring_policies,
-    })
+    }))
 }

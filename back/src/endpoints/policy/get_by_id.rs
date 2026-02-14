@@ -1,12 +1,12 @@
 use axum::Json;
 use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use serde::Serialize;
 use sqlx::PgPool;
 
 use crate::endpoints::car::model::Car;
 use crate::endpoints::person::model::Person;
-use crate::models::{CarInsurancePeriodUnit, PolicyStatus, PolicyType};
+use crate::error::{AppError, AppResult};
+use crate::models::{CarInsurancePeriodUnit, OsagoZone, PersonStatus, PolicyStatus, PolicyType};
 
 // === Response Models ===
 
@@ -33,10 +33,9 @@ pub struct MedassistanceDetails {
 pub struct OsagoDetails {
     pub period_in_units: i32,
     pub period_unit: CarInsurancePeriodUnit,
-    pub zone: String,
-    pub exempt: bool,
+    pub zone: OsagoZone,
+    pub exempt: String,
     pub premium: i32,
-    pub franchise: i32,
     pub car: Car,
 }
 
@@ -93,10 +92,9 @@ struct MedassistanceRow {
 struct OsagoRow {
     period_in_units: i32,
     period_unit: CarInsurancePeriodUnit,
-    zone: String,
-    exempt: bool,
+    zone: OsagoZone,
+    exempt: String,
     premium: i32,
-    franchise: i32,
     car_id: i32,
 }
 
@@ -105,7 +103,7 @@ struct OsagoRow {
 pub async fn get_policy_by_id(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
-) -> Result<Json<PolicyFull>, StatusCode> {
+) -> AppResult<Json<PolicyFull>> {
     let policy = sqlx::query_as!(
         PolicyBase,
         r#"
@@ -124,9 +122,8 @@ pub async fn get_policy_by_id(
         id
     )
     .fetch_optional(&pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .ok_or(StatusCode::NOT_FOUND)?;
+    .await?
+    .ok_or(AppError::not_found())?;
 
     let holder = sqlx::query_as!(
         Person,
@@ -134,21 +131,25 @@ pub async fn get_policy_by_id(
         select
             id,
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex as "sex: _",
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status as "status: PersonStatus"
         from person
         where id = $1
         "#,
         policy.holder_id
     )
     .fetch_one(&pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .await?;
 
     let details = match policy.policy_type {
         PolicyType::GreenCard => {
@@ -167,8 +168,7 @@ pub async fn get_policy_by_id(
                 id
             )
             .fetch_one(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             let car = sqlx::query_as!(
                 Car,
@@ -192,8 +192,7 @@ pub async fn get_policy_by_id(
                 row.car_id
             )
             .fetch_one(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             PolicyDetails::GreenCard(GreenCardDetails {
                 territory: row.territory,
@@ -219,8 +218,7 @@ pub async fn get_policy_by_id(
                 id
             )
             .fetch_one(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             let members = sqlx::query_as!(
                 Person,
@@ -228,13 +226,18 @@ pub async fn get_policy_by_id(
                 select
                     p.id,
                     p.first_name,
+                    p.first_name_lat,
                     p.last_name,
+                    p.last_name_lat,
+                    p.patronymic_name,
+                    p.patronymic_name_lat,
                     p.sex as "sex: _",
                     p.birth_date,
                     p.tax_number,
                     p.phone,
                     p.phone2,
-                    p.email
+                    p.email,
+                    p.status as "status: PersonStatus"
                 from person p
                 join medassistance_policy_member m on p.id = m.member_id
                 where m.medassistance_policy_id = $1
@@ -242,8 +245,7 @@ pub async fn get_policy_by_id(
                 id
             )
             .fetch_all(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             PolicyDetails::Medassistance(MedassistanceDetails {
                 territory: row.territory,
@@ -261,10 +263,9 @@ pub async fn get_policy_by_id(
                 select
                     period_in_units,
                     period_unit as "period_unit: CarInsurancePeriodUnit",
-                    zone,
+                    zone as "zone: OsagoZone",
                     exempt,
                     premium,
-                    franchise,
                     car_id
                 from osago_policy
                 where id = $1
@@ -272,8 +273,7 @@ pub async fn get_policy_by_id(
                 id
             )
             .fetch_one(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             let car = sqlx::query_as!(
                 Car,
@@ -297,8 +297,7 @@ pub async fn get_policy_by_id(
                 row.car_id
             )
             .fetch_one(&pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .await?;
 
             PolicyDetails::Osago(OsagoDetails {
                 period_in_units: row.period_in_units,
@@ -306,7 +305,6 @@ pub async fn get_policy_by_id(
                 zone: row.zone,
                 exempt: row.exempt,
                 premium: row.premium,
-                franchise: row.franchise,
                 car,
             })
         }

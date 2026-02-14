@@ -10,26 +10,26 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th>Имя</th>
         <th>Фамилия</th>
-        <th>Пол</th>
+        <th>Имя</th>
+        <th>Отчество</th>
+        <th>Статус</th>
         <th>Дата рождения</th>
         <th>ИНН</th>
         <th>Телефон</th>
-        <th>Email</th>
         <th>Действия</th>
       </tr>
     </ng-template>
     <ng-template #body let-person>
       @if (!loading) {
         <tr>
-          <td>{{person.first_name}}</td>
           <td>{{person.last_name}}</td>
-          <td>{{person.sex === 'M' ? 'Муж.' : 'Жен.'}}</td>
+          <td>{{person.first_name}}</td>
+          <td>{{person.patronymic_name || '-'}}</td>
+          <td><p-tag [value]="person.status | personStatusLocal" [severity]="person.status | personStatusSeverity"/></td>
           <td>{{person.birth_date | date:'mediumDate'}}</td>
           <td>{{person.tax_number}}</td>
           <td>{{person.phone}}</td>
-          <td>{{person.email}}</td>
           <td class="whitespace-nowrap">
             <a [routerLink]="['/people', person.id]" pButton [text]="true" size="small">
               <i class="pi pi-eye"></i>

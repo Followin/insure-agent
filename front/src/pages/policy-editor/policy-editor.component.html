@@ -3,6 +3,10 @@
 <div class="grid grid-cols-2 gap-8 items-start">
   <p-panel class="p-2 pt-4" header="Общие данные" toggleable>
     <div class="grid gap-8 mt-6">
+      <p-floatlabel>
+        <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
+        <label for="type">Тип</label>
+      </p-floatlabel>
       <div class="grid grid-flow-col gap-8">
         <p-floatlabel>
           <input id="series" type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
@@ -14,16 +18,12 @@
         </p-floatlabel>
       </div>
       <p-floatlabel>
-        <p-datepicker [formControl]="generalGroup.controls.startDate" id="startDate" showIcon fluid></p-datepicker>
+        <p-datepicker [formControl]="generalGroup.controls.startDate" id="startDate" dateFormat="dd/mm/yy"  showIcon fluid></p-datepicker>
         <label for="startDate">Дата начала</label>
       </p-floatlabel>
       <p-floatlabel>
-        <p-datepicker [formControl]="generalGroup.controls.endDate" id="endDate" showIcon fluid></p-datepicker>
+        <p-datepicker [formControl]="generalGroup.controls.endDate" id="endDate" dateFormat="dd/mm/yy" showIcon fluid></p-datepicker>
         <label for="endDate">Дата окончания</label>
-      </p-floatlabel>
-      <p-floatlabel>
-        <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
-        <label for="type">Тип</label>
       </p-floatlabel>
       @if (editMode()) {
         <p-floatlabel>
@@ -54,7 +54,7 @@
           </div>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="greenCardGroup.controls.premium" class="w-full"/>
-            <label for="premium">Взнос</label>
+            <label for="premium">Премия</label>
           </p-floatlabel>
         </div>
       </p-panel>
@@ -73,7 +73,7 @@
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="medassistanceGroup.controls.premium" class="w-full"/>
-            <label for="premium">Взнос</label>
+            <label for="premium">Премия</label>
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber id="payout" [formControl]="medassistanceGroup.controls.payout" class="w-full"/>
@@ -96,7 +96,7 @@
       <p-panel class="p-2 pt-4" header="Детали ОСАГО" toggleable>
         <div class="grid gap-8 mt-6">
           <p-floatlabel>
-            <input id="zone" type="text" pInputText [formControl]="osagoGroup.controls.zone" class="w-full"/>
+            <p-select [formControl]="osagoGroup.controls.zone" id="zone" fluid [options]="osagoZones"></p-select>
             <label for="zone">Зона</label>
           </p-floatlabel>
           <div class="grid grid-flow-col gap-8">
@@ -111,15 +111,11 @@
           </div>
           <p-floatlabel>
             <p-inputnumber id="osago_premium" [formControl]="osagoGroup.controls.premium" class="w-full"/>
-            <label for="osago_premium">Взнос</label>
+            <label for="osago_premium">Премия</label>
           </p-floatlabel>
-          <div class="flex items-center gap-2">
-            <p-checkbox [formControl]="osagoGroup.controls.exempt" [binary]="true" inputId="exempt"/>
-            <label for="exempt">Льгота</label>
-          </div>
           <p-floatlabel>
-            <p-inputnumber id="franchise" [formControl]="osagoGroup.controls.franchise" class="w-full"/>
-            <label for="franchise">Франшиза</label>
+            <p-select id="exempt" [formControl]="osagoGroup.controls.exempt" fluid [options]="['Нет', 'Пенсионер Украины', 'Инвалидность' ,'УБД', 'Военный Пенсионер']"></p-select>
+            <label for="exempt">Льгота</label>
           </p-floatlabel>
         </div>
       </p-panel>

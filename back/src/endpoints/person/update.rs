@@ -1,66 +1,86 @@
 use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use axum::Json;
 use serde::Deserialize;
 use sqlx::PgPool;
 
 use super::model::{Person, Sex};
+use crate::error::{AppError, AppResult};
+use crate::models::PersonStatus;
 
 #[derive(Deserialize)]
 pub struct UpdatePerson {
     first_name: String,
+    first_name_lat: Option<String>,
     last_name: String,
+    last_name_lat: Option<String>,
+    patronymic_name: Option<String>,
+    patronymic_name_lat: Option<String>,
     sex: Sex,
     birth_date: chrono::NaiveDate,
     tax_number: String,
     phone: String,
     phone2: Option<String>,
     email: String,
+    status: PersonStatus,
 }
 
 pub async fn update_person(
     State(pool): State<PgPool>,
     Path(id): Path<i32>,
     Json(body): Json<UpdatePerson>,
-) -> Result<Json<Person>, StatusCode> {
+) -> AppResult<Json<Person>> {
     let person = sqlx::query_as!(
         Person,
         r#"
         update person
         set
             first_name = $2,
-            last_name = $3,
-            sex = $4,
-            birth_date = $5,
-            tax_number = $6,
-            phone = $7,
-            phone2 = $8,
-            email = $9
+            first_name_lat = $3,
+            last_name = $4,
+            last_name_lat = $5,
+            patronymic_name = $6,
+            patronymic_name_lat = $7,
+            sex = $8,
+            birth_date = $9,
+            tax_number = $10,
+            phone = $11,
+            phone2 = $12,
+            email = $13,
+            status = $14
         where id = $1
         returning
             id,
             first_name,
+            first_name_lat,
             last_name,
+            last_name_lat,
+            patronymic_name,
+            patronymic_name_lat,
             sex as "sex: Sex",
             birth_date,
             tax_number,
             phone,
             phone2,
-            email
+            email,
+            status as "status: PersonStatus"
         "#,
         id,
         body.first_name,
+        body.first_name_lat,
         body.last_name,
+        body.last_name_lat,
+        body.patronymic_name,
+        body.patronymic_name_lat,
         body.sex as Sex,
         body.birth_date,
         body.tax_number,
         body.phone,
         body.phone2,
-        body.email
+        body.email,
+        body.status as PersonStatus
     )
     .fetch_optional(&pool)
-    .await
-    .unwrap();
+    .await?;
 
-    person.map(Json).ok_or(StatusCode::NOT_FOUND)
+    person.map(Json).ok_or(AppError::not_found())
 }
