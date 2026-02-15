@@ -26,4 +26,9 @@ export type CarRefNew = {
   kind: 'New';
 } & CreateCarDto;
 
-export type CarRef = CarRefExisting | CarRefNew;
+export type CarRefExistingWithUpdates = {
+  kind: 'ExistingWithUpdates';
+  id: number;
+} & CreateCarDto;
+
+export type CarRef = CarRefExisting | CarRefNew | CarRefExistingWithUpdates;

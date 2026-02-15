@@ -21,6 +21,11 @@ pub struct CarNew {
 pub enum CarRef {
     Existing { id: i32 },
     New(Box<CarNew>),
+    ExistingWithUpdates {
+        id: i32,
+        #[serde(flatten)]
+        data: Box<CarNew>,
+    },
 }
 
 #[derive(FromRow, Serialize)]

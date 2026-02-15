@@ -40,6 +40,11 @@ pub struct PersonNew {
 pub enum PersonRef {
     Existing { id: i32 },
     New(Box<PersonNew>),
+    ExistingWithUpdates {
+        id: i32,
+        #[serde(flatten)]
+        data: Box<PersonNew>,
+    },
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]

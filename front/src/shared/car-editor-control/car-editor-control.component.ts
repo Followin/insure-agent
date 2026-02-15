@@ -14,7 +14,7 @@ import {
 } from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { CarSearchService } from './car-search.service';
-import { CarRef } from '../models/car.model';
+import { CarRef, CreateCarDto } from '../models/car.model';
 
 export type CarEditorValue = CarRef | null;
 
@@ -43,6 +43,8 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
 
   public existingCarIdControl = new FormControl<number | null>(null);
 
+  private originalCarData: CreateCarDto | null = null;
+
   public carGroup = new FormGroup({
     chassis: new FormControl('', [Validators.required]),
     make: new FormControl('', [Validators.required]),
@@ -69,6 +71,7 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
       if (!id || !Number.isInteger(id)) {
         this.carGroup.reset();
         this.carGroup.enable();
+        this.originalCarData = null;
         this.emitValue();
         return;
       }
@@ -96,7 +99,20 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
         this.carGroup.controls.laden_weight.setValue(car.laden_weight);
         this.carGroup.controls.seats.setValue(car.seats);
 
-        this.carGroup.disable();
+        this.originalCarData = {
+          chassis: car.chassis,
+          make: car.make,
+          model: car.model,
+          registration: car.registration,
+          plate: car.plate,
+          year: car.year,
+          engine_displacement_litres: car.engine_displacement_litres,
+          mileage_km: car.mileage_km,
+          unladen_weight: car.unladen_weight,
+          laden_weight: car.laden_weight,
+          seats: car.seats,
+        };
+
         this.emitValue();
       });
     });
@@ -135,7 +151,7 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
   }
 
   validate(_control: AbstractControl): ValidationErrors | null {
-    if (this.existingCarIdControl.value) {
+    if (this.existingCarIdControl.value && !this.hasChanges()) {
       return null;
     }
     return this.carGroup.valid ? null : { invalid: true };
@@ -147,12 +163,55 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
     });
   }
 
+  private hasChanges(): boolean {
+    if (!this.originalCarData) return false;
+
+    const v = this.carGroup.value;
+    const o = this.originalCarData;
+
+    return (
+      v.chassis !== o.chassis ||
+      v.make !== o.make ||
+      v.model !== o.model ||
+      v.registration !== o.registration ||
+      v.plate !== o.plate ||
+      v.year !== o.year ||
+      v.engine_displacement_litres !== o.engine_displacement_litres ||
+      v.mileage_km !== o.mileage_km ||
+      v.unladen_weight !== o.unladen_weight ||
+      v.laden_weight !== o.laden_weight ||
+      v.seats !== o.seats
+    );
+  }
+
   private emitValue(): void {
-    if (this.existingCarIdControl.value) {
-      this.onChange({
-        kind: 'Existing',
-        id: this.existingCarIdControl.value,
-      });
+    const existingId = this.existingCarIdControl.value;
+
+    if (existingId && this.originalCarData) {
+      if (this.carGroup.valid && this.hasChanges()) {
+        const v = this.carGroup.value;
+        this.onChange({
+          kind: 'ExistingWithUpdates',
+          id: existingId,
+          chassis: v.chassis!,
+          make: v.make!,
+          model: v.model!,
+          registration: v.registration!,
+          plate: v.plate!,
+          year: v.year!,
+          engine_displacement_litres: v.engine_displacement_litres!,
+          mileage_km: v.mileage_km!,
+          unladen_weight: v.unladen_weight!,
+          laden_weight: v.laden_weight!,
+          seats: v.seats!,
+        });
+      } else {
+        this.onChange({
+          kind: 'Existing',
+          id: existingId,
+        });
+      }
+      this.onTouched();
       return;
     }
 

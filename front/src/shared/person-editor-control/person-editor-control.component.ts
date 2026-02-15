@@ -23,7 +23,7 @@ import {
 } from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PersonSearchService } from './person-search.service';
-import { PersonRef, PersonStatus, Sex } from './person.model';
+import { CreatePersonDto, PersonRef, PersonStatus, Sex } from './person.model';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -56,6 +56,8 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   private autocomplete = viewChild<AutoComplete>('existingPersonAutocomplete');
 
   public existingPersonIdControl = new FormControl<number | null>(null);
+
+  private originalPersonData: CreatePersonDto | null = null;
 
   public sexOptions: { label: string; value: Sex }[] = [
     { label: 'Мужской', value: 'M' },
@@ -107,6 +109,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       if (!id || !Number.isInteger(id)) {
         this.personGroup.reset();
         this.personGroup.enable();
+        this.originalPersonData = null;
         this.emitValue();
         return;
       }
@@ -136,7 +139,22 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
         this.personGroup.controls.email.setValue(person.email);
         this.personGroup.controls.status.setValue(person.status);
 
-        this.personGroup.disable();
+        this.originalPersonData = {
+          first_name: person.first_name,
+          first_name_lat: person.first_name_lat,
+          last_name: person.last_name,
+          last_name_lat: person.last_name_lat,
+          patronymic_name: person.patronymic_name,
+          patronymic_name_lat: person.patronymic_name_lat,
+          sex: person.sex,
+          birth_date: person.birth_date,
+          tax_number: person.tax_number,
+          phone: person.phone,
+          phone2: person.phone2,
+          email: person.email,
+          status: person.status,
+        };
+
         this.emitValue();
       });
     });
@@ -177,7 +195,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   }
 
   validate(_control: AbstractControl): ValidationErrors | null {
-    if (this.existingPersonIdControl.value) {
+    if (this.existingPersonIdControl.value && !this.hasChanges()) {
       return null;
     }
     return this.personGroup.valid ? null : { invalid: true };
@@ -193,12 +211,59 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
     return date.toISOString().split('T')[0];
   }
 
+  private hasChanges(): boolean {
+    if (!this.originalPersonData) return false;
+
+    const v = this.personGroup.value;
+    const o = this.originalPersonData;
+
+    return (
+      v.first_name !== o.first_name ||
+      (v.first_name_lat || null) !== o.first_name_lat ||
+      v.last_name !== o.last_name ||
+      (v.last_name_lat || null) !== o.last_name_lat ||
+      (v.patronymic_name || null) !== o.patronymic_name ||
+      (v.patronymic_name_lat || null) !== o.patronymic_name_lat ||
+      v.sex !== o.sex ||
+      this.formatDate(v.birth_date!) !== o.birth_date ||
+      v.tax_number !== o.tax_number ||
+      v.phone !== o.phone ||
+      (v.phone2 || null) !== o.phone2 ||
+      v.email !== o.email ||
+      v.status !== o.status
+    );
+  }
+
   private emitValue(): void {
-    if (this.existingPersonIdControl.value) {
-      this.onChange({
-        kind: 'Existing',
-        id: this.existingPersonIdControl.value,
-      });
+    const existingId = this.existingPersonIdControl.value;
+
+    if (existingId && this.originalPersonData) {
+      if (this.personGroup.valid && this.hasChanges()) {
+        const v = this.personGroup.value;
+        this.onChange({
+          kind: 'ExistingWithUpdates',
+          id: existingId,
+          first_name: v.first_name!,
+          first_name_lat: v.first_name_lat || null,
+          last_name: v.last_name!,
+          last_name_lat: v.last_name_lat || null,
+          patronymic_name: v.patronymic_name || null,
+          patronymic_name_lat: v.patronymic_name_lat || null,
+          sex: v.sex!,
+          birth_date: this.formatDate(v.birth_date!),
+          tax_number: v.tax_number!,
+          phone: v.phone!,
+          phone2: v.phone2 || null,
+          email: v.email!,
+          status: v.status!,
+        });
+      } else {
+        this.onChange({
+          kind: 'Existing',
+          id: existingId,
+        });
+      }
+      this.onTouched();
       return;
     }
 

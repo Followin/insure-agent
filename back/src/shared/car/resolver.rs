@@ -31,5 +31,39 @@ pub async fn resolve_car(
             .await?;
             Ok(result.id)
         }
+        CarRef::ExistingWithUpdates { id, data } => {
+            sqlx::query!(
+                r#"
+                update car set
+                    chassis = $2,
+                    make = $3,
+                    model = $4,
+                    registration = $5,
+                    plate = $6,
+                    year = $7,
+                    engine_displacement_litres = $8,
+                    mileage_km = $9,
+                    unladen_weight = $10,
+                    laden_weight = $11,
+                    seats = $12
+                where id = $1
+                "#,
+                id,
+                data.chassis,
+                data.make,
+                data.model,
+                data.registration,
+                data.plate,
+                data.year,
+                data.engine_displacement_litres,
+                data.mileage_km,
+                data.unladen_weight,
+                data.laden_weight,
+                data.seats
+            )
+            .execute(&mut **tx)
+            .await?;
+            Ok(id)
+        }
     }
 }

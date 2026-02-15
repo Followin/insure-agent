@@ -37,4 +37,9 @@ export type PersonRefNew = {
   kind: 'New';
 } & CreatePersonDto;
 
-export type PersonRef = PersonRefExisting | PersonRefNew;
+export type PersonRefExistingWithUpdates = {
+  kind: 'ExistingWithUpdates';
+  id: number;
+} & CreatePersonDto;
+
+export type PersonRef = PersonRefExisting | PersonRefNew | PersonRefExistingWithUpdates;

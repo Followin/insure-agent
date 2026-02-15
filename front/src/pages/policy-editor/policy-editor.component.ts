@@ -183,6 +183,7 @@ export class PolicyEditorComponent {
   }));
 
   private formatDate(date: Date): string {
+    console.log(date);
     return date.toISOString().split('T')[0];
   }
 
