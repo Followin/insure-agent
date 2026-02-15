@@ -49,8 +49,8 @@ export class PolicyEditorComponent {
   public generalGroup = new FormGroup({
     series: new FormControl('', [Validators.required]),
     number: new FormControl('', [Validators.required]),
-    startDate: new FormControl<Date | null>(null, [Validators.required]),
-    endDate: new FormControl<Date | null>(null),
+    startDate: new FormControl<string | null>(null, [Validators.required]),
+    endDate: new FormControl<string | null>(null),
     type: new FormControl<PolicyType | null>(null, [Validators.required]),
     status: new FormControl<PolicyStatus>('Active', [Validators.required]),
   });
@@ -113,8 +113,8 @@ export class PolicyEditorComponent {
   private populateForm(policy: PolicyFull) {
     this.generalGroup.controls.series.setValue(policy.series);
     this.generalGroup.controls.number.setValue(policy.number);
-    this.generalGroup.controls.startDate.setValue(new Date(policy.start_date));
-    this.generalGroup.controls.endDate.setValue(policy.end_date ? new Date(policy.end_date) : null);
+    this.generalGroup.controls.startDate.setValue(policy.start_date);
+    this.generalGroup.controls.endDate.setValue(policy.end_date);
     this.generalGroup.controls.type.setValue(policy.policy_type);
     this.generalGroup.controls.status.setValue(policy.status);
 
@@ -182,21 +182,14 @@ export class PolicyEditorComponent {
     value: x,
   }));
 
-  private formatDate(date: Date): string {
-    console.log(date);
-    return date.toISOString().split('T')[0];
-  }
-
   private getPolicyRequest(): CreatePolicyRequest | UpdatePolicyRequest {
     const holder = this.holderControl.value!;
     const base = {
       series: this.generalGroup.controls.series.value!,
       number: this.generalGroup.controls.number.value!,
       holder,
-      start_date: this.formatDate(this.generalGroup.controls.startDate.value!),
-      end_date: this.generalGroup.controls.endDate.value
-        ? this.formatDate(this.generalGroup.controls.endDate.value)
-        : null,
+      start_date: this.generalGroup.controls.startDate.value!,
+      end_date: this.generalGroup.controls.endDate.value,
       status: this.generalGroup.controls.status.value!,
     };
 

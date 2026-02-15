@@ -79,7 +79,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
     patronymic_name: new FormControl<string | null>(null),
     patronymic_name_lat: new FormControl<string | null>(null),
     sex: new FormControl<Sex | null>(null, [Validators.required]),
-    birth_date: new FormControl<Date | null>(null, [Validators.required]),
+    birth_date: new FormControl<string | null>(null, [Validators.required]),
     tax_number: new FormControl('', [Validators.required]),
     phone: new FormControl('', [Validators.required]),
     phone2: new FormControl<string | null>(null),
@@ -132,7 +132,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
         this.personGroup.controls.patronymic_name.setValue(person.patronymic_name);
         this.personGroup.controls.patronymic_name_lat.setValue(person.patronymic_name_lat);
         this.personGroup.controls.sex.setValue(person.sex);
-        this.personGroup.controls.birth_date.setValue(new Date(person.birth_date));
+        this.personGroup.controls.birth_date.setValue(person.birth_date);
         this.personGroup.controls.tax_number.setValue(person.tax_number);
         this.personGroup.controls.phone.setValue(person.phone);
         this.personGroup.controls.phone2.setValue(person.phone2);
@@ -177,7 +177,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       this.personGroup.controls.patronymic_name.setValue(value.patronymic_name);
       this.personGroup.controls.patronymic_name_lat.setValue(value.patronymic_name_lat);
       this.personGroup.controls.sex.setValue(value.sex);
-      this.personGroup.controls.birth_date.setValue(new Date(value.birth_date));
+      this.personGroup.controls.birth_date.setValue(value.birth_date);
       this.personGroup.controls.tax_number.setValue(value.tax_number);
       this.personGroup.controls.phone.setValue(value.phone);
       this.personGroup.controls.phone2.setValue(value.phone2);
@@ -207,10 +207,6 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
     });
   }
 
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
   private hasChanges(): boolean {
     if (!this.originalPersonData) return false;
 
@@ -225,7 +221,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       (v.patronymic_name || null) !== o.patronymic_name ||
       (v.patronymic_name_lat || null) !== o.patronymic_name_lat ||
       v.sex !== o.sex ||
-      this.formatDate(v.birth_date!) !== o.birth_date ||
+      v.birth_date !== o.birth_date ||
       v.tax_number !== o.tax_number ||
       v.phone !== o.phone ||
       (v.phone2 || null) !== o.phone2 ||
@@ -250,7 +246,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
           patronymic_name: v.patronymic_name || null,
           patronymic_name_lat: v.patronymic_name_lat || null,
           sex: v.sex!,
-          birth_date: this.formatDate(v.birth_date!),
+          birth_date: v.birth_date!,
           tax_number: v.tax_number!,
           phone: v.phone!,
           phone2: v.phone2 || null,
@@ -278,7 +274,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
         patronymic_name: v.patronymic_name || null,
         patronymic_name_lat: v.patronymic_name_lat || null,
         sex: v.sex!,
-        birth_date: this.formatDate(v.birth_date!),
+        birth_date: v.birth_date!,
         tax_number: v.tax_number!,
         phone: v.phone!,
         phone2: v.phone2 || null,

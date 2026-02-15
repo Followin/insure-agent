@@ -28,6 +28,7 @@ import {
   PersonStatusLocalPipe,
   PersonStatusSeverityPipe,
 } from './pipes/person-localization.pipe';
+import { DatepickerComponent } from './datepicker/datepicker.component';
 
 export const sharedImports = [
   CardModule,
@@ -56,4 +57,5 @@ export const sharedImports = [
   PersonStatusLocalPipe,
   PersonStatusSeverityPipe,
   OsagoZoneLocalPipe,
+  DatepickerComponent,
 ];
