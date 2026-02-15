@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                update person set\n                    first_name = $2,\n                    first_name_lat = $3,\n                    last_name = $4,\n                    last_name_lat = $5,\n                    patronymic_name = $6,\n                    patronymic_name_lat = $7,\n                    sex = $8,\n                    birth_date = $9,\n                    tax_number = $10,\n                    phone = $11,\n                    phone2 = $12,\n                    email = $13,\n                    status = $14\n                where id = $1\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "sex",
+            "kind": {
+              "Enum": [
+                "m",
+                "f",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "Date",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "person_status",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "archived"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa9c105cec52b47b6b1082c845e6e681eab698cbd587c6d0c88cd011e6b7636d"
+}
