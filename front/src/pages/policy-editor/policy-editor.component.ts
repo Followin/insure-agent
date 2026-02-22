@@ -80,7 +80,7 @@ export class PolicyEditorComponent {
     period_in_units: new FormControl<number | null>(null, [Validators.required]),
     period_unit: new FormControl<CarInsurancePeriodUnit | null>(null, [Validators.required]),
     zone: new FormControl<OsagoZone>('Zone1', [Validators.required]),
-    exempt: new FormControl('Нет', [Validators.required]),
+    exempt: new FormControl('Ні', [Validators.required]),
     premium: new FormControl<number | null>(null, [Validators.required]),
   });
 

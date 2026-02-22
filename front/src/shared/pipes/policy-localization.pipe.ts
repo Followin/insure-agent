@@ -9,9 +9,9 @@ import {
 export function getPolicyTypeLocalizedName(type: PolicyType): string {
   switch (type) {
     case 'GreenCard':
-      return 'Зеленая карта';
+      return 'Зелена карта';
     case 'Medassistance':
-      return 'Медассистанс';
+      return 'Медасистанс';
     case 'Osago':
       return 'ОСАГО';
   }
@@ -20,23 +20,23 @@ export function getPolicyTypeLocalizedName(type: PolicyType): string {
 export function getPolicyStatusLocalizedName(status: PolicyStatus): string {
   switch (status) {
     case 'Active':
-      return 'Активный';
+      return 'Активний';
     case 'Prolonged':
-      return 'Пролонгирован';
+      return 'Пролонгований';
     case 'Rejected':
-      return 'Отклонён';
+      return 'Відхилено';
     case 'Stopped':
-      return 'Остановлен';
+      return 'Зупинено';
     case 'Postponed':
-      return 'Отложен';
+      return 'Відкладено';
     case 'Cancelled':
-      return 'Расторгнут';
+      return 'Розірвано';
     case 'Project':
-      return 'Проект';
+      return 'Проєкт';
     case 'Replaced':
-      return 'Заменён';
+      return 'Замінено';
     case 'Expired':
-      return 'Истёк';
+      return 'Закінчився';
   }
 }
 
@@ -63,11 +63,11 @@ export function getPolicyStatusSeverity(
 export function getPeriodUnitLocalizedName(unit: CarInsurancePeriodUnit): string {
   switch (unit) {
     case 'Day':
-      return 'дней';
+      return 'днів';
     case 'Month':
-      return 'месяцев';
+      return 'місяців';
     case 'Year':
-      return 'лет';
+      return 'років';
   }
 }
 
@@ -84,7 +84,7 @@ export function getOsagoZoneLocalizedName(zone: OsagoZone): string {
     case 'Zone5':
       return 'Зона 5';
     case 'Outside':
-      return 'Вне Украины';
+      return 'Поза Україною';
   }
 }
 

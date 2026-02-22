@@ -1,7 +1,7 @@
-<h1 class="justify-self-start">{{editMode() ? 'Редактировать полис' : 'Новый полис'}}</h1>
-<p-button label="Сохранить" icon="pi pi-save" (onClick)="save()" class="fixed right-4 top-4 z-10" raised />
+<h1 class="justify-self-start">{{editMode() ? 'Редагувати поліс' : 'Новий поліс'}}</h1>
+<p-button label="Зберегти" icon="pi pi-save" (onClick)="save()" class="fixed right-4 top-4 z-10" raised />
 <div class="grid grid-cols-2 gap-8 items-start">
-  <p-panel class="p-2 pt-4" header="Общие данные" toggleable>
+  <p-panel class="p-2 pt-4" header="Загальні дані" toggleable>
     <div class="grid gap-8 mt-6">
       <p-floatlabel>
         <p-select [formControl]="generalGroup.controls.type" id="type" fluid [options]="policyTypes"></p-select>
@@ -10,7 +10,7 @@
       <div class="grid grid-flow-col gap-8">
         <p-floatlabel>
           <input id="series" type="text" pInputText [formControl]="generalGroup.controls.series" class="w-full"/>
-          <label for="series">Серия</label>
+          <label for="series">Серія</label>
         </p-floatlabel>
         <p-floatlabel>
           <input id="number" type="text" pInputText [formControl]="generalGroup.controls.number" class="w-full"/>
@@ -19,11 +19,11 @@
       </div>
       <p-floatlabel>
         <app-datepicker [formControl]="generalGroup.controls.startDate" id="startDate"></app-datepicker>
-        <label for="startDate">Дата начала</label>
+        <label for="startDate">Дата початку</label>
       </p-floatlabel>
       <p-floatlabel>
         <app-datepicker [formControl]="generalGroup.controls.endDate" id="endDate"></app-datepicker>
-        <label for="endDate">Дата окончания</label>
+        <label for="endDate">Дата закінчення</label>
       </p-floatlabel>
       <p-floatlabel>
         <p-select [formControl]="generalGroup.controls.status" id="status" fluid [options]="policyStatuses"></p-select>
@@ -31,71 +31,71 @@
       </p-floatlabel>
       <p-floatlabel>
         <p-multiselect [formControl]="agentsControl" id="agents" fluid [options]="agents()" optionLabel="full_name" display="chip"></p-multiselect>
-        <label for="agents">Агенты</label>
+        <label for="agents">Агенти</label>
       </p-floatlabel>
     </div>
   </p-panel>
-  <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />
+  <app-person-editor-control [allowExisting]="true" header="Страхувальник" [formControl]="holderControl" />
   @switch (generalGroup.controls.type.value) {
     @case('GreenCard') {
-      <p-panel class="p-2 pt-4" header="Детали зеленой карты" toggleable>
+      <p-panel class="p-2 pt-4" header="Деталі зеленої карти" toggleable>
         <div class="grid gap-8 mt-6">
           <p-floatlabel>
             <input id="territory" type="text" pInputText [formControl]="greenCardGroup.controls.territory" class="w-full"/>
-            <label for="territory">Территория</label>
+            <label for="territory">Територія</label>
           </p-floatlabel>
           <div class="grid grid-flow-col gap-8">
             <p-floatlabel>
               <p-inputnumber inputId="period_in_units" [formControl]="greenCardGroup.controls.period_in_units" class="w-full"/>
-              <label for="period_in_units">Срок</label>
+              <label for="period_in_units">Строк</label>
             </p-floatlabel>
             <p-floatlabel>
               <p-select [formControl]="greenCardGroup.controls.period_unit" id="period_unit" fluid [options]="periodUnits"></p-select>
-              <label for="period_unit">Единица</label>
+              <label for="period_unit">Одиниця</label>
             </p-floatlabel>
           </div>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="greenCardGroup.controls.premium" class="w-full"/>
-            <label for="premium">Премия</label>
+            <label for="premium">Премія</label>
           </p-floatlabel>
         </div>
       </p-panel>
-      <app-car-editor-control [allowExisting]="true" header="Автомобиль" [formControl]="carControl"/>
+      <app-car-editor-control [allowExisting]="true" header="Автомобіль" [formControl]="carControl"/>
     }
     @case('Medassistance') {
-      <p-panel class="p-2 pt-4" header="Детали медассистанс" toggleable>
+      <p-panel class="p-2 pt-4" header="Деталі медасистансу" toggleable>
         <div class="grid gap-8 mt-6">
           <p-floatlabel>
             <input id="territory" type="text" pInputText [formControl]="medassistanceGroup.controls.territory" class="w-full"/>
-            <label for="territory">Территория</label>
+            <label for="territory">Територія</label>
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber inputId="period_days" [formControl]="medassistanceGroup.controls.period_days" class="w-full"/>
-            <label for="period_days">Срок (дни)</label>
+            <label for="period_days">Строк (дні)</label>
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber id="premium" [formControl]="medassistanceGroup.controls.premium" class="w-full"/>
-            <label for="premium">Премия</label>
+            <label for="premium">Премія</label>
           </p-floatlabel>
           <p-floatlabel>
             <p-inputnumber id="payout" [formControl]="medassistanceGroup.controls.payout" class="w-full"/>
-            <label for="payout">Выплата</label>
+            <label for="payout">Виплата</label>
           </p-floatlabel>
           <p-floatlabel>
             <input id="program" type="text" pInputText [formControl]="medassistanceGroup.controls.program" class="w-full"/>
-            <label for="program">Программа</label>
+            <label for="program">Програма</label>
           </p-floatlabel>
         </div>
       </p-panel>
       <div class="grid gap-8">
         @for (control of membersArray.controls; track control; let i = $index) {
-          <app-person-editor-control [allowExisting]="true" [header]="'Застрахованный ' + (i + 1)" [formControl]="control" showNameInHeader [showRemoveButton]="membersArray.length > 1" (onRemove)="removeMember(i)"/>
+          <app-person-editor-control [allowExisting]="true" [header]="'Застрахований ' + (i + 1)" [formControl]="control" showNameInHeader [showRemoveButton]="membersArray.length > 1" (onRemove)="removeMember(i)"/>
         }
-        <p-button label="Добавить застрахованного" icon="pi pi-plus" [outlined]="true" (onClick)="addMember()"/>
+        <p-button label="Додати застрахованого" icon="pi pi-plus" [outlined]="true" (onClick)="addMember()"/>
       </div>
     }
     @case('Osago') {
-      <p-panel class="p-2 pt-4" header="Детали ОСАГО" toggleable>
+      <p-panel class="p-2 pt-4" header="Деталі ОСАГО" toggleable>
         <div class="grid gap-8 mt-6">
           <p-floatlabel>
             <p-select [formControl]="osagoGroup.controls.zone" id="zone" fluid [options]="osagoZones"></p-select>
@@ -104,24 +104,24 @@
           <div class="grid grid-flow-col gap-8">
             <p-floatlabel>
               <p-inputnumber inputId="osago_period_in_units" [formControl]="osagoGroup.controls.period_in_units" class="w-full"/>
-              <label for="osago_period_in_units">Срок</label>
+              <label for="osago_period_in_units">Строк</label>
             </p-floatlabel>
             <p-floatlabel>
               <p-select [formControl]="osagoGroup.controls.period_unit" id="osago_period_unit" fluid [options]="periodUnits"></p-select>
-              <label for="osago_period_unit">Единица</label>
+              <label for="osago_period_unit">Одиниця</label>
             </p-floatlabel>
           </div>
           <p-floatlabel>
             <p-inputnumber id="osago_premium" [formControl]="osagoGroup.controls.premium" class="w-full"/>
-            <label for="osago_premium">Премия</label>
+            <label for="osago_premium">Премія</label>
           </p-floatlabel>
           <p-floatlabel>
-            <p-select id="exempt" [formControl]="osagoGroup.controls.exempt" fluid [options]="['Нет', 'Пенсионер Украины', 'Инвалидность' ,'УБД', 'Военный Пенсионер']"></p-select>
-            <label for="exempt">Льгота</label>
+            <p-select id="exempt" [formControl]="osagoGroup.controls.exempt" fluid [options]="['Ні', 'Пенсіонер України', 'Інвалідність' ,'УБД', 'Військовий пенсіонер']"></p-select>
+            <label for="exempt">Пільга</label>
           </p-floatlabel>
         </div>
       </p-panel>
-      <app-car-editor-control [allowExisting]="true" header="Автомобиль" [formControl]="carControl"/>
+      <app-car-editor-control [allowExisting]="true" header="Автомобіль" [formControl]="carControl"/>
     }
   }
 </div>

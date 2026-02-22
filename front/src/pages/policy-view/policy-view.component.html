@@ -8,45 +8,45 @@
   </div>
 } @else if (policy(); as p) {
   <div class="grid grid-cols-2 items-center mb-4">
-    <h1>Полис {{p.series}}-{{p.number}}</h1>
+    <h1>Поліс {{p.series}}-{{p.number}}</h1>
     <a [routerLink]="['/policies', p.id, 'edit']" class="justify-self-end" pButton>
       <i class="pi pi-pencil"></i>
-      Редактировать
+      Редагувати
     </a>
   </div>
   <div class="grid grid-cols-2 gap-8 items-start">
-    <p-panel header="Общие данные">
+    <p-panel header="Загальні дані">
       <div class="grid grid-cols-2 gap-4 p-4">
-        <span class="text-color-secondary">Серия:</span>
+        <span class="text-color-secondary">Серія:</span>
         <span>{{p.series}}</span>
         <span class="text-color-secondary">Номер:</span>
         <span>{{p.number}}</span>
-        <span class="text-color-secondary">Дата начала:</span>
+        <span class="text-color-secondary">Дата початку:</span>
         <span>{{p.start_date | date:'mediumDate'}}</span>
-        <span class="text-color-secondary">Дата окончания:</span>
+        <span class="text-color-secondary">Дата закінчення:</span>
         <span>{{p.end_date ? (p.end_date | date:'mediumDate') : '-'}}</span>
         <span class="text-color-secondary">Тип:</span>
         <span>{{p.policy_type | policyTypeLocal}}</span>
         <span class="text-color-secondary">Статус:</span>
         <p-tag [value]="p.status | policyStatusLocal" [severity]="p.status | policyStatusSeverity"/>
-        <span class="text-color-secondary">Агенты:</span>
+        <span class="text-color-secondary">Агенти:</span>
         <span>{{formatAgentNames(p.agents)}}</span>
       </div>
     </p-panel>
-    <p-panel header="Страхователь">
+    <p-panel header="Страхувальник">
       <div class="grid grid-cols-2 gap-4 p-4">
-        <span class="text-color-secondary">Имя:</span>
+        <span class="text-color-secondary">Ім'я:</span>
         <span>
          {{p.holder.last_name}} {{p.holder.first_name}} {{p.holder.patronymic_name}}
           <a [routerLink]="['/people', p.holder.id]" pButton [text]="true" size="small">
             <i class="pi pi-eye"></i>
           </a>
         </span>
-        <span class="text-color-secondary">Пол:</span>
+        <span class="text-color-secondary">Стать:</span>
         <span>{{p.holder.sex | sexLocal}}</span>
-        <span class="text-color-secondary">Дата рождения:</span>
+        <span class="text-color-secondary">Дата народження:</span>
         <span>{{p.holder.birth_date | date:'mediumDate'}}</span>
-        <span class="text-color-secondary">ИНН:</span>
+        <span class="text-color-secondary">ІПН:</span>
         <span>{{p.holder.tax_number}}</span>
         <span class="text-color-secondary">Телефон:</span>
         <span>{{p.holder.phone}}</span>
@@ -60,38 +60,38 @@
     </p-panel>
     @switch (p.policy_type) {
       @case ('GreenCard') {
-        <p-panel header="Детали зеленой карты">
+        <p-panel header="Деталі зеленої карти">
           <div class="grid grid-cols-2 gap-4 p-4">
-            <span class="text-color-secondary">Территория:</span>
+            <span class="text-color-secondary">Територія:</span>
             <span>{{p.territory}}</span>
-            <span class="text-color-secondary">Срок:</span>
+            <span class="text-color-secondary">Строк:</span>
             <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
-            <span class="text-color-secondary">Премия:</span>
+            <span class="text-color-secondary">Премія:</span>
             <span>{{p.premium}}</span>
           </div>
         </p-panel>
         <ng-container *ngTemplateOutlet="carPanel; context: {car: p.car}"/>
       }
       @case ('Medassistance') {
-        <p-panel header="Детали медассистанс">
+        <p-panel header="Деталі медасистансу">
           <div class="grid grid-cols-2 gap-4 p-4">
-            <span class="text-color-secondary">Территория:</span>
+            <span class="text-color-secondary">Територія:</span>
             <span>{{p.territory}}</span>
-            <span class="text-color-secondary">Срок (дни):</span>
+            <span class="text-color-secondary">Строк (дні):</span>
             <span>{{p.period_days}}</span>
-            <span class="text-color-secondary">Премия:</span>
+            <span class="text-color-secondary">Премія:</span>
             <span>{{p.premium}}</span>
-            <span class="text-color-secondary">Выплата:</span>
+            <span class="text-color-secondary">Виплата:</span>
             <span>{{p.payout}}</span>
-            <span class="text-color-secondary">Программа:</span>
+            <span class="text-color-secondary">Програма:</span>
             <span>{{p.program}}</span>
           </div>
         </p-panel>
-        <p-panel header="Застрахованные">
+        <p-panel header="Застраховані">
           <div class="p-4">
             @for (member of p.members; track member.id; let i = $index) {
               <div class="grid grid-cols-2 gap-4 mb-4 pb-4" [class.border-b]="i < p.members.length - 1">
-                <span class="text-color-secondary">Имя:</span>
+                <span class="text-color-secondary">Ім'я:</span>
                 <span>
                   {{member.first_name}} {{member.last_name}}
                   <a [routerLink]="['/people', member.id]" pButton [text]="true" size="small">
@@ -108,15 +108,15 @@
         </p-panel>
       }
       @case ('Osago') {
-        <p-panel header="Детали ОСАГО">
+        <p-panel header="Деталі ОСАГО">
           <div class="grid grid-cols-2 gap-4 p-4">
             <span class="text-color-secondary">Зона:</span>
             <span>{{p.zone | osagoZoneLocal}}</span>
-            <span class="text-color-secondary">Срок:</span>
+            <span class="text-color-secondary">Строк:</span>
             <span>{{p.period_in_units}} {{p.period_unit | periodUnitLocal}}</span>
-            <span class="text-color-secondary">Премия:</span>
+            <span class="text-color-secondary">Премія:</span>
             <span>{{p.premium}}</span>
-            <span class="text-color-secondary">Льгота:</span>
+            <span class="text-color-secondary">Пільга:</span>
             <span>{{p.exempt}}</span>
           </div>
         </p-panel>
@@ -127,29 +127,29 @@
 }
 
 <ng-template #carPanel let-car="car">
-  <p-panel header="Автомобиль">
+  <p-panel header="Автомобіль">
     <div class="grid grid-cols-2 gap-4 p-4">
       <span class="text-color-secondary">Марка:</span>
       <span>{{car.make}}</span>
       <span class="text-color-secondary">Модель:</span>
       <span>{{car.model}}</span>
-      <span class="text-color-secondary">Год:</span>
+      <span class="text-color-secondary">Рік:</span>
       <span>{{car.year}}</span>
-      <span class="text-color-secondary">Шасси:</span>
+      <span class="text-color-secondary">Шасі:</span>
       <span>{{car.chassis}}</span>
-      <span class="text-color-secondary">Регистрация:</span>
+      <span class="text-color-secondary">Реєстрація:</span>
       <span>{{car.registration}}</span>
       <span class="text-color-secondary">Номер:</span>
       <span>{{car.plate}}</span>
-      <span class="text-color-secondary">Объем двигателя (л):</span>
+      <span class="text-color-secondary">Об'єм двигуна (л):</span>
       <span>{{car.engine_displacement_litres}}</span>
-      <span class="text-color-secondary">Пробег (км):</span>
+      <span class="text-color-secondary">Пробіг (км):</span>
       <span>{{car.mileage_km}}</span>
-      <span class="text-color-secondary">Масса без нагрузки (кг):</span>
+      <span class="text-color-secondary">Маса без навантаження (кг):</span>
       <span>{{car.unladen_weight}}</span>
-      <span class="text-color-secondary">Масса с нагрузкой (кг):</span>
+      <span class="text-color-secondary">Маса з навантаженням (кг):</span>
       <span>{{car.laden_weight}}</span>
-      <span class="text-color-secondary">Количество мест:</span>
+      <span class="text-color-secondary">Кількість місць:</span>
       <span>{{car.seats}}</span>
     </div>
   </p-panel>

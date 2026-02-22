@@ -4,14 +4,14 @@
       <img src="logo.png" alt="Insurance logo" class="w-[100px] h-[100px]">
     </div>
     <div data-id="menu" class="grid grid-flow-row content-start gap-4">
-      <a routerLink="/dashboard" routerLinkActive="text-primary" class="text-xl"><i class="pi pi-home"></i> Домашняя страница</a>
+      <a routerLink="/dashboard" routerLinkActive="text-primary" class="text-xl"><i class="pi pi-home"></i> Головна сторінка</a>
       <a routerLink="/people" routerLinkActive="text-primary" class="text-xl"><i class="pi pi-user"></i> Люди</a>
-      <a routerLink="/policies" routerLinkActive="text-primary" class="text-xl"><i class="pi pi-credit-card"></i> Полисы</a>
+      <a routerLink="/policies" routerLinkActive="text-primary" class="text-xl"><i class="pi pi-credit-card"></i> Поліси</a>
     </div>
     <div data-id="user" class="grid items-center content-center gap-4">
       <span class="text-sm truncate">{{ authService.userEmail() }}</span>
       <p-button
-        label="Выход"
+        label="Вийти"
         icon="pi pi-sign-out"
         severity="secondary"
         size="small"

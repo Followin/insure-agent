@@ -1,23 +1,23 @@
 <h1>Люди</h1>
-<p-button routerLink="/people/new" class="fixed right-4 top-4 z-10" label="Добавить человека" icon="pi pi-plus" raised />
+<p-button routerLink="/people/new" class="fixed right-4 top-4 z-10" label="Додати людину" icon="pi pi-plus" raised />
 <p-card>
   <p-table [value]="people() ?? skeletonRows" size="large">
     <ng-template #caption>
       <p-iconfield>
         <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText [formControl]="searchControl" placeholder="Поиск по ФИО, ИНН, телефону, email" class="w-full" />
+        <input type="text" pInputText [formControl]="searchControl" placeholder="Пошук за ПІБ, ІПН, телефоном, email" class="w-full" />
       </p-iconfield>
     </ng-template>
     <ng-template #header>
       <tr>
-        <th>Фамилия</th>
-        <th>Имя</th>
-        <th>Отчество</th>
+        <th>Прізвище</th>
+        <th>Ім'я</th>
+        <th>По батькові</th>
         <th>Статус</th>
-        <th>Дата рождения</th>
-        <th>ИНН</th>
+        <th>Дата народження</th>
+        <th>ІПН</th>
         <th>Телефон</th>
-        <th>Действия</th>
+        <th>Дії</th>
       </tr>
     </ng-template>
     <ng-template #body let-person>

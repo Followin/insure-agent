@@ -6,14 +6,14 @@
       <p-skeleton width="3rem" height="1.5rem" />
     }
   </p-card>
-  <p-card header="Полисы">
+  <p-card header="Поліси">
     @if (stats()) {
       <span class="text-xl">{{ stats()!.policy_count }}</span>
     } @else {
       <p-skeleton width="3rem" height="1.5rem" />
     }
   </p-card>
-  <p-card header="Машины">
+  <p-card header="Машини">
     @if (stats()) {
       <span class="text-xl">{{ stats()!.car_count }}</span>
     } @else {
@@ -22,15 +22,15 @@
   </p-card>
 </div>
 <div data-id="tables" class="grid grid-cols-2 gap-8 mt-8">
-  <p-panel header="Дни рождения (ближайшие 7 дней)">
+  <p-panel header="Дні народження (найближчі 7 днів)">
     <p-table [value]="stats()?.upcoming_birthdays ?? skeletonRows" size="large">
       <ng-template #header>
         <tr>
-          <th>Имя</th>
+          <th>Ім'я</th>
           <th>Телефон</th>
-          <th>Дата рождения</th>
-          <th>Возраст</th>
-          <th>Через дней</th>
+          <th>Дата народження</th>
+          <th>Вік</th>
+          <th>Через днів</th>
         </tr>
       </ng-template>
       <ng-template #body let-person>
@@ -46,7 +46,7 @@
             <td>{{ person.age }}</td>
             <td>
               @if (person.days_until === 0) {
-                <p-tag severity="success" value="Сегодня!" />
+                <p-tag severity="success" value="Сьогодні!" />
               } @else {
                 {{ person.days_until }}
               }
@@ -64,20 +64,20 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5" class="text-center text-gray-500 py-4">Нет дней рождения в ближайшие 7 дней</td>
+          <td colspan="5" class="text-center text-gray-500 py-4">Немає днів народження в найближчі 7 днів</td>
         </tr>
       </ng-template>
     </p-table>
   </p-panel>
-  <p-panel header="Полисы заканчиваются (ближайшие 7 дней)">
+  <p-panel header="Поліси закінчуються (найближчі 7 днів)">
     <p-table [value]="stats()?.expiring_policies ?? skeletonRows" size="large">
       <ng-template #header>
         <tr>
-          <th>Серия/Номер</th>
-          <th>Страхователь</th>
+          <th>Серія/Номер</th>
+          <th>Страхувальник</th>
           <th>Тип</th>
-          <th>Дата окончания</th>
-          <th>Через дней</th>
+          <th>Дата закінчення</th>
+          <th>Через днів</th>
         </tr>
       </ng-template>
       <ng-template #body let-policy>
@@ -93,7 +93,7 @@
             <td>{{ policy.end_date | date:'mediumDate' }}</td>
             <td>
               @if (policy.days_until === 0) {
-                <p-tag severity="danger" value="Сегодня!" />
+                <p-tag severity="danger" value="Сьогодні!" />
               } @else if (policy.days_until <= 2) {
                 <p-tag severity="warn" [value]="policy.days_until.toString()" />
               } @else {
@@ -113,7 +113,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5" class="text-center text-gray-500 py-4">Нет полисов, заканчивающихся в ближайшие 7 дней</td>
+          <td colspan="5" class="text-center text-gray-500 py-4">Немає полісів, що закінчуються в найближчі 7 днів</td>
         </tr>
       </ng-template>
     </p-table>

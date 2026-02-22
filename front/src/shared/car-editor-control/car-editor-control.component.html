@@ -3,7 +3,7 @@
     @if (allowExisting()) {
       <p-floatlabel class="mb-8">
         <p-autocomplete #existingCarAutocomplete [suggestions]="carSearchSuggestions()" (completeMethod)="search($event)" fluid [formControl]="existingCarIdControl" id="existingCar"/>
-        <label for="existingCar">Найти существующую</label>
+        <label for="existingCar">Знайти існуючий</label>
       </p-floatlabel>
     }
     <div class="grid grid-flow-col gap-8">
@@ -18,41 +18,41 @@
     </div>
     <p-floatlabel>
       <p-inputnumber [formControl]="carGroup.controls.year" id="year" fluid [useGrouping]="false"></p-inputnumber>
-      <label for="year">Год выпуска</label>
+      <label for="year">Рік випуску</label>
     </p-floatlabel>
     <p-floatlabel>
       <input id="chassis" type="text" pInputText [formControl]="carGroup.controls.chassis" class="w-full"/>
-      <label for="chassis">Шасси</label>
+      <label for="chassis">Шасі</label>
     </p-floatlabel>
     <p-floatlabel>
       <input id="plate" type="text" pInputText [formControl]="carGroup.controls.plate" class="w-full"/>
-      <label for="plate">Номерной знак</label>
+      <label for="plate">Номерний знак</label>
     </p-floatlabel>
     <p-floatlabel>
       <input id="registration" type="text" pInputText [formControl]="carGroup.controls.registration" class="w-full"/>
-      <label for="registration">Регистрация</label>
+      <label for="registration">Реєстрація</label>
     </p-floatlabel>
     <p-floatlabel>
       <p-inputnumber [formControl]="carGroup.controls.engine_displacement_litres" id="engine_displacement_litres" fluid suffix=" л"></p-inputnumber>
-      <label for="engine_displacement_litres">Объем двигателя</label>
+      <label for="engine_displacement_litres">Об'єм двигуна</label>
     </p-floatlabel>
     <p-floatlabel>
       <p-inputnumber [formControl]="carGroup.controls.mileage_km" id="mileage_km" fluid suffix=" км"></p-inputnumber>
-      <label for="mileage_km">Пробег</label>
+      <label for="mileage_km">Пробіг</label>
     </p-floatlabel>
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
         <p-inputnumber [formControl]="carGroup.controls.unladen_weight" id="unladen_weight" fluid suffix=" кг"></p-inputnumber>
-        <label for="unladen_weight">Масса без нагрузки</label>
+        <label for="unladen_weight">Маса без навантаження</label>
       </p-floatlabel>
       <p-floatlabel>
         <p-inputnumber [formControl]="carGroup.controls.laden_weight" id="laden_weight" fluid suffix=" кг"></p-inputnumber>
-        <label for="laden_weight">Масса с нагрузкой</label>
+        <label for="laden_weight">Маса з навантаженням</label>
       </p-floatlabel>
     </div>
     <p-floatlabel>
       <p-inputnumber [formControl]="carGroup.controls.seats" id="seats" fluid></p-inputnumber>
-      <label for="seats">Количество мест</label>
+      <label for="seats">Кількість місць</label>
     </p-floatlabel>
   </div>
 </p-panel>

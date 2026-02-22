@@ -1,5 +1,5 @@
-<h1>{{editMode() ? 'Редактировать человека' : 'Добавить человека'}}</h1>
-<p-button (onClick)="submit()" [disabled]="personControl.invalid" class="fixed right-4 top-4 z-10" label="Сохранить" icon="pi pi-save" raised />
+<h1>{{editMode() ? 'Редагувати людину' : 'Додати людину'}}</h1>
+<p-button (onClick)="submit()" [disabled]="personControl.invalid" class="fixed right-4 top-4 z-10" label="Зберегти" icon="pi pi-save" raised />
 <div class="grid grid-cols-2 gap-8">
-  <app-person-editor-control [header]="editMode() ? 'Данные человека' : 'Новый человек'" [formControl]="personControl" />
+  <app-person-editor-control [header]="editMode() ? 'Дані людини' : 'Нова людина'" [formControl]="personControl" />
 </div>

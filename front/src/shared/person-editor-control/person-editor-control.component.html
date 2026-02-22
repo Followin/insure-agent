@@ -8,43 +8,43 @@
     @if (allowExisting()) {
       <p-floatlabel class="mb-8">
         <p-autocomplete #existingPersonAutocomplete [suggestions]="peopleSearchSuggestions()" (completeMethod)="search($event)" fluid [formControl]="existingPersonIdControl" id="existingPerson" />
-        <label for="existingPerson">Существующий</label>
+        <label for="existingPerson">Існуючий</label>
       </p-floatlabel>
     }
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
         <input id="lastName" type="text" pInputText [formControl]="personGroup.controls.last_name" class="w-full"/>
-        <label for="lastName">Фамилия</label>
+        <label for="lastName">Прізвище</label>
       </p-floatlabel>
       <p-floatlabel>
         <input id="lastNameLat" type="text" pInputText [formControl]="personGroup.controls.last_name_lat" class="w-full"/>
-        <label for="lastNameLat">Фамилия (лат.)</label>
+        <label for="lastNameLat">Прізвище (лат.)</label>
       </p-floatlabel>
     </div>
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
         <input id="firstName" type="text" pInputText [formControl]="personGroup.controls.first_name" class="w-full"/>
-        <label for="firstName">Имя</label>
+        <label for="firstName">Ім'я</label>
       </p-floatlabel>
       <p-floatlabel>
         <input id="firstNameLat" type="text" pInputText [formControl]="personGroup.controls.first_name_lat" class="w-full"/>
-        <label for="firstNameLat">Имя (лат.)</label>
+        <label for="firstNameLat">Ім'я (лат.)</label>
       </p-floatlabel>
     </div>
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
         <input id="patronymicName" type="text" pInputText [formControl]="personGroup.controls.patronymic_name" class="w-full"/>
-        <label for="patronymicName">Отчество</label>
+        <label for="patronymicName">По батькові</label>
       </p-floatlabel>
       <p-floatlabel>
         <input id="patronymicNameLat" type="text" pInputText [formControl]="personGroup.controls.patronymic_name_lat" class="w-full"/>
-        <label for="patronymicNameLat">Отчество (лат.)</label>
+        <label for="patronymicNameLat">По батькові (лат.)</label>
       </p-floatlabel>
     </div>
     <div class="grid grid-flow-col gap-8">
       <p-floatlabel>
         <p-select id="sex" [options]="sexOptions" optionLabel="label" optionValue="value" [formControl]="personGroup.controls.sex" fluid />
-        <label for="sex">Пол</label>
+        <label for="sex">Стать</label>
       </p-floatlabel>
       <p-floatlabel>
         <p-select id="status" [options]="statusOptions" optionLabel="label" optionValue="value" [formControl]="personGroup.controls.status" fluid />
@@ -53,11 +53,11 @@
     </div>
     <p-floatlabel>
       <app-datepicker [formControl]="personGroup.controls.birth_date" id="birthDate"></app-datepicker>
-      <label for="birthDate">Дата рождения</label>
+      <label for="birthDate">Дата народження</label>
     </p-floatlabel>
     <p-floatlabel>
       <input id="taxNumber" type="text" pInputText [formControl]="personGroup.controls.tax_number" class="w-full"/>
-      <label for="taxNumber">ИНН</label>
+      <label for="taxNumber">ІПН</label>
     </p-floatlabel>
     <p-floatlabel>
       <input id="phone" type="text" pInputText [formControl]="personGroup.controls.phone" class="w-full"/>
@@ -69,7 +69,7 @@
     </p-floatlabel>
     <p-floatlabel>
       <input id="email" type="email" pInputText [formControl]="personGroup.controls.email" class="w-full"/>
-      <label for="email">Email адрес</label>
+      <label for="email">Email адреса</label>
     </p-floatlabel>
   </div>
 </p-panel>

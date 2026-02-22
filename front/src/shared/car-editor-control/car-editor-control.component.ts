@@ -37,7 +37,7 @@ export type CarEditorValue = CarRef | null;
 })
 export class CarEditorControlComponent implements ControlValueAccessor, Validator {
   public readonly allowExisting = input(false, { transform: booleanAttribute });
-  public readonly header = input('Автомобиль');
+  public readonly header = input('Автомобіль');
 
   private autocomplete = viewChild<AutoComplete>('existingCarAutocomplete');
 

@@ -4,22 +4,22 @@ import { PersonStatus, Sex } from '../person-editor-control/person.model';
 export function getSexLocalizedName(sex: Sex): string {
   switch (sex) {
     case 'M':
-      return 'Мужской';
+      return 'Чоловіча';
     case 'F':
-      return 'Женский';
+      return 'Жіноча';
     case 'Unknown':
-      return 'Неизвестно';
+      return 'Невідомо';
   }
 }
 
 export function getPersonStatusLocalizedName(status: PersonStatus): string {
   switch (status) {
     case 'Active':
-      return 'Активный';
+      return 'Активний';
     case 'Inactive':
-      return 'Неактивный';
+      return 'Неактивний';
     case 'Archived':
-      return 'Архивирован';
+      return 'Архівований';
   }
 }
 

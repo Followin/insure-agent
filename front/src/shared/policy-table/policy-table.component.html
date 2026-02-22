@@ -5,30 +5,30 @@
         <div class="flex-1">
           <p-iconfield>
             <p-inputicon class="pi pi-search" />
-            <input type="text" pInputText formControlName="search" placeholder="Поиск по серии/номеру, ФИО, авто" class="w-full" />
+            <input type="text" pInputText formControlName="search" placeholder="Пошук за серією/номером, ПІБ, авто" class="w-full" />
           </p-iconfield>
         </div>
         <div class="flex gap-2">
           <p-checkbox formControlName="activeOnly" [binary]="true" inputId="activeOnly" />
-          <label for="activeOnly">Только активные</label>
+          <label for="activeOnly">Лише активні</label>
         </div>
       </div>
     </ng-template>
   }
   <ng-template #header>
     <tr>
-      <th>Серия</th>
+      <th>Серія</th>
       <th>Номер</th>
       @if (showHolderColumn()) {
-        <th>Страхователь</th>
+        <th>Страхувальник</th>
       }
-      <th>Дата начала</th>
-      <th>Дата окончания</th>
+      <th>Дата початку</th>
+      <th>Дата закінчення</th>
       <th>Тип</th>
       <th>Авто</th>
-      <th>Агенты</th>
+      <th>Агенти</th>
       <th>Статус</th>
-      <th>Действия</th>
+      <th>Дії</th>
     </tr>
   </ng-template>
   <ng-template #body let-policy>

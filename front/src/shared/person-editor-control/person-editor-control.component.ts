@@ -60,9 +60,9 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
   private originalPersonData: CreatePersonDto | null = null;
 
   public sexOptions: { label: string; value: Sex }[] = [
-    { label: 'Мужской', value: 'M' },
-    { label: 'Женский', value: 'F' },
-    { label: 'Неизвестно', value: 'Unknown' },
+    { label: 'Чоловіча', value: 'M' },
+    { label: 'Жіноча', value: 'F' },
+    { label: 'Невідомо', value: 'Unknown' },
   ];
 
   public statusOptions: { label: string; value: PersonStatus }[] = [
