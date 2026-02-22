@@ -30,6 +30,13 @@ DROP TABLE IF EXISTS staging_medassistance CASCADE;
 DROP TABLE IF EXISTS staging_green_card CASCADE;
 DROP TABLE IF EXISTS staging_cars CASCADE;
 DROP TABLE IF EXISTS staging_people CASCADE;
+DROP TABLE IF EXISTS staging_agent CASCADE;
+
+CREATE TABLE staging_agent (
+    old_id INTEGER PRIMARY KEY,
+    full_name VARCHAR(255),
+    new_id INTEGER
+);
 
 CREATE TABLE staging_people (
     old_id INTEGER PRIMARY KEY,
@@ -78,6 +85,7 @@ CREATE TABLE staging_green_card (
     car_old_id INTEGER,
     premium INTEGER,
     status policy_status,
+    agent_old_id INTEGER,
     new_policy_id INTEGER
 );
 
@@ -93,6 +101,7 @@ CREATE TABLE staging_medassistance (
     program VARCHAR(255),
     premium INTEGER,
     status policy_status,
+    agent_old_id INTEGER,
     new_policy_id INTEGER
 );
 
@@ -115,6 +124,7 @@ CREATE TABLE staging_osago (
     exempt VARCHAR(255),
     premium INTEGER,
     status policy_status,
+    agent_old_id INTEGER,
     new_policy_id INTEGER
 );
 
@@ -208,7 +218,32 @@ FROM dblink('dbname=backup',
 );
 
 -- =====================================================
--- 2. IMPORT CARS DATA FROM BACKUP
+-- 2. IMPORT AGENTS DATA FROM BACKUP
+-- =====================================================
+-- Mapping:
+--   AgentID → old_id (for tracking)
+--   ПІБ → full_name
+
+INSERT INTO staging_agent (
+    old_id,
+    full_name
+)
+SELECT
+    "AgentID",
+    COALESCE(NULLIF(TRIM("ПІБ"), ''), 'Невідомий агент')
+FROM dblink('dbname=backup',
+    $q$SELECT
+        "AgentID",
+        "ПІБ"
+    FROM agent
+    WHERE "AgentID" IS NOT NULL$q$
+) AS t(
+    "AgentID" INTEGER,
+    "ПІБ" VARCHAR
+);
+
+-- =====================================================
+-- 3. IMPORT CARS DATA FROM BACKUP
 -- =====================================================
 -- Mapping:
 --   Код → old_id (for tracking)
@@ -280,7 +315,7 @@ FROM dblink('dbname=backup',
 );
 
 -- =====================================================
--- 3. IMPORT GREEN CARD DATA FROM BACKUP
+-- 4. IMPORT GREEN CARD DATA FROM BACKUP
 -- =====================================================
 -- Mapping:
 --   Код → old_id (for tracking)
@@ -294,6 +329,7 @@ FROM dblink('dbname=backup',
 --   Машина → car_old_id (FK to cars.Код)
 --   Страхова премія → premium
 --   Статус дії → status (1→active, 9→expired, others→expired)
+--   Агент → agent_old_id (FK to agent.AgentID)
 
 INSERT INTO staging_green_card (
     old_id,
@@ -307,7 +343,8 @@ INSERT INTO staging_green_card (
     holder_old_id,
     car_old_id,
     premium,
-    status
+    status,
+    agent_old_id
 )
 SELECT
     "Код",
@@ -362,7 +399,8 @@ SELECT
         WHEN status = 8 THEN 'replaced'::policy_status
         WHEN status = 9 THEN 'expired'::policy_status
         ELSE 'expired'::policy_status
-    END
+    END,
+    "agent"
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -375,7 +413,8 @@ FROM dblink('dbname=backup',
         "Страхувальник" as holder,
         "Машина" as car,
         "Страхова премія" as premium,
-        "Статус дії" as status
+        "Статус дії" as status,
+        "Агент" as agent
     FROM green_card
     WHERE "Код" IS NOT NULL$q$
 ) AS t(
@@ -389,11 +428,12 @@ FROM dblink('dbname=backup',
     "holder" INTEGER,
     "car" INTEGER,
     "premium" DOUBLE PRECISION,
-    "status" INTEGER
+    "status" INTEGER,
+    "agent" INTEGER
 );
 
 -- =====================================================
--- 4. IMPORT MEDASSISTANCE DATA FROM BACKUP
+-- 5. IMPORT MEDASSISTANCE DATA FROM BACKUP
 -- =====================================================
 -- Mapping:
 --   Код → old_id (for tracking)
@@ -407,6 +447,7 @@ FROM dblink('dbname=backup',
 --   Програма → program (BUSINESS, STANDART, ELIT, etc.)
 --   Страхова премія → premium
 --   Статус → status (1→active, 9→expired)
+--   Агент → agent_old_id (FK to agent.AgentID)
 
 INSERT INTO staging_medassistance (
     old_id,
@@ -419,7 +460,8 @@ INSERT INTO staging_medassistance (
     payout,
     program,
     premium,
-    status
+    status,
+    agent_old_id
 )
 SELECT
     "Код",
@@ -443,7 +485,8 @@ SELECT
         WHEN status = 8 THEN 'replaced'::policy_status
         WHEN status = 9 THEN 'expired'::policy_status
         ELSE 'expired'::policy_status
-    END
+    END,
+    "agent"
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -456,7 +499,8 @@ FROM dblink('dbname=backup',
         "Страхова сума" as payout,
         "Програма" as program,
         "Страхова премія" as premium,
-        "Статус" as status
+        "Статус" as status,
+        "Агент" as agent
     FROM medassistance
     WHERE "Код" IS NOT NULL$q$
 ) AS t(
@@ -470,11 +514,12 @@ FROM dblink('dbname=backup',
     "payout" DOUBLE PRECISION,
     "program" VARCHAR,
     "premium" DOUBLE PRECISION,
-    "status" INTEGER
+    "status" INTEGER,
+    "agent" INTEGER
 );
 
 -- =====================================================
--- 5. IMPORT MEDASSISTANCE_PERSON DATA FROM BACKUP
+-- 6. IMPORT MEDASSISTANCE_PERSON DATA FROM BACKUP
 -- =====================================================
 -- Mapping:
 --   Код полиса → policy_old_id (FK to medassistance.Код)
@@ -499,7 +544,7 @@ FROM dblink('dbname=backup',
 );
 
 -- =====================================================
--- 6. IMPORT OSAGO DATA FROM BACKUP
+-- 7. IMPORT OSAGO DATA FROM BACKUP
 -- =====================================================
 -- Mapping:
 --   Код → old_id (for tracking)
@@ -514,6 +559,7 @@ FROM dblink('dbname=backup',
 --   Льгота → exempt
 --   Стоимость → premium
 --   СтатусПолісу → status (1→active, 9→expired)
+--   Агент → agent_old_id (FK to agent.AgentID)
 
 INSERT INTO staging_osago (
     old_id,
@@ -528,7 +574,8 @@ INSERT INTO staging_osago (
     car_old_id,
     exempt,
     premium,
-    status
+    status,
+    agent_old_id
 )
 SELECT
     "Код",
@@ -591,7 +638,8 @@ SELECT
         WHEN status = 8 THEN 'replaced'::policy_status
         WHEN status = 9 THEN 'expired'::policy_status
         ELSE 'expired'::policy_status
-    END
+    END,
+    "agent"
 FROM dblink('dbname=backup',
     $q$SELECT
         "Код",
@@ -604,7 +652,8 @@ FROM dblink('dbname=backup',
         "ClientID_FK" as holder,
         "Машина" as car,
         "Стоимость" as premium,
-        "СтатусПолісу" as status
+        "СтатусПолісу" as status,
+        "Агент" as agent
     FROM osago
     WHERE "Код" IS NOT NULL$q$
 ) AS t(
@@ -618,7 +667,8 @@ FROM dblink('dbname=backup',
     "holder" INTEGER,
     "car" INTEGER,
     "premium" DOUBLE PRECISION,
-    "status" INTEGER
+    "status" INTEGER,
+    "agent" INTEGER
 );
 
 -- =====================================================
@@ -668,6 +718,25 @@ BEGIN
 END $$;
 
 -- =====================================================
+-- MIGRATION PHASE 2: Insert agents into agent table
+-- =====================================================
+
+DO $$
+DECLARE
+    r RECORD;
+    v_new_agent_id INTEGER;
+BEGIN
+    FOR r IN SELECT * FROM staging_agent ORDER BY old_id LOOP
+        INSERT INTO agent (full_name)
+        VALUES (r.full_name)
+        RETURNING id INTO v_new_agent_id;
+
+        UPDATE staging_agent SET new_id = v_new_agent_id WHERE old_id = r.old_id;
+    END LOOP;
+END $$;
+
+-- =====================================================
+-- MIGRATION PHASE 3: Insert cars into car table
 -- =====================================================
 
 DO $$
@@ -709,7 +778,7 @@ BEGIN
 END $$;
 
 -- =====================================================
--- MIGRATION PHASE 3: Insert green_card policies
+-- MIGRATION PHASE 4: Insert green_card policies
 -- =====================================================
 
 DO $$
@@ -718,13 +787,18 @@ DECLARE
     v_holder_new_id INTEGER;
     v_car_new_id INTEGER;
     v_new_policy_id INTEGER;
-    v_policy_status policy_status;
+    v_agent_new_id INTEGER;
 BEGIN
     FOR r IN SELECT * FROM staging_green_card ORDER BY old_id LOOP
         -- Get new holder ID from staging_people
         SELECT new_id INTO v_holder_new_id FROM staging_people WHERE old_id = r.holder_old_id;
         -- Get new car ID from staging_cars
         SELECT new_id INTO v_car_new_id FROM staging_cars WHERE old_id = r.car_old_id;
+        -- Get new agent ID (default to agent 1 if null)
+        SELECT COALESCE(
+            (SELECT new_id FROM staging_agent WHERE old_id = r.agent_old_id),
+            (SELECT new_id FROM staging_agent WHERE old_id = 1)
+        ) INTO v_agent_new_id;
 
         IF v_holder_new_id IS NOT NULL AND v_car_new_id IS NOT NULL THEN
             -- Insert into policy table
@@ -766,13 +840,19 @@ BEGIN
                 v_car_new_id
             );
 
+            -- Insert agent_policy link
+            IF v_agent_new_id IS NOT NULL THEN
+                INSERT INTO agent_policy (agent_id, policy_id)
+                VALUES (v_agent_new_id, v_new_policy_id);
+            END IF;
+
             UPDATE staging_green_card SET new_policy_id = v_new_policy_id WHERE old_id = r.old_id;
         END IF;
     END LOOP;
 END $$;
 
 -- =====================================================
--- MIGRATION PHASE 4: Insert medassistance policies
+-- MIGRATION PHASE 5: Insert medassistance policies
 -- =====================================================
 
 DO $$
@@ -780,7 +860,7 @@ DECLARE
     r RECORD;
     v_holder_new_id INTEGER;
     v_new_policy_id INTEGER;
-    v_policy_status policy_status;
+    v_agent_new_id INTEGER;
 BEGIN
     FOR r IN SELECT * FROM staging_medassistance ORDER BY old_id LOOP
         -- Get holder from first person in medassistance_person
@@ -790,6 +870,12 @@ BEGIN
         WHERE smp.policy_old_id = r.old_id
         ORDER BY smp.person_old_id
         LIMIT 1;
+
+        -- Get new agent ID (default to agent 1 if null)
+        SELECT COALESCE(
+            (SELECT new_id FROM staging_agent WHERE old_id = r.agent_old_id),
+            (SELECT new_id FROM staging_agent WHERE old_id = 1)
+        ) INTO v_agent_new_id;
 
         IF v_holder_new_id IS NOT NULL THEN
             -- Insert into policy table
@@ -831,13 +917,19 @@ BEGIN
                 COALESCE(NULLIF(r.program, ''), 'STANDART')
             );
 
+            -- Insert agent_policy link
+            IF v_agent_new_id IS NOT NULL THEN
+                INSERT INTO agent_policy (agent_id, policy_id)
+                VALUES (v_agent_new_id, v_new_policy_id);
+            END IF;
+
             UPDATE staging_medassistance SET new_policy_id = v_new_policy_id WHERE old_id = r.old_id;
         END IF;
     END LOOP;
 END $$;
 
 -- =====================================================
--- MIGRATION PHASE 5: Insert medassistance_policy_member
+-- MIGRATION PHASE 6: Insert medassistance_policy_member
 -- =====================================================
 
 INSERT INTO medassistance_policy_member (
@@ -853,7 +945,7 @@ JOIN staging_people sp ON smp.person_old_id = sp.old_id
 WHERE sm.new_policy_id IS NOT NULL AND sp.new_id IS NOT NULL;
 
 -- =====================================================
--- MIGRATION PHASE 6: Insert osago policies
+-- MIGRATION PHASE 7: Insert osago policies
 -- =====================================================
 
 DO $$
@@ -862,13 +954,18 @@ DECLARE
     v_holder_new_id INTEGER;
     v_car_new_id INTEGER;
     v_new_policy_id INTEGER;
-    v_policy_status policy_status;
+    v_agent_new_id INTEGER;
 BEGIN
     FOR r IN SELECT * FROM staging_osago ORDER BY old_id LOOP
         -- Get new holder ID from staging_people
         SELECT new_id INTO v_holder_new_id FROM staging_people WHERE old_id = r.holder_old_id;
         -- Get new car ID from staging_cars
         SELECT new_id INTO v_car_new_id FROM staging_cars WHERE old_id = r.car_old_id;
+        -- Get new agent ID (default to agent 1 if null)
+        SELECT COALESCE(
+            (SELECT new_id FROM staging_agent WHERE old_id = r.agent_old_id),
+            (SELECT new_id FROM staging_agent WHERE old_id = 1)
+        ) INTO v_agent_new_id;
 
         IF v_holder_new_id IS NOT NULL AND v_car_new_id IS NOT NULL THEN
             -- Insert into policy table
@@ -912,6 +1009,12 @@ BEGIN
                 r.premium
             );
 
+            -- Insert agent_policy link
+            IF v_agent_new_id IS NOT NULL THEN
+                INSERT INTO agent_policy (agent_id, policy_id)
+                VALUES (v_agent_new_id, v_new_policy_id);
+            END IF;
+
             UPDATE staging_osago SET new_policy_id = v_new_policy_id WHERE old_id = r.old_id;
         END IF;
     END LOOP;
@@ -926,6 +1029,9 @@ SELECT '=== MIGRATION SUMMARY ===' as report;
 SELECT 'People migrated' as entity, COUNT(*) as count
 FROM staging_people WHERE new_id IS NOT NULL
 UNION ALL
+SELECT 'Agents migrated', COUNT(*)
+FROM staging_agent WHERE new_id IS NOT NULL
+UNION ALL
 SELECT 'Cars migrated', COUNT(*)
 FROM staging_cars WHERE new_id IS NOT NULL
 UNION ALL
@@ -939,12 +1045,18 @@ SELECT 'Medassistance members linked', COUNT(*)
 FROM medassistance_policy_member
 UNION ALL
 SELECT 'OSAGO policies migrated', COUNT(*)
-FROM staging_osago WHERE new_policy_id IS NOT NULL;
+FROM staging_osago WHERE new_policy_id IS NOT NULL
+UNION ALL
+SELECT 'Agent-policy links created', COUNT(*)
+FROM agent_policy;
 
 SELECT '=== FINAL TABLE COUNTS ===' as report;
 
 SELECT 'person' as table_name, COUNT(*) as count
 FROM person
+UNION ALL
+SELECT 'agent', COUNT(*)
+FROM agent
 UNION ALL
 SELECT 'car', COUNT(*)
 FROM car
@@ -962,7 +1074,10 @@ SELECT 'medassistance_policy_member', COUNT(*)
 FROM medassistance_policy_member
 UNION ALL
 SELECT 'osago_policy', COUNT(*)
-FROM osago_policy;
+FROM osago_policy
+UNION ALL
+SELECT 'agent_policy', COUNT(*)
+FROM agent_policy;
 
 -- =====================================================
 -- CLEANUP: Remove staging tables
@@ -974,5 +1089,6 @@ DROP TABLE IF EXISTS staging_medassistance CASCADE;
 DROP TABLE IF EXISTS staging_green_card CASCADE;
 DROP TABLE IF EXISTS staging_cars CASCADE;
 DROP TABLE IF EXISTS staging_people CASCADE;
+DROP TABLE IF EXISTS staging_agent CASCADE;
 
 SELECT '=== MIGRATION COMPLETE ===' as report;

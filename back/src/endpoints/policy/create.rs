@@ -62,6 +62,7 @@ pub struct CreatePolicyRequest {
     pub start_date: chrono::NaiveDate,
     pub end_date: Option<chrono::NaiveDate>,
     pub status: PolicyStatus,
+    pub agent_ids: Vec<i32>,
     #[serde(flatten)]
     pub data: PolicyData,
 }
@@ -191,6 +192,20 @@ pub async fn create_policy(
             .execute(&mut *tx)
             .await?;
         }
+    }
+
+    // Insert agent_policy links
+    for agent_id in body.agent_ids {
+        sqlx::query!(
+            r#"
+            INSERT INTO agent_policy (agent_id, policy_id)
+            VALUES ($1, $2)
+            "#,
+            agent_id,
+            policy.id
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     tx.commit().await?;

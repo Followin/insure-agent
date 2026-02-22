@@ -60,7 +60,13 @@ pub async fn get_person(
             end_date,
             policy.status as "status: PolicyStatus",
             car.make || ' ' || car.model as car_model,
-            car.plate as "car_plate?"
+            car.plate as "car_plate?",
+            (
+                select string_agg(a.full_name, ', ' order by a.full_name)
+                from agent a
+                join agent_policy ap on a.id = ap.agent_id
+                where ap.policy_id = policy.id
+            ) as agent_names
         from policy
         join person on policy.holder_id = person.id
         left join green_card_policy on policy.id = green_card_policy.id

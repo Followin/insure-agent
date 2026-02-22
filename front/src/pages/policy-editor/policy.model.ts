@@ -6,6 +6,7 @@ import {
   CarInsurancePeriodUnit,
   OsagoZone,
 } from '../../shared/models/policy.model';
+import { Agent } from '../../shared/models/agent.model';
 
 // === Policy Type Specific Data (for requests) ===
 
@@ -49,6 +50,7 @@ export type CreatePolicyRequest = {
   start_date: string;
   end_date: string | null;
   status: PolicyStatus;
+  agent_ids: number[];
 } & PolicyData;
 
 // === Update Policy Request ===
@@ -109,4 +111,5 @@ export type PolicyFull = {
   start_date: string;
   end_date: string | null;
   status: PolicyStatus;
+  agents: Agent[];
 } & PolicyDetails;

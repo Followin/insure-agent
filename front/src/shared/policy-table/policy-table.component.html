@@ -26,6 +26,7 @@
       <th>Дата окончания</th>
       <th>Тип</th>
       <th>Авто</th>
+      <th>Агенты</th>
       <th>Статус</th>
       <th>Действия</th>
     </tr>
@@ -42,6 +43,7 @@
         <td>{{policy.end_date | date:'mediumDate'}}</td>
         <td>{{policy.policy_type | policyTypeLocal}}</td>
         <td>{{policy.car_model ?? '-'}}</td>
+        <td>{{policy.agent_names ?? '-'}}</td>
         <td><p-tag [value]="policy.status | policyStatusLocal" [severity]="policy.status | policyStatusSeverity"/></td>
         <td class="whitespace-nowrap">
           <a [routerLink]="['/policies', policy.id]" pButton [text]="true" size="small">
@@ -59,6 +61,7 @@
         @if (showHolderColumn()) {
           <td><p-skeleton /></td>
         }
+        <td><p-skeleton /></td>
         <td><p-skeleton /></td>
         <td><p-skeleton /></td>
         <td><p-skeleton /></td>

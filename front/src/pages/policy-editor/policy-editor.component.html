@@ -29,6 +29,10 @@
         <p-select [formControl]="generalGroup.controls.status" id="status" fluid [options]="policyStatuses"></p-select>
         <label for="status">Статус</label>
       </p-floatlabel>
+      <p-floatlabel>
+        <p-multiselect [formControl]="agentsControl" id="agents" fluid [options]="agents()" optionLabel="full_name" display="chip"></p-multiselect>
+        <label for="agents">Агенты</label>
+      </p-floatlabel>
     </div>
   </p-panel>
   <app-person-editor-control [allowExisting]="true" header="Страхователь" [formControl]="holderControl" />

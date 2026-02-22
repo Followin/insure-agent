@@ -1,3 +1,4 @@
+pub mod agent;
 pub mod car;
 pub mod dashboard;
 pub mod person;
@@ -8,6 +9,7 @@ use sqlx::PgPool;
 
 pub fn router() -> Router<PgPool> {
     Router::new()
+        .merge(agent::router())
         .merge(car::router())
         .merge(dashboard::router())
         .merge(person::router())

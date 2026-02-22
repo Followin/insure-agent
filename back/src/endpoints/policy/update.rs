@@ -24,6 +24,7 @@ pub struct UpdatePolicyRequest {
     pub start_date: chrono::NaiveDate,
     pub end_date: Option<chrono::NaiveDate>,
     pub status: PolicyStatus,
+    pub agent_ids: Vec<i32>,
     #[serde(flatten)]
     pub data: PolicyData,
 }
@@ -304,6 +305,29 @@ pub async fn update_policy(
         }
     };
 
+    // Update agent_policy links
+    sqlx::query!(
+        r#"
+        DELETE FROM agent_policy WHERE policy_id = $1
+        "#,
+        id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    for agent_id in &body.agent_ids {
+        sqlx::query!(
+            r#"
+            INSERT INTO agent_policy (agent_id, policy_id)
+            VALUES ($1, $2)
+            "#,
+            agent_id,
+            id
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
     // Fetch updated holder
     let holder = sqlx::query_as!(
         PersonFull,
@@ -331,6 +355,20 @@ pub async fn update_policy(
     .fetch_one(&mut *tx)
     .await?;
 
+    // Fetch agents
+    let agents = sqlx::query_as!(
+        super::get_by_id::Agent,
+        r#"
+        SELECT a.id, a.full_name
+        FROM agent a
+        WHERE a.id = ANY($1)
+        ORDER BY a.full_name
+        "#,
+        &body.agent_ids
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+
     tx.commit().await?;
 
     Ok(Json(PolicyFull {
@@ -341,6 +379,7 @@ pub async fn update_policy(
         start_date: body.start_date,
         end_date: body.end_date,
         status: body.status,
+        agents,
         details,
     }))
 }

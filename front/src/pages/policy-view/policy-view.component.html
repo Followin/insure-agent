@@ -29,6 +29,8 @@
         <span>{{p.policy_type | policyTypeLocal}}</span>
         <span class="text-color-secondary">Статус:</span>
         <p-tag [value]="p.status | policyStatusLocal" [severity]="p.status | policyStatusSeverity"/>
+        <span class="text-color-secondary">Агенты:</span>
+        <span>{{formatAgentNames(p.agents)}}</span>
       </div>
     </p-panel>
     <p-panel header="Страхователь">

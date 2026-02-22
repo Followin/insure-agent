@@ -31,4 +31,5 @@ export interface PolicyShort {
   status: PolicyStatus;
   car_model: string | null;
   car_plate: string | null;
+  agent_names: string | null;
 }

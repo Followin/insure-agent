@@ -16,6 +16,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { MultiSelectModule } from 'primeng/multiselect';
 import {
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
@@ -49,6 +50,7 @@ export const sharedImports = [
   CheckboxModule,
   IconFieldModule,
   InputIconModule,
+  MultiSelectModule,
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
   PolicyStatusSeverityPipe,

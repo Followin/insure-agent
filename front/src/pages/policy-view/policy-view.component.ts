@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { sharedImports } from '../../shared/shared-imports';
 import { PolicyEditorService } from '../policy-editor/policy.service';
 import { PolicyFull } from '../policy-editor/policy.model';
+import { Agent } from '../../shared/models/agent.model';
 import { fakeLoadingDelay } from '../../shared/shared-delay';
 import { delay } from 'rxjs';
 
@@ -33,5 +34,9 @@ export class PolicyViewComponent {
           this.router.navigate(['/policies']);
         },
       });
+  }
+
+  public formatAgentNames(agents: Agent[]): string {
+    return agents.length > 0 ? agents.map(a => a.full_name).join(', ') : '-';
   }
 }

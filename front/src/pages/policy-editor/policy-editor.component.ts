@@ -27,6 +27,8 @@ import {
 } from '../../shared/pipes/policy-localization.pipe';
 import { CreatePolicyRequest, PolicyFull, UpdatePolicyRequest } from './policy.model';
 import { PolicyEditorService } from './policy.service';
+import { AgentService } from './agent.service';
+import { Agent } from '../../shared/models/agent.model';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -36,12 +38,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class PolicyEditorComponent {
   private policyService = inject(PolicyEditorService);
+  private agentService = inject(AgentService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   public editMode = signal(false);
   public policyId = signal<number | null>(null);
   public loading = signal(false);
+
+  public agents = signal<Agent[]>([]);
+  public agentsControl = new FormControl<Agent[]>([]);
 
   public holderControl = new FormControl<PersonEditorValue>(null);
   public carControl = new FormControl<CarEditorValue>(null);
@@ -83,6 +89,10 @@ export class PolicyEditorComponent {
   ]);
 
   constructor() {
+    this.agentService.getAll().subscribe((agents) => {
+      this.agents.set(agents);
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode.set(true);
@@ -122,6 +132,7 @@ export class PolicyEditorComponent {
     this.generalGroup.controls.type.disable();
 
     this.holderControl.setValue({ kind: 'Existing', id: policy.holder.id });
+    this.agentsControl.setValue(policy.agents);
 
     if (policy.policy_type === 'GreenCard') {
       this.greenCardGroup.controls.territory.setValue(policy.territory);
@@ -184,6 +195,7 @@ export class PolicyEditorComponent {
 
   private getPolicyRequest(): CreatePolicyRequest | UpdatePolicyRequest {
     const holder = this.holderControl.value!;
+    const agent_ids = (this.agentsControl.value ?? []).map((a) => a.id);
     const base = {
       series: this.generalGroup.controls.series.value!,
       number: this.generalGroup.controls.number.value!,
@@ -191,6 +203,7 @@ export class PolicyEditorComponent {
       start_date: this.generalGroup.controls.startDate.value!,
       end_date: this.generalGroup.controls.endDate.value,
       status: this.generalGroup.controls.status.value!,
+      agent_ids,
     };
 
     // Use getRawValue to get the value even if disabled

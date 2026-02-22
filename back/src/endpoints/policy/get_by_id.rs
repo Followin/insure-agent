@@ -50,6 +50,12 @@ pub enum PolicyDetails {
 }
 
 #[derive(Serialize)]
+pub struct Agent {
+    pub id: i32,
+    pub full_name: String,
+}
+
+#[derive(Serialize)]
 pub struct PolicyFull {
     pub id: i32,
     pub holder: PersonFull,
@@ -58,6 +64,7 @@ pub struct PolicyFull {
     pub start_date: chrono::NaiveDate,
     pub end_date: Option<chrono::NaiveDate>,
     pub status: PolicyStatus,
+    pub agents: Vec<Agent>,
     #[serde(flatten)]
     pub details: PolicyDetails,
 }
@@ -312,6 +319,20 @@ pub async fn get_policy_by_id(
         }
     };
 
+    let agents = sqlx::query_as!(
+        Agent,
+        r#"
+        SELECT a.id, a.full_name
+        FROM agent a
+        JOIN agent_policy ap ON a.id = ap.agent_id
+        WHERE ap.policy_id = $1
+        ORDER BY a.full_name
+        "#,
+        id
+    )
+    .fetch_all(&pool)
+    .await?;
+
     Ok(Json(PolicyFull {
         id: policy.id,
         holder,
@@ -320,6 +341,7 @@ pub async fn get_policy_by_id(
         start_date: policy.start_date,
         end_date: policy.end_date,
         status: policy.status,
+        agents,
         details,
     }))
 }

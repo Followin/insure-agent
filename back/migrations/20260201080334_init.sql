@@ -85,3 +85,13 @@ create table osago_policy(
     exempt varchar(255) not null,
     premium int not null
 );
+
+create table agent (
+    id serial primary key,
+    full_name varchar(255) not null
+);
+
+create table agent_policy(
+    agent_id int references agent(id) not null,
+    policy_id int references policy(id) not null
+);

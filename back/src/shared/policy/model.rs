@@ -57,4 +57,5 @@ pub struct PolicyShort {
     pub status: PolicyStatus,
     pub car_model: Option<String>,
     pub car_plate: Option<String>,
+    pub agent_names: Option<String>,
 }
