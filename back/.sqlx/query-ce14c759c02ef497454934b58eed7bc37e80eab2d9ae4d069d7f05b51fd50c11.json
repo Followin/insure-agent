@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\"\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        left join medassistance_policy_member mpm on policy.id = mpm.medassistance_policy_id\n        where policy.holder_id = $1 or mpm.member_id = $1\n        order by start_date desc\n        ",
+  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\",\n            (\n                select string_agg(a.full_name, ', ' order by a.full_name)\n                from agent a\n                join agent_policy ap on a.id = ap.agent_id\n                where ap.policy_id = policy.id\n            ) as agent_names\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        left join medassistance_policy_member mpm on policy.id = mpm.medassistance_policy_id\n        where policy.holder_id = $1 or mpm.member_id = $1\n        order by start_date desc\n        ",
   "describe": {
     "columns": [
       {
@@ -80,6 +80,11 @@
         "ordinal": 9,
         "name": "car_plate?",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "agent_names",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -97,8 +102,9 @@
       true,
       false,
       null,
-      false
+      false,
+      null
     ]
   },
-  "hash": "db2695fc08efc8b8ad01b98332e9983c4fdec43038308498fc516a0d7e738a43"
+  "hash": "ce14c759c02ef497454934b58eed7bc37e80eab2d9ae4d069d7f05b51fd50c11"
 }

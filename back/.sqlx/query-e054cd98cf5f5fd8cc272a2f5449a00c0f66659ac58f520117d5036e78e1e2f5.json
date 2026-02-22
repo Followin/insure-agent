@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\"\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        where\n            (lower(series || number) like $1\n            or lower(person.first_name || ' ' || person.last_name) like $1\n            or lower(coalesce(car.make || ' ' || car.model, '')) like $1\n            or lower(coalesce(car.plate, '')) like $1)\n            and (not $2 or policy.status = 'active')\n        order by start_date desc\n        limit 30\n        ",
+  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\",\n            (\n                select string_agg(a.full_name, ', ' order by a.full_name)\n                from agent a\n                join agent_policy ap on a.id = ap.agent_id\n                where ap.policy_id = policy.id\n            ) as agent_names\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        where\n            (lower(series || number) like $1\n            or lower(person.first_name || ' ' || person.last_name) like $1\n            or lower(coalesce(car.make || ' ' || car.model, '')) like $1\n            or lower(coalesce(car.plate, '')) like $1)\n            and (not $2 or policy.status = 'active')\n        order by start_date desc\n        limit 30\n        ",
   "describe": {
     "columns": [
       {
@@ -80,6 +80,11 @@
         "ordinal": 9,
         "name": "car_plate?",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "agent_names",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -98,8 +103,9 @@
       true,
       false,
       null,
-      false
+      false,
+      null
     ]
   },
-  "hash": "36a5113fa8c8cb98f841bda57e72fd91552b095a0dc5fafa767494d2caf70cfa"
+  "hash": "e054cd98cf5f5fd8cc272a2f5449a00c0f66659ac58f520117d5036e78e1e2f5"
 }

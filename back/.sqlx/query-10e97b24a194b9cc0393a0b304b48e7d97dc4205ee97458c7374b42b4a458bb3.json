@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT a.id, a.full_name\n        FROM agent a\n        JOIN agent_policy ap ON a.id = ap.agent_id\n        WHERE ap.policy_id = $1\n        ORDER BY a.full_name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "10e97b24a194b9cc0393a0b304b48e7d97dc4205ee97458c7374b42b4a458bb3"
+}
