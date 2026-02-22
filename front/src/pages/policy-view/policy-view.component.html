@@ -68,22 +68,7 @@
             <span>{{p.premium}}</span>
           </div>
         </p-panel>
-        <p-panel header="Автомобиль">
-          <div class="grid grid-cols-2 gap-4 p-4">
-            <span class="text-color-secondary">Марка:</span>
-            <span>{{p.car.make}}</span>
-            <span class="text-color-secondary">Модель:</span>
-            <span>{{p.car.model}}</span>
-            <span class="text-color-secondary">Год:</span>
-            <span>{{p.car.year}}</span>
-            <span class="text-color-secondary">Шасси:</span>
-            <span>{{p.car.chassis}}</span>
-            <span class="text-color-secondary">Регистрация:</span>
-            <span>{{p.car.registration}}</span>
-            <span class="text-color-secondary">Номер:</span>
-            <span>{{p.car.plate}}</span>
-          </div>
-        </p-panel>
+        <ng-container *ngTemplateOutlet="carPanel; context: {car: p.car}"/>
       }
       @case ('Medassistance') {
         <p-panel header="Детали медассистанс">
@@ -133,23 +118,37 @@
             <span>{{p.exempt}}</span>
           </div>
         </p-panel>
-        <p-panel header="Автомобиль">
-          <div class="grid grid-cols-2 gap-4 p-4">
-            <span class="text-color-secondary">Марка:</span>
-            <span>{{p.car.make}}</span>
-            <span class="text-color-secondary">Модель:</span>
-            <span>{{p.car.model}}</span>
-            <span class="text-color-secondary">Год:</span>
-            <span>{{p.car.year}}</span>
-            <span class="text-color-secondary">Шасси:</span>
-            <span>{{p.car.chassis}}</span>
-            <span class="text-color-secondary">Регистрация:</span>
-            <span>{{p.car.registration}}</span>
-            <span class="text-color-secondary">Номер:</span>
-            <span>{{p.car.plate}}</span>
-          </div>
-        </p-panel>
+        <ng-container *ngTemplateOutlet="carPanel; context: {car: p.car}"/>
       }
     }
   </div>
 }
+
+<ng-template #carPanel let-car="car">
+  <p-panel header="Автомобиль">
+    <div class="grid grid-cols-2 gap-4 p-4">
+      <span class="text-color-secondary">Марка:</span>
+      <span>{{car.make}}</span>
+      <span class="text-color-secondary">Модель:</span>
+      <span>{{car.model}}</span>
+      <span class="text-color-secondary">Год:</span>
+      <span>{{car.year}}</span>
+      <span class="text-color-secondary">Шасси:</span>
+      <span>{{car.chassis}}</span>
+      <span class="text-color-secondary">Регистрация:</span>
+      <span>{{car.registration}}</span>
+      <span class="text-color-secondary">Номер:</span>
+      <span>{{car.plate}}</span>
+      <span class="text-color-secondary">Объем двигателя (л):</span>
+      <span>{{car.engine_displacement_litres}}</span>
+      <span class="text-color-secondary">Пробег (км):</span>
+      <span>{{car.mileage_km}}</span>
+      <span class="text-color-secondary">Масса без нагрузки (кг):</span>
+      <span>{{car.unladen_weight}}</span>
+      <span class="text-color-secondary">Масса с нагрузкой (кг):</span>
+      <span>{{car.laden_weight}}</span>
+      <span class="text-color-secondary">Количество мест:</span>
+      <span>{{car.seats}}</span>
+    </div>
+  </p-panel>
+</ng-template>
