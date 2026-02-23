@@ -20,7 +20,7 @@ export function getPolicyTypeLocalizedName(type: PolicyType): string {
 export function getPolicyStatusLocalizedName(status: PolicyStatus): string {
   switch (status) {
     case 'Active':
-      return 'Активний';
+      return 'Дiючий';
     case 'Prolonged':
       return 'Пролонгований';
     case 'Rejected':
