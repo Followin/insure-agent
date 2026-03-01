@@ -90,7 +90,13 @@ pub async fn get_policies(
             and ($7::date is null or end_date <= $7)
             and (cardinality($8::policy_type[]) = 0 or type = any($8::policy_type[]))
             and (cardinality($9::policy_status[]) = 0 or policy.status = any($9::policy_status[]))
-        order by start_date desc
+        order by
+            case policy.status
+                when 'active' then 1
+                when 'prolonged' then 2
+                else 3
+            end,
+            start_date desc
         limit 150
         "#,
         number_pattern as Option<String>,
