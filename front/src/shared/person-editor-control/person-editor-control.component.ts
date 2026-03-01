@@ -97,7 +97,7 @@ export class PersonEditorControlComponent implements ControlValueAccessor, Valid
       : this.header(),
   );
 
-  public peopleSearchSuggestions = signal<AutocompleteSugggestion<number>[]>([]);
+  public peopleSearchSuggestions = signal<SelectOption<number>[]>([]);
 
   private onChange: (value: PersonEditorValue) => void = () => { };
   private onTouched: () => void = () => { };

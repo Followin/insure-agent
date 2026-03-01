@@ -4,9 +4,7 @@
   <app-policy-table
     [policies]="policies() ?? []"
     [loading]="loading"
-    showSearch
-    [initialSearch]="initialSearch"
-    [initialActiveOnly]="initialActiveOnly"
+    [initialFilter]="initialFilter"
     (filterChange)="onFilterChange($event)"
   />
 </p-card>

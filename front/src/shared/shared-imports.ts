@@ -17,6 +17,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { PopoverModule } from 'primeng/popover';
 import {
   PolicyTypeLocalPipe,
   PolicyStatusLocalPipe,
@@ -30,8 +31,12 @@ import {
   PersonStatusSeverityPipe,
 } from './pipes/person-localization.pipe';
 import { DatepickerComponent } from './datepicker/datepicker.component';
+import { AppTableFilterTextComponent } from './app-table-filters/app-table-filter-text/app-table-filter-text.component';
+import { AppTableFilterDateComponent } from './app-table-filters/app-table-filter-date/app-table-filter-date.component';
+import { AppTableFilterSelectComponent } from './app-table-filters/app-table-filter-select/app-table-filter-select.component';
+import { Type } from '@angular/core';
 
-export const sharedImports = [
+export const sharedImports: Type<any>[] = [
   CardModule,
   TableModule,
   PanelModule,
@@ -60,4 +65,8 @@ export const sharedImports = [
   PersonStatusSeverityPipe,
   OsagoZoneLocalPipe,
   DatepickerComponent,
+  PopoverModule,
+  AppTableFilterTextComponent,
+  AppTableFilterDateComponent,
+  AppTableFilterSelectComponent,
 ];

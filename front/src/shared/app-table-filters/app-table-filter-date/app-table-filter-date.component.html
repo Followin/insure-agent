@@ -1,0 +1,13 @@
+<i class="pi pi-filter hover:cursor-pointer" [class.pi-filter]="!isFiltered()" [class.pi-filter-fill]="isFiltered()" (click)="seriesFilter.toggle($event, target())"></i>
+<p-popover #seriesFilter>
+  <span tabindex="-1" style="position:absolute;opacity:0;pointer-events:none" autofocus></span>
+
+  <div class="flex flex-col items-center gap-2">
+    <app-datepicker [formControl]="fromControl" placeholder="Від"></app-datepicker>
+    <app-datepicker [formControl]="toControl" placeholder="До"></app-datepicker>
+    <div class="flex self-end gap-2">
+      <p-button icon="pi pi-check" severity="success" variant="text" (onClick)="confirm(seriesFilter)" />
+      <p-button icon="pi pi-times" severity="danger" variant="text" (onClick)="cancel(seriesFilter)" />
+    </div>
+  </div>
+</p-popover>

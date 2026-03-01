@@ -1,0 +1,15 @@
+<i class="pi pi-filter hover:cursor-pointer" [class.pi-filter]="!isFiltered()" [class.pi-filter-fill]="isFiltered()" (click)="seriesFilter.toggle($event, target())"></i>
+<p-popover #seriesFilter>
+  <div class="flex flex-col items-center gap-2">
+    <input
+      type="text"
+      pInputText
+      [formControl]="formControl"
+      autofocus
+    />
+    <div class="flex self-end gap-2">
+      <p-button icon="pi pi-check" severity="success" variant="text" (onClick)="confirm(seriesFilter)" />
+      <p-button icon="pi pi-times" severity="danger" variant="text" (onClick)="cancel(seriesFilter)" />
+    </div>
+  </div>
+</p-popover>

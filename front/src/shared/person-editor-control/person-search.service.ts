@@ -14,16 +14,12 @@ export class PersonSearchService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/people`;
 
-  public search(name: string): Observable<AutocompleteSugggestion<number>[]> {
+  public search(name: string): Observable<SelectOption<number>[]> {
     return this.http
       .get<PersonSearchResult[]>(`${this.baseUrl}/search`, {
         params: { q: name },
       })
-      .pipe(
-        map((results) =>
-          results.map((r) => ({ value: r.id, label: r.label })),
-        ),
-      );
+      .pipe(map((results) => results.map((r) => ({ value: r.id, label: r.label }))));
   }
 
   public getPerson(id: number): Observable<PersonDto | null> {

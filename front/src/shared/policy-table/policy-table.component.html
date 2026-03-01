@@ -1,33 +1,52 @@
 <p-table [value]="loading() ? skeletonRows : policies()" size="large">
-  @if (showSearch()) {
-    <ng-template #caption>
-      <div class="flex items-center gap-16" [formGroup]="filterForm">
-        <div class="flex-1">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input type="text" pInputText formControlName="search" placeholder="Пошук за серією/номером, ПІБ, авто" class="w-full" />
-          </p-iconfield>
-        </div>
-        <div class="flex gap-2">
-          <p-checkbox formControlName="activeOnly" [binary]="true" inputId="activeOnly" />
-          <label for="activeOnly">Лише дiючi</label>
-        </div>
-      </div>
-    </ng-template>
-  }
   <ng-template #header>
     <tr>
       <th>Серія</th>
-      <th>Номер</th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #numberTarget>Номер</span>
+          <app-table-filter-text [target]="numberTarget" [formControl]="filterForm.controls.number"></app-table-filter-text>
+        </div>
+      </th>
       @if (showHolderColumn()) {
-        <th>Страхувальник</th>
+        <th>
+          <div class="flex items-center justify-between gap-2">
+            <span #holderTarget>Страхувальник</span>
+            <app-table-filter-text [target]="holderTarget" [formControl]="filterForm.controls.holder"></app-table-filter-text>
+          </div>
+        </th>
       }
-      <th>Дата початку</th>
-      <th>Дата закінчення</th>
-      <th>Тип</th>
-      <th>Авто</th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #startDateTarget>Дата початку</span>
+          <app-table-filter-date [target]="startDateTarget" [formControl]="filterForm.controls.startDate"></app-table-filter-date>
+        </div>
+      </th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #endDateTarget>Дата закінчення</span>
+          <app-table-filter-date [target]="endDateTarget" [formControl]="filterForm.controls.endDate"></app-table-filter-date>
+        </div>
+      </th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #policyTypeTarget>Тип</span>
+          <app-table-filter-select [target]="policyTypeTarget" [formControl]="filterForm.controls.policyTypes" [options]="policyTypes"></app-table-filter-select>
+        </div>
+      </th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #carTarget>Авто</span>
+          <app-table-filter-text [target]="carTarget" [formControl]="filterForm.controls.car"></app-table-filter-text>
+        </div>
+      </th>
       <th>Агенти</th>
-      <th>Статус</th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #statusTarget>Статус</span>
+          <app-table-filter-select [target]="statusTarget" [formControl]="filterForm.controls.statuses" [options]="policyStatuses"></app-table-filter-select>
+        </div>
+      </th>
       <th>Дії</th>
     </tr>
   </ng-template>

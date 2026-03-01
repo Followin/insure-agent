@@ -14,16 +14,12 @@ export class CarSearchService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/cars`;
 
-  public search(query: string): Observable<AutocompleteSugggestion<number>[]> {
+  public search(query: string): Observable<SelectOption<number>[]> {
     return this.http
       .get<CarSearchResult[]>(`${this.baseUrl}/search`, {
         params: { q: query },
       })
-      .pipe(
-        map((results) =>
-          results.map((r) => ({ value: r.id, label: r.label })),
-        ),
-      );
+      .pipe(map((results) => results.map((r) => ({ value: r.id, label: r.label }))));
   }
 
   public getCar(id: number): Observable<CarDto | null> {

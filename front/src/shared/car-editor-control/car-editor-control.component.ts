@@ -59,10 +59,10 @@ export class CarEditorControlComponent implements ControlValueAccessor, Validato
     seats: new FormControl<number | null>(null, [Validators.required]),
   });
 
-  public carSearchSuggestions = signal<AutocompleteSugggestion<number>[]>([]);
+  public carSearchSuggestions = signal<SelectOption<number>[]>([]);
 
-  private onChange: (value: CarEditorValue) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: CarEditorValue) => void = () => { };
+  private onTouched: () => void = () => { };
 
   constructor(private carSearchService: CarSearchService) {
     this.carGroup.valueChanges.subscribe(() => this.emitValue());

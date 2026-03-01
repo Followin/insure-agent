@@ -16,6 +16,7 @@ import { DatePickerModule } from 'primeng/datepicker';
       [formControl]="dateControl"
       [inputId]="id()"
       dateFormat="dd/mm/yy"
+      [placeholder]="placeholder()"
       showIcon
       fluid
     ></p-datepicker>
@@ -30,11 +31,12 @@ import { DatePickerModule } from 'primeng/datepicker';
 })
 export class DatepickerComponent implements ControlValueAccessor {
   public readonly id = input<string>('');
+  public readonly placeholder = input<string>('');
 
   public dateControl = new FormControl<Date | null>(null);
 
-  private onChange: (value: string | null) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: string | null) => void = () => { };
+  private onTouched: () => void = () => { };
 
   constructor() {
     this.dateControl.valueChanges.subscribe((date) => {

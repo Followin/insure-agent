@@ -85,8 +85,7 @@ pub async fn get_dashboard(State(pool): State<PgPool>) -> AppResult<Json<Dashboa
         from policy p
         join person pe on p.holder_id = pe.id
         where
-            p.end_date >= current_date
-            and p.end_date <= current_date + interval '7 days'
+            p.end_date <= current_date + interval '7 days'
             and p.status = 'active'
         order by p.end_date asc
         "#

@@ -1,5 +1,4 @@
-type AutocompleteSugggestion<TValue> = {
+type SelectOption<TValue> = {
   value: TValue;
   label: string;
 };
-
