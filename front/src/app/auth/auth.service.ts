@@ -41,26 +41,31 @@ export class AuthService {
   }
 
   loginWithGoogle(): void {
-    const clientId = environment.googleClientId;
-    const redirectUri = encodeURIComponent(this.getRedirectUri());
-    const scope = encodeURIComponent('email profile');
-    const responseType = 'code';
-    const accessType = 'offline';
-    const prompt = 'consent';
+    this.http
+      .get<{ state: string }>(`${this.apiUrl}/auth/init`, {
+        withCredentials: true,
+      })
+      .subscribe((res) => {
+        const clientId = environment.googleClientId;
+        const redirectUri = encodeURIComponent(this.getRedirectUri());
+        const scope = encodeURIComponent('email profile');
+        const state = encodeURIComponent(res.state);
 
-    const authUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `client_id=${clientId}&` +
-      `redirect_uri=${redirectUri}&` +
-      `response_type=${responseType}&` +
-      `scope=${scope}&` +
-      `access_type=${accessType}&` +
-      `prompt=${prompt}`;
+        const authUrl =
+          `https://accounts.google.com/o/oauth2/v2/auth?` +
+          `client_id=${clientId}&` +
+          `redirect_uri=${redirectUri}&` +
+          `response_type=code&` +
+          `scope=${scope}&` +
+          `access_type=offline&` +
+          `prompt=consent&` +
+          `state=${state}`;
 
-    window.location.href = authUrl;
+        window.location.href = authUrl;
+      });
   }
 
-  handleCallback(code: string): Observable<AuthUser> {
+  handleCallback(code: string, state: string): Observable<AuthUser> {
     if (this.callbackProcessing) {
       return EMPTY;
     }
@@ -69,7 +74,7 @@ export class AuthService {
     return this.http
       .post<AuthUser>(
         `${this.apiUrl}/auth/callback`,
-        { code, redirect_uri: this.getRedirectUri() },
+        { code, redirect_uri: this.getRedirectUri(), state },
         { withCredentials: true }
       )
       .pipe(

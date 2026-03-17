@@ -5,21 +5,21 @@ use tower_cookies::{Cookie, Cookies};
 pub const AUTH_COOKIE_NAME: &str = "auth_session";
 const COOKIE_MAX_AGE_DAYS: i64 = 7;
 
+const OAUTH_STATE_COOKIE_NAME: &str = "oauth_state";
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthSession {
     pub access_token: String,
     pub refresh_token: String,
-    pub email: String,
     pub expires_at: i64,
 }
 
 impl AuthSession {
-    pub fn new(access_token: String, refresh_token: String, email: String, expires_in: i64) -> Self {
+    pub fn new(access_token: String, refresh_token: String, expires_in: i64) -> Self {
         let expires_at = chrono::Utc::now().timestamp() + expires_in;
         Self {
             access_token,
             refresh_token,
-            email,
             expires_at,
         }
     }
@@ -59,6 +59,29 @@ pub fn get_auth_session(cookies: &Cookies) -> Option<AuthSession> {
 
 pub fn clear_auth_cookie(cookies: &Cookies) {
     let mut cookie = Cookie::new(AUTH_COOKIE_NAME, "");
+    cookie.set_path("/");
+    cookie.set_max_age(tower_cookies::cookie::time::Duration::seconds(0));
+    cookies.remove(cookie);
+}
+
+pub fn set_oauth_state_cookie(cookies: &Cookies, state: &str, secure: bool) {
+    let mut cookie = Cookie::new(OAUTH_STATE_COOKIE_NAME, state.to_string());
+    cookie.set_http_only(true);
+    cookie.set_secure(secure);
+    cookie.set_same_site(tower_cookies::cookie::SameSite::Lax);
+    cookie.set_max_age(tower_cookies::cookie::time::Duration::minutes(10));
+    cookie.set_path("/");
+    cookies.add(cookie);
+}
+
+pub fn get_oauth_state(cookies: &Cookies) -> Option<String> {
+    cookies
+        .get(OAUTH_STATE_COOKIE_NAME)
+        .map(|c| c.value().to_string())
+}
+
+pub fn clear_oauth_state_cookie(cookies: &Cookies) {
+    let mut cookie = Cookie::new(OAUTH_STATE_COOKIE_NAME, "");
     cookie.set_path("/");
     cookie.set_max_age(tower_cookies::cookie::time::Duration::seconds(0));
     cookies.remove(cookie);

@@ -36,13 +36,15 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    if (!code) {
-      this.error = 'No authorization code received';
+    const state = this.route.snapshot.queryParamMap.get('state');
+
+    if (!code || !state) {
+      this.error = 'No authorization code or state received';
       setTimeout(() => this.router.navigate(['/login']), 3000);
       return;
     }
 
-    this.authService.handleCallback(code).subscribe({
+    this.authService.handleCallback(code, state).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
