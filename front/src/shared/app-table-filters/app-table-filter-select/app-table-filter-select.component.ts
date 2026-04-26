@@ -32,9 +32,8 @@ export class AppTableFilterSelectComponent<T> implements ControlValueAccessor {
 
   writeValue(value: string): void {
     this.formControl.setValue(value ?? '');
-    if (value?.length) {
-      this.isFiltered.set(true);
-    }
+
+    this.isFiltered.set(!!value?.length);
   }
 
   registerOnChange(fn: (value: string | null) => void): void {

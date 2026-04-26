@@ -39,9 +39,7 @@ export class AppTableFilterDateComponent implements ControlValueAccessor {
     this.fromControl.setValue(value.from, { emitEvent: false });
     this.toControl.setValue(value.to, { emitEvent: false });
 
-    if (value.from || value.to) {
-      this.isFiltered.set(true);
-    }
+    this.isFiltered.set(!!value.from || !!value.to);
   }
 
   registerOnChange(fn: (value: DateRangeFilter) => void): void {

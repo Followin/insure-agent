@@ -34,7 +34,7 @@ export class PolicyTableComponent {
   public loading = input(false, { transform: booleanAttribute });
   public showHolderColumn = input(true, { transform: booleanAttribute });
 
-  public initialFilter = input<PolicyTableFilter>({
+  public filter = input<PolicyTableFilter>({
     number: null,
     holder: null,
     car: null,
@@ -82,12 +82,22 @@ export class PolicyTableComponent {
   }
 
   ngOnInit() {
-    this.filterForm.controls.number.setValue(this.initialFilter().number);
-    this.filterForm.controls.holder.setValue(this.initialFilter().holder);
-    this.filterForm.controls.car.setValue(this.initialFilter().car);
-    this.filterForm.controls.startDate.setValue(this.initialFilter().startDate);
-    this.filterForm.controls.endDate.setValue(this.initialFilter().endDate);
-    this.filterForm.controls.policyTypes.setValue(this.initialFilter().policyTypes);
-    this.filterForm.controls.statuses.setValue(this.initialFilter().statuses);
+    this.filterForm.controls.number.setValue(this.filter().number);
+    this.filterForm.controls.holder.setValue(this.filter().holder);
+    this.filterForm.controls.car.setValue(this.filter().car);
+    this.filterForm.controls.startDate.setValue(this.filter().startDate);
+    this.filterForm.controls.endDate.setValue(this.filter().endDate);
+    this.filterForm.controls.policyTypes.setValue(this.filter().policyTypes);
+    this.filterForm.controls.statuses.setValue(this.filter().statuses);
+  }
+
+  ngOnChanges() {
+    this.filterForm.controls.number.setValue(this.filter().number);
+    this.filterForm.controls.holder.setValue(this.filter().holder);
+    this.filterForm.controls.car.setValue(this.filter().car);
+    this.filterForm.controls.startDate.setValue(this.filter().startDate);
+    this.filterForm.controls.endDate.setValue(this.filter().endDate);
+    this.filterForm.controls.policyTypes.setValue(this.filter().policyTypes);
+    this.filterForm.controls.statuses.setValue(this.filter().statuses);
   }
 }
