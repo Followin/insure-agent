@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { PersonStatus, Sex } from '../person-editor-control/person.model';
+import { PersonStatus, Sex } from '../models/person.model';
 
 export function getSexLocalizedName(sex: Sex): string {
   switch (sex) {

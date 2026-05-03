@@ -39,6 +39,9 @@ export class PolicyService {
     if (filter.statuses.length) {
       params = params.set('statuses', filter.statuses.join(','));
     }
+    if (filter.agentIds.length) {
+      params = params.set('agent_ids', filter.agentIds.join(','));
+    }
     return this.http.get<PolicyShort[]>(this.url, { params });
   }
 }

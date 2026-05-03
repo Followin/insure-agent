@@ -18,6 +18,7 @@ pub struct PolicyQuery {
     pub end_date_to: Option<NaiveDate>,
     pub policy_types: Option<String>,
     pub statuses: Option<String>,
+    pub agent_ids: Option<String>,
 }
 
 fn parse_enum_list<T>(s: Option<&str>) -> Vec<T>
@@ -54,6 +55,12 @@ pub async fn get_policies(
 
     let policy_types: Vec<PolicyType> = parse_enum_list(query.policy_types.as_deref());
     let statuses: Vec<PolicyStatus> = parse_enum_list(query.statuses.as_deref());
+    let agent_ids: Vec<i32> = query
+        .agent_ids
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.split(',').filter_map(|t| t.parse().ok()).collect())
+        .unwrap_or_default();
 
     let policies = sqlx::query_as!(
         PolicyShort,
@@ -90,6 +97,9 @@ pub async fn get_policies(
             and ($7::date is null or end_date <= $7)
             and (cardinality($8::policy_type[]) = 0 or type = any($8::policy_type[]))
             and (cardinality($9::policy_status[]) = 0 or policy.status = any($9::policy_status[]))
+            and (cardinality($10::int4[]) = 0 or exists (
+                select 1 from agent_policy ap2 where ap2.policy_id = policy.id and ap2.agent_id = any($10::int4[])
+            ))
         order by
             case policy.status
                 when 'active' then 1
@@ -108,6 +118,7 @@ pub async fn get_policies(
         query.end_date_to as Option<NaiveDate>,
         &policy_types as &[PolicyType],
         &statuses as &[PolicyStatus],
+        &agent_ids as &[i32],
     )
     .fetch_all(&pool)
     .await?;

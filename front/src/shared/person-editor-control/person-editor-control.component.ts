@@ -23,7 +23,8 @@ import {
 } from '@angular/forms';
 import { AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PersonSearchService } from './person-search.service';
-import { CreatePersonDto, PersonRef, PersonStatus, Sex } from './person.model';
+import { CreatePersonDto, PersonRef } from './person.model';
+import { PersonStatus, Sex } from '../models/person.model';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 

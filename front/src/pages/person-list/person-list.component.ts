@@ -4,8 +4,10 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { sharedImports } from '../../shared/shared-imports';
 import { PersonService } from './person.service';
-import { debounceTime, delay, startWith, switchMap, tap } from 'rxjs';
+import { combineLatest, debounceTime, delay, startWith, switchMap, tap } from 'rxjs';
 import { fakeLoadingDelay } from '../../shared/shared-delay';
+import { PersonStatus, personStatusValues } from '../../shared/models/person.model';
+import { getPersonStatusLocalizedName } from '../../shared/pipes/person-localization.pipe';
 
 @Component({
   selector: 'app-person-list',
@@ -18,24 +20,37 @@ export class PersonListComponent {
   private route = inject(ActivatedRoute);
 
   private initialSearch = this.route.snapshot.queryParams['search'] ?? '';
+  private initialStatuses: PersonStatus[] = this.route.snapshot.queryParams['statuses']
+    ? this.route.snapshot.queryParams['statuses'].split(',').map((x: string) => x as PersonStatus)
+    : ['Active'];
 
   public searchControl = new FormControl(this.initialSearch);
+  public statusControl = new FormControl<PersonStatus[]>(this.initialStatuses);
+  public statusOptions = personStatusValues.map((x) => ({
+    label: getPersonStatusLocalizedName(x),
+    value: x,
+  }));
   public loading = true;
 
   public people = toSignal(
-    this.searchControl.valueChanges.pipe(
-      startWith(this.initialSearch),
+    combineLatest([
+      this.searchControl.valueChanges.pipe(startWith(this.initialSearch)),
+      this.statusControl.valueChanges.pipe(startWith(this.initialStatuses)),
+    ]).pipe(
       debounceTime(300),
-      tap((search) => {
+      tap(([search, statuses]) => {
         this.router.navigate([], {
-          queryParams: { search: search || null },
+          queryParams: {
+            search: search || null,
+            statuses: statuses?.length ? statuses.join(',') : null,
+          },
           queryParamsHandling: 'merge',
           replaceUrl: true,
         });
       }),
-      switchMap((search) => {
+      switchMap(([search, statuses]) => {
         this.loading = true;
-        return this.personService.getAll(search ?? '').pipe(
+        return this.personService.getAll(search ?? '', statuses ?? []).pipe(
           tap(() => (this.loading = false)),
           delay(fakeLoadingDelay),
         );

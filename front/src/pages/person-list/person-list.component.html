@@ -3,10 +3,13 @@
 <p-card>
   <p-table [value]="people() ?? skeletonRows" size="large">
     <ng-template #caption>
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input type="text" pInputText [formControl]="searchControl" placeholder="Пошук за ПІБ, ІПН, телефоном, email" class="w-full" />
-      </p-iconfield>
+      <div class="flex gap-2">
+        <p-iconfield class="flex-1">
+          <p-inputicon class="pi pi-search" />
+          <input type="text" pInputText [formControl]="searchControl" placeholder="Пошук за ПІБ, ІПН, телефоном, email" class="w-full" />
+        </p-iconfield>
+        <p-multi-select [options]="statusOptions" [formControl]="statusControl" optionLabel="label" optionValue="value" placeholder="Статус" />
+      </div>
     </ng-template>
     <ng-template #header>
       <tr>

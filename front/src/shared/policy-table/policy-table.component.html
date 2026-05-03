@@ -40,7 +40,12 @@
           <app-table-filter-text [target]="carTarget" [formControl]="filterForm.controls.car"></app-table-filter-text>
         </div>
       </th>
-      <th>Агенти</th>
+      <th>
+        <div class="flex items-center justify-between gap-2">
+          <span #agentTarget>Агенти</span>
+          <app-table-filter-select [target]="agentTarget" [formControl]="filterForm.controls.agentIds" [options]="agentOptions()"></app-table-filter-select>
+        </div>
+      </th>
       <th>
         <div class="flex items-center justify-between gap-2">
           <span #statusTarget>Статус</span>

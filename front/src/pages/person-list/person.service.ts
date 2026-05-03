@@ -9,10 +9,13 @@ export class PersonService {
   private http = inject(HttpClient);
   private url = `${environment.apiUrl}/people`;
 
-  getAll(search?: string): Observable<PersonDto[]> {
+  getAll(search?: string, statuses?: string[]): Observable<PersonDto[]> {
     let params = new HttpParams();
     if (search) {
       params = params.set('search', search);
+    }
+    if (statuses?.length) {
+      params = params.set('statuses', statuses.join(','));
     }
     return this.http.get<PersonDto[]>(this.url, { params });
   }

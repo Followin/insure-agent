@@ -1,4 +1,4 @@
-import { Component, booleanAttribute, input, output } from '@angular/core';
+import { Component, booleanAttribute, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { sharedImports } from '../shared-imports';
 import {
@@ -13,6 +13,7 @@ import {
   getPolicyStatusLocalizedName,
   getPolicyTypeLocalizedName,
 } from '../pipes/policy-localization.pipe';
+import { AgentService } from '../../pages/agent-list/agent.service';
 
 export interface PolicyTableFilter {
   number: string | null;
@@ -22,6 +23,7 @@ export interface PolicyTableFilter {
   endDate: DateRangeFilter;
   policyTypes: PolicyType[];
   statuses: PolicyStatus[];
+  agentIds: number[];
 }
 
 @Component({
@@ -42,6 +44,7 @@ export class PolicyTableComponent {
     endDate: { from: null, to: null },
     policyTypes: [],
     statuses: [],
+    agentIds: [],
   });
   public filterChange = output<PolicyTableFilter>();
 
@@ -55,6 +58,9 @@ export class PolicyTableComponent {
     value: x,
   }));
 
+  private agentService = inject(AgentService);
+  public agentOptions = signal<SelectOption<number>[]>([]);
+
   public filterForm = new FormGroup({
     number: new FormControl<string | null>(null),
     holder: new FormControl<string | null>(null),
@@ -63,11 +69,16 @@ export class PolicyTableComponent {
     endDate: new FormControl<DateRangeFilter>({ from: null, to: null }),
     policyTypes: new FormControl<PolicyType[]>([]),
     statuses: new FormControl<PolicyStatus[]>([]),
+    agentIds: new FormControl<number[]>([]),
   });
 
   public skeletonRows = Array(10).fill({});
 
   constructor() {
+    this.agentService.getAll().subscribe((agents) => {
+      this.agentOptions.set(agents.map((a) => ({ label: a.full_name, value: a.id })));
+    });
+
     this.filterForm.valueChanges.subscribe(() => {
       this.filterChange.emit({
         number: this.filterForm.controls.number.value,
@@ -77,6 +88,7 @@ export class PolicyTableComponent {
         endDate: this.filterForm.controls.endDate.value ?? { from: null, to: null },
         policyTypes: this.filterForm.controls.policyTypes.value ?? [],
         statuses: this.filterForm.controls.statuses.value ?? [],
+        agentIds: this.filterForm.controls.agentIds.value ?? [],
       });
     });
   }
@@ -89,6 +101,7 @@ export class PolicyTableComponent {
     this.filterForm.controls.endDate.setValue(this.filter().endDate);
     this.filterForm.controls.policyTypes.setValue(this.filter().policyTypes);
     this.filterForm.controls.statuses.setValue(this.filter().statuses);
+    this.filterForm.controls.agentIds.setValue(this.filter().agentIds);
   }
 
   ngOnChanges() {
@@ -99,5 +112,6 @@ export class PolicyTableComponent {
     this.filterForm.controls.endDate.setValue(this.filter().endDate);
     this.filterForm.controls.policyTypes.setValue(this.filter().policyTypes);
     this.filterForm.controls.statuses.setValue(this.filter().statuses);
+    this.filterForm.controls.agentIds.setValue(this.filter().agentIds);
   }
 }

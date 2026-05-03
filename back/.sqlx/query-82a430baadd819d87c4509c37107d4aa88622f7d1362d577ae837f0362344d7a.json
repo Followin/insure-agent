@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select\n            id,\n            first_name,\n            first_name_lat,\n            last_name,\n            last_name_lat,\n            patronymic_name,\n            patronymic_name_lat,\n            sex as \"sex: Sex\",\n            birth_date,\n            tax_number,\n            phone,\n            phone2,\n            email,\n            status as \"status: PersonStatus\"\n        from person\n        where\n            lower(first_name || ' ' || last_name) like $1\n            or lower(tax_number) like $1\n            or ($3 and regexp_replace(phone, '[^0-9]', '', 'g') like $2)\n            or ($3 and regexp_replace(coalesce(phone2, ''), '[^0-9]', '', 'g') like $2)\n            or lower(email) like $1\n        limit 30\n        ",
+  "query": "\n        select\n            id,\n            first_name,\n            first_name_lat,\n            last_name,\n            last_name_lat,\n            patronymic_name,\n            patronymic_name_lat,\n            sex as \"sex: Sex\",\n            birth_date,\n            tax_number,\n            phone,\n            phone2,\n            email,\n            status as \"status: PersonStatus\"\n        from person\n        where\n            (\n                lower(first_name || ' ' || last_name) like $1\n                or lower(tax_number) like $1\n                or ($3 and regexp_replace(phone, '[^0-9]', '', 'g') like $2)\n                or ($3 and regexp_replace(coalesce(phone2, ''), '[^0-9]', '', 'g') like $2)\n                or lower(email) like $1\n            )\n            and (cardinality($4::person_status[]) = 0 or status = any($4::person_status[]))\n        limit 30\n        ",
   "describe": {
     "columns": [
       {
@@ -100,7 +100,26 @@
       "Left": [
         "Text",
         "Text",
-        "Bool"
+        "Bool",
+        {
+          "Custom": {
+            "name": "person_status[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "person_status",
+                  "kind": {
+                    "Enum": [
+                      "active",
+                      "inactive",
+                      "archived"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -120,5 +139,5 @@
       false
     ]
   },
-  "hash": "39b383e47f21c3b93b5191903e8d72a63e5c1a3103a7388bb4fc88bc79190155"
+  "hash": "82a430baadd819d87c4509c37107d4aa88622f7d1362d577ae837f0362344d7a"
 }

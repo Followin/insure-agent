@@ -9,6 +9,19 @@ use crate::shared::person::model::{PersonFull, PersonStatus, Sex};
 #[derive(Deserialize)]
 pub struct PersonQuery {
     pub search: Option<String>,
+    pub statuses: Option<String>,
+}
+
+fn parse_status_list(s: Option<&str>) -> Vec<PersonStatus> {
+    s.filter(|s| !s.is_empty())
+        .map(|s| {
+            s.split(',')
+                .filter_map(|t| {
+                    serde_json::from_value(serde_json::Value::String(t.to_string())).ok()
+                })
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 pub async fn get_people(
@@ -20,6 +33,7 @@ pub async fn get_people(
     let phone_digits: String = search.chars().filter(|c| c.is_ascii_digit()).collect();
     let has_digits = !phone_digits.is_empty();
     let phone_pattern = format!("%{}%", phone_digits);
+    let statuses: Vec<PersonStatus> = parse_status_list(query.statuses.as_deref());
 
     let people = sqlx::query_as!(
         PersonFull,
@@ -41,16 +55,20 @@ pub async fn get_people(
             status as "status: PersonStatus"
         from person
         where
-            lower(first_name || ' ' || last_name) like $1
-            or lower(tax_number) like $1
-            or ($3 and regexp_replace(phone, '[^0-9]', '', 'g') like $2)
-            or ($3 and regexp_replace(coalesce(phone2, ''), '[^0-9]', '', 'g') like $2)
-            or lower(email) like $1
+            (
+                lower(first_name || ' ' || last_name) like $1
+                or lower(tax_number) like $1
+                or ($3 and regexp_replace(phone, '[^0-9]', '', 'g') like $2)
+                or ($3 and regexp_replace(coalesce(phone2, ''), '[^0-9]', '', 'g') like $2)
+                or lower(email) like $1
+            )
+            and (cardinality($4::person_status[]) = 0 or status = any($4::person_status[]))
         limit 30
         "#,
         search_pattern,
         phone_pattern,
-        has_digits
+        has_digits,
+        &statuses as &[PersonStatus],
     )
     .fetch_all(&pool)
     .await?;

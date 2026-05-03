@@ -63,6 +63,9 @@ function deserializeFilter(queryParams: Params): PolicyTableFilter {
     statuses: queryParams['statuses']
       ? queryParams['statuses'].split(',').map((x: string) => x as PolicyStatus)
       : [],
+    agentIds: queryParams['agentIds']
+      ? queryParams['agentIds'].split(',').map((x: string) => +x)
+      : [],
   };
 }
 
@@ -77,5 +80,6 @@ function serializeFilter(filter: PolicyTableFilter): Params {
     endDateTo: filter.endDate.to || null,
     policyTypes: filter.policyTypes.join(',') || null,
     statuses: filter.statuses.join(',') || null,
+    agentIds: filter.agentIds.join(',') || null,
   };
 }

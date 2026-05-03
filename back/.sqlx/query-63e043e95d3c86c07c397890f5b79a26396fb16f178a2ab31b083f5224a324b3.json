@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\",\n            (\n                select string_agg(a.full_name, ', ' order by a.full_name)\n                from agent a\n                join agent_policy ap on a.id = ap.agent_id\n                where ap.policy_id = policy.id\n            ) as agent_names\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        where\n            ($1::text is null or lower(series || number) like $1)\n            and ($2::text is null or lower(person.first_name || ' ' || person.last_name) like $2)\n            and ($3::text is null or lower(coalesce(car.make || ' ' || car.model || ' ' || coalesce(car.plate, ''), '')) like $3)\n            and ($4::date is null or start_date >= $4)\n            and ($5::date is null or start_date <= $5)\n            and ($6::date is null or end_date >= $6)\n            and ($7::date is null or end_date <= $7)\n            and (cardinality($8::policy_type[]) = 0 or type = any($8::policy_type[]))\n            and (cardinality($9::policy_status[]) = 0 or policy.status = any($9::policy_status[]))\n        order by\n            case policy.status\n                when 'active' then 1\n                when 'prolonged' then 2\n                else 3\n            end,\n            start_date desc\n        limit 150\n        ",
+  "query": "\n        select\n            policy.id,\n            type as \"policy_type: PolicyType\",\n            person.first_name || ' ' || person.last_name as \"holder_name!\",\n            series,\n            number,\n            start_date,\n            end_date,\n            policy.status as \"status: PolicyStatus\",\n            car.make || ' ' || car.model as car_model,\n            car.plate as \"car_plate?\",\n            (\n                select string_agg(a.full_name, ', ' order by a.full_name)\n                from agent a\n                join agent_policy ap on a.id = ap.agent_id\n                where ap.policy_id = policy.id\n            ) as agent_names\n        from policy\n        join person on policy.holder_id = person.id\n        left join green_card_policy on policy.id = green_card_policy.id\n        left join osago_policy on policy.id = osago_policy.id\n        left join car on car.id = coalesce(green_card_policy.car_id, osago_policy.car_id)\n        where\n            ($1::text is null or lower(series || number) like $1)\n            and ($2::text is null or lower(person.first_name || ' ' || person.last_name) like $2)\n            and ($3::text is null or lower(coalesce(car.make || ' ' || car.model || ' ' || coalesce(car.plate, ''), '')) like $3)\n            and ($4::date is null or start_date >= $4)\n            and ($5::date is null or start_date <= $5)\n            and ($6::date is null or end_date >= $6)\n            and ($7::date is null or end_date <= $7)\n            and (cardinality($8::policy_type[]) = 0 or type = any($8::policy_type[]))\n            and (cardinality($9::policy_status[]) = 0 or policy.status = any($9::policy_status[]))\n            and (cardinality($10::int4[]) = 0 or exists (\n                select 1 from agent_policy ap2 where ap2.policy_id = policy.id and ap2.agent_id = any($10::int4[])\n            ))\n        order by\n            case policy.status\n                when 'active' then 1\n                when 'prolonged' then 2\n                else 3\n            end,\n            start_date desc\n        limit 150\n        ",
   "describe": {
     "columns": [
       {
@@ -139,7 +139,8 @@
               }
             }
           }
-        }
+        },
+        "Int4Array"
       ]
     },
     "nullable": [
@@ -156,5 +157,5 @@
       null
     ]
   },
-  "hash": "356a98b4b093e88a3fc95cedc9eb3c55cfc280ded84672a6e54e199b97ba8575"
+  "hash": "63e043e95d3c86c07c397890f5b79a26396fb16f178a2ab31b083f5224a324b3"
 }

@@ -1,7 +1,5 @@
 import { PolicyShort } from '../models/policy.model';
-
-export type Sex = 'M' | 'F' | 'Unknown';
-export type PersonStatus = 'Active' | 'Inactive' | 'Archived';
+import { PersonStatus, Sex } from '../models/person.model';
 
 export interface PersonDto {
   id: number;
